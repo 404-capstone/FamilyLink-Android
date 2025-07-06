@@ -2,10 +2,23 @@ package com.example.capstone_404.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Main Color
+val Main = Color(0xFFA7D9A1)
+val Sub = Color(0xFFFFFFFF)
+val Error = Color(0xFFE05744)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Stroke
+val Stroke = Color(0xFFE1E2E9)
+
+// Button
+val ButtonDefault = Color(0xFFA7D9A1)
+val ButtonDisabled = Color(0xFFD9E4D5)
+
+// Background
+val Background = Color(0xFFF5F9F3)
+
+// Text
+val TextMain = Color(0xFFA7D9A1)
+val TextBlack = Color(0xFF0A121A)
+val TextWhite = Color(0xFFFFFFFF)
+val TextGray = Color(0xFFD0D1DA)

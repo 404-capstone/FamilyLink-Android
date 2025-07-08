@@ -11,7 +11,6 @@ val Error = Color(0xFFE05744)
 val Stroke = Color(0xFFE1E2E9)
 
 // Button
-val ButtonDefault = Color(0xFFA7D9A1)
 val ButtonDisabled = Color(0xFFD9E4D5)
 
 // Background

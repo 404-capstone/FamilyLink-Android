@@ -29,15 +29,15 @@ fun LoginScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         val horizontalPadding = when {
-            maxWidth < 400.dp -> 32.dp
-            maxWidth < 600.dp -> 40.dp
-            else -> 60.dp
+            maxWidth < 400.dp -> 24.dp
+            maxWidth < 600.dp -> 32.dp
+            else -> 40.dp
         }
 
         val verticalPadding = when {
-            maxHeight < 600.dp -> 30.dp
-            maxHeight < 800.dp -> 36.dp
-            else -> 48.dp
+            maxHeight < 600.dp -> 24.dp
+            maxHeight < 800.dp -> 32.dp
+            else -> 40.dp
         }
 
         // 배경 이미지

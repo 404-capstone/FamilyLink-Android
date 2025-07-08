@@ -22,9 +22,13 @@ fun AppNavGraph(
                 }
             )
         }
-
+        // 임시 연결 상태
         composable(Route.PROFILE_INPUT) {
-            ProfileInputScreen()
+            ProfileInputScreen(
+                onStartClicked = {
+                    navController.navigate(Route.PROFILE_INPUT)
+                }
+            )
         }
     }
 }

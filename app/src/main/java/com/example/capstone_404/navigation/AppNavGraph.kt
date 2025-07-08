@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.navigation
+package com.example.capstone_404.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController

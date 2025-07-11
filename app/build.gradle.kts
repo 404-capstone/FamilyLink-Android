@@ -1,4 +1,4 @@
-import java.util.Properties
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,15 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-}
-
-// local.properties 파일을 읽기 위한 설정
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.inputStream().use { input ->
-        localProperties.load(input)
-    }
 }
 
 android {
@@ -30,10 +21,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // 2. local.properties에서 읽은 값을 buildConfigField로 할당
-        buildConfigField("String", "NAVER_CLIENT_ID", "\"${localProperties.getProperty("NAVER_CLIENT_ID")}\"")
-        buildConfigField("String", "NAVER_CLIENT_SECRET", "\"${localProperties.getProperty("NAVER_CLIENT_SECRET")}\"")
-        buildConfigField("String", "NAVER_CLIENT_NAME", "\"Family Link\"")
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", gradleLocalProperties(rootDir, providers).getProperty("kakao_native_app_key"))
+        manifestPlaceholders["KAKAO_SCHEME"] = "kakao${gradleLocalProperties(rootDir, providers).getProperty("kakao_native_key")}"
     }
 
     buildTypes {
@@ -54,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -67,12 +57,9 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
-    // Naver Login
-    implementation(libs.oauth)
-    // Retrofit
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation (libs.logging.interceptor)
+    // Kakao 모듈
+    implementation(libs.v2.user)  // 카카오 소셜 로그인
+    implementation(libs.v2.share) // 카카오톡 공유
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

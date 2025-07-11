@@ -1,5 +1,6 @@
 package com.example.capstone_404.ui.login.view
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -10,21 +11,39 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
+import com.example.capstone_404.ui.login.viewmodel.LoginViewModel
 import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit
+    viewModel: LoginViewModel = hiltViewModel(),
+    onLoginSuccess: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    // 로그인 결과 변수
+    val loginResult = viewModel.socialLoginState
+
+    // 로그인 결과 처리
+    LaunchedEffect(loginResult) {
+        loginResult?.onSuccess { token ->
+            onLoginSuccess(token)
+        }?.onFailure { e ->
+            Toast.makeText(context, "로그인 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -67,11 +86,11 @@ fun LoginScreen(
 
             // 로그인 버튼 컬럼
             Column {
-                KakaoLoginButton(onClick = { onLoginSuccess() })
+                KakaoLoginButton(onClick = { viewModel.loginWithKakao(context) })
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                NaverLoginButton(onClick = { onLoginSuccess() })
+                NaverLoginButton(onClick = {  })
             }
         }
     }

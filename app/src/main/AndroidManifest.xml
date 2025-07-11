@@ -39,6 +39,20 @@
                     android:scheme="${KAKAO_SCHEME}" />
             </intent-filter>
         </activity>
+        <!-- 네이버 -->
+        <activity
+            android:name="com.example.capstone_404.social.naver.NaverAuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="oauth"
+                    android:scheme="${NAVER_CLIENT_ID}"
+                    tools:ignore="AppLinkUrlError" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

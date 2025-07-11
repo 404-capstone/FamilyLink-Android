@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.social.kakao.KakaoAuthManager
+import com.example.capstone_404.social.naver.NaverLoginClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.launch
@@ -27,6 +28,19 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                 val token = KakaoAuthManager.login(context)
                 socialLoginState = Result.success(token)
                 Log.d("Kakao_token",token)
+            } catch (e: Exception) {
+                socialLoginState = Result.failure(e)
+            }
+        }
+    }
+
+    // 네이버 로그인 함수
+    fun loginWithNaver(context: Context) {
+        viewModelScope.launch {
+            try {
+                val token = NaverLoginClient.login(context)
+                socialLoginState = Result.success(token)
+                Log.d("Naver_token", token)
             } catch (e: Exception) {
                 socialLoginState = Result.failure(e)
             }

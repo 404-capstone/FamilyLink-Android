@@ -90,7 +90,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                NaverLoginButton(onClick = {  })
+                NaverLoginButton(onClick = { viewModel.loginWithNaver(context) })
             }
         }
     }

@@ -21,8 +21,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // Kakao Key
         buildConfigField("String", "KAKAO_NATIVE_APP_KEY", gradleLocalProperties(rootDir, providers).getProperty("kakao_native_app_key"))
         manifestPlaceholders["KAKAO_SCHEME"] = "kakao${gradleLocalProperties(rootDir, providers).getProperty("kakao_native_key")}"
+        // Naver Key
+        buildConfigField("String", "NAVER_CLIENT_ID", gradleLocalProperties(rootDir, providers).getProperty("naver_client_id"))
+        buildConfigField("String", "NAVER_CLIENT_SECRET", gradleLocalProperties(rootDir, providers).getProperty("naver_client_secret"))
     }
 
     buildTypes {
@@ -60,6 +64,8 @@ dependencies {
     // Kakao 모듈
     implementation(libs.v2.user)  // 카카오 소셜 로그인
     implementation(libs.v2.share) // 카카오톡 공유
+    // Naver SDK 모듈
+    implementation (libs.oauth)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

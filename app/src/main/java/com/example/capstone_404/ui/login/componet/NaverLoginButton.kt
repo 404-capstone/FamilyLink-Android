@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.login.view.componet
+package com.example.capstone_404.ui.login.componet
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,12 +25,12 @@ import com.example.capstone_404.R
 import com.example.capstone_404.ui.theme.Pretendard
 
 @Composable
-fun KakaoLoginButton(onClick: () -> Unit) {
+fun NaverLoginButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .background(Color(0xFFFEE500), RoundedCornerShape(4.dp))
+            .background(Color(0xFF03C75A), RoundedCornerShape(4.dp))
             .clickable { onClick() }
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.CenterStart
@@ -40,15 +40,15 @@ fun KakaoLoginButton(onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.kakao),
-                contentDescription = "로고",
+                painter = painterResource(id = R.drawable.naver),
+                contentDescription = "네이버 아이콘",
                 modifier = Modifier
-                    .size(18.dp)
+                    .size(16.dp)
             )
 
             Text(
-                text = "카카오 로그인",
-                color = Color.Black.copy(alpha = 0.85f),
+                text = "네이버 로그인",
+                color = Color.White,
                 fontSize = 18.sp,
                 fontFamily = Pretendard,
                 fontWeight = FontWeight.Medium,

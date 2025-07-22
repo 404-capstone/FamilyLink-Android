@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
+import com.example.capstone_404.ui.login.view.componet.KakaoLoginButton
+import com.example.capstone_404.ui.login.view.componet.NaverLoginButton
 import com.example.capstone_404.ui.login.viewmodel.LoginViewModel
 import com.example.capstone_404.ui.theme.TextWhite
 

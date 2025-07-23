@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.login.view
+package com.example.capstone_404.ui.login.componet
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

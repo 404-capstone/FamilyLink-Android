@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.ui.component.CustomTopBar
-import com.example.capstone_404.ui.group.screen.GroupJoinedContent
-import com.example.capstone_404.ui.group.screen.GroupNotJoinedContent
+import com.example.capstone_404.ui.group.content.GroupJoinedContent
+import com.example.capstone_404.ui.group.content.GroupNotJoinedContent
 import com.example.capstone_404.ui.group.viewmodel.GroupViewModel
 
 @Composable

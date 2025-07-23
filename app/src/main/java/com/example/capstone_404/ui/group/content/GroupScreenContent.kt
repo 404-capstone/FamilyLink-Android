@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.screen
+package com.example.capstone_404.ui.group.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -69,8 +69,7 @@ fun GroupNotJoinedContent(
                 onClick = onJoinClick,
             )
         }
-//        Todo: 가이드 온보딩 만들고 연결
-//        GroupGuide()
+        GroupGuide()
     }
 }
 

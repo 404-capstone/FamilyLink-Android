@@ -66,6 +66,9 @@ dependencies {
     implementation(libs.v2.share) // 카카오톡 공유
     // Naver SDK 모듈
     implementation (libs.oauth)
+    // Coil 라이브러리 (비동기 이미지 로딩)
+    implementation("io.coil-kt.coil3:coil-compose:3.0.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

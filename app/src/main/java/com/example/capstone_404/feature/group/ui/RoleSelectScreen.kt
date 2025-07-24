@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group
+package com.example.capstone_404.feature.group.ui
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.CustomTopBar
-import com.example.capstone_404.ui.group.component.RoleItem
-import com.example.capstone_404.ui.group.model.RoleType
-import com.example.capstone_404.ui.group.viewmodel.GroupViewModel
+import com.example.capstone_404.feature.group.ui.component.RoleItem
+import com.example.capstone_404.feature.group.model.RoleType
+import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 
 @Composable
 fun RoleSelectScreen(

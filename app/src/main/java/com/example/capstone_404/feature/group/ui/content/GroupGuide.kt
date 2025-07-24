@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.content
+package com.example.capstone_404.feature.group.ui.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

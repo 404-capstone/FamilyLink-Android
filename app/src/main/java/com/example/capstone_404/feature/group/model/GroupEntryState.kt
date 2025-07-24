@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.model
+package com.example.capstone_404.feature.group.model
 
 import android.net.Uri
 

@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.viewmodel
+package com.example.capstone_404.feature.group.viewmodel
 
 import android.net.Uri
 import android.util.Log
@@ -6,11 +6,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.capstone_404.ui.group.model.GroupEntryState
-import com.example.capstone_404.ui.group.model.OrderType
-import com.example.capstone_404.ui.group.model.RoleType
-import com.example.capstone_404.ui.group.model.SelectedRoleState
-import com.example.capstone_404.ui.group.model.toKorean
+import com.example.capstone_404.feature.group.model.GroupEntryState
+import com.example.capstone_404.feature.group.model.OrderType
+import com.example.capstone_404.feature.group.model.RoleType
+import com.example.capstone_404.feature.group.model.SelectedRoleState
+import com.example.capstone_404.feature.group.model.toKorean
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 

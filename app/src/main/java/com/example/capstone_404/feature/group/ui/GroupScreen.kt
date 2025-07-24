@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group
+package com.example.capstone_404.feature.group.ui
 
 import android.Manifest
 import android.net.Uri
@@ -22,12 +22,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.ui.component.CustomTopBar
-import com.example.capstone_404.ui.group.content.GroupJoinedContent
-import com.example.capstone_404.ui.group.content.GroupNotJoinedContent
-import com.example.capstone_404.ui.group.dialog.GroupCancelDialog
-import com.example.capstone_404.ui.group.dialog.GroupCreateDialog
-import com.example.capstone_404.ui.group.dialog.ImageSelectDialog
-import com.example.capstone_404.ui.group.viewmodel.GroupViewModel
+import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
+import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
+import com.example.capstone_404.feature.group.ui.dialog.GroupCancelDialog
+import com.example.capstone_404.feature.group.ui.dialog.GroupCreateDialog
+import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
+import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.utils.createImageUri
 
 @Composable

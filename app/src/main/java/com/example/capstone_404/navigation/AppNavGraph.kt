@@ -11,10 +11,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.capstone_404.ui.component.BottomNavigationBar
 import com.example.capstone_404.ui.component.bottomTabs
-import com.example.capstone_404.ui.group.GroupScreen
-import com.example.capstone_404.ui.group.RoleSelectScreen
-import com.example.capstone_404.ui.login.LoginScreen
-import com.example.capstone_404.ui.login.ProfileInputScreen
+import com.example.capstone_404.feature.group.ui.GroupScreen
+import com.example.capstone_404.feature.group.ui.RoleSelectScreen
+import com.example.capstone_404.feature.login.ui.LoginScreen
+import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 
 // 페이지 만들 때 추가 해야됨
 @Composable

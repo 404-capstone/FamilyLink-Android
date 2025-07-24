@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.model
+package com.example.capstone_404.feature.group.model
 
 // 가족 그룹 내 역할 타입 정의
 enum class RoleType {

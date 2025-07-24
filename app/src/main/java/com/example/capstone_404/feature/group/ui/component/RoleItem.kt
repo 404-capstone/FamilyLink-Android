@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.component
+package com.example.capstone_404.feature.group.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,10 +26,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.ui.component.DropdownField
-import com.example.capstone_404.ui.group.model.OrderType
-import com.example.capstone_404.ui.group.model.RoleType
-import com.example.capstone_404.ui.group.model.getColor
-import com.example.capstone_404.ui.group.model.toKorean
+import com.example.capstone_404.feature.group.model.OrderType
+import com.example.capstone_404.feature.group.model.RoleType
+import com.example.capstone_404.feature.group.model.getColor
+import com.example.capstone_404.feature.group.model.toKorean
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 

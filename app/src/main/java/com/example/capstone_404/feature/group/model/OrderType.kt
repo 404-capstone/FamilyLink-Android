@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.model
+package com.example.capstone_404.feature.group.model
 
 // 아들&딸 첫째~다섯째
 enum class OrderType(val label: String) {

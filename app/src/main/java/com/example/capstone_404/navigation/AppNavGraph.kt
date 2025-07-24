@@ -63,8 +63,7 @@ fun AppNavGraph(navController: NavHostController) {
             }
             // 그룹 메인
             composable(Route.GROUP) {
-                GroupScreen(
-                )
+                GroupScreen()
             }
 
             // 임시 정의

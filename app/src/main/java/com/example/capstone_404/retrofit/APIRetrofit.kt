@@ -12,7 +12,6 @@ object APIRetrofit {
 
     private const val BASE_URL = BuildConfig.BASE_URL
 
-    // OkHttpClient에 로깅, 인증, 타임아웃 등 고급 설정 적용
     fun create(jwtToken: String? = null): Retrofit {
         // 로깅 인터셉터
         val logging = HttpLoggingInterceptor().apply {
@@ -29,6 +28,8 @@ object APIRetrofit {
             builder.addHeader("Accept", "application/json")
             chain.proceed(builder.build())
         }
+
+        //연결, 읽기, 쓰기 타임아웃 설정
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor(authInterceptor)
@@ -37,6 +38,7 @@ object APIRetrofit {
             .writeTimeout(15, TimeUnit.SECONDS)
             .build()
 
+        //OkHttpClient 설정
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)

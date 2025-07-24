@@ -12,6 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.capstone_404.ui.component.BottomNavigationBar
 import com.example.capstone_404.ui.component.bottomTabs
 import com.example.capstone_404.ui.group.GroupScreen
+import com.example.capstone_404.ui.group.RoleSelectScreen
 import com.example.capstone_404.ui.login.LoginScreen
 import com.example.capstone_404.ui.login.ProfileInputScreen
 
@@ -63,7 +64,17 @@ fun AppNavGraph(navController: NavHostController) {
             }
             // 그룹 메인
             composable(Route.GROUP) {
-                GroupScreen()
+                GroupScreen(
+                    onCreate = {
+                        navController.navigate(Route.ROLE_SELECT)
+                    }
+                )
+            }
+            // 그룹 역할 선택
+            composable(Route.ROLE_SELECT) {
+                RoleSelectScreen(
+                    onSubmit = {}
+                )
             }
 
             // 임시 정의

@@ -41,6 +41,7 @@ fun AppNavGraph(navController: NavHostController) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
+            // UI 빌드 테스트 할 때 startDestination = Route.{테스트 UI 경로}로 바꿔서 테스트하고 다시 LOGIN으로 돌려놓으면 됨
             startDestination = Route.LOGIN,
             modifier = Modifier.padding(innerPadding)
         ) {
@@ -62,8 +63,7 @@ fun AppNavGraph(navController: NavHostController) {
             }
             // 그룹 메인
             composable(Route.GROUP) {
-                GroupScreen(
-                )
+                GroupScreen()
             }
 
             // 임시 정의

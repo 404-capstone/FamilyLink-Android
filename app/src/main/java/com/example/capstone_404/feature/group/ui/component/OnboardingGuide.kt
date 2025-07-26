@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.group.ui.content
+package com.example.capstone_404.feature.group.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,27 +21,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.capstone_404.R
 import com.example.capstone_404.ui.theme.ButtonDisabled
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 
+// 재사용 온보딩 가이드
 @Composable
-fun GroupGuide() {
-    val guideImages = listOf(
-        // Todo: 현재 샘플 이미지, UI 구현 후 수정
-        R.drawable.guide_group,
-        R.drawable.guide_calendar,
-        R.drawable.guide_diary,
-        R.drawable.guide_album
-    )
-
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { guideImages.size })
+fun OnboardingGuide(
+    images: List<Int>,
+    modifier: Modifier = Modifier,
+    imageContentDescription: (Int) -> String = { "가이드 $it" }
+) {
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { images.size })
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(300.dp)
             .clip(RoundedCornerShape(12.dp))
@@ -54,8 +49,8 @@ fun GroupGuide() {
                 .background(Color.White)
         ) { page ->
             Image(
-                painter = painterResource(id = guideImages[page]),
-                contentDescription = "가이드 $page",
+                painter = painterResource(id = images[page]),
+                contentDescription = imageContentDescription(page),
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -67,7 +62,7 @@ fun GroupGuide() {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp)
         ) {
-            repeat(guideImages.size) { index ->
+            repeat(images.size) { index ->
                 val selected = pagerState.currentPage == index
                 Box(
                     modifier = Modifier

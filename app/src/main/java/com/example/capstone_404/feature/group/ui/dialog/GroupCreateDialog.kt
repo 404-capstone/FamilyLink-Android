@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.dialog
+package com.example.capstone_404.feature.group.ui.dialog
 
 import android.net.Uri
 import androidx.compose.foundation.Image

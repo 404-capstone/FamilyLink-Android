@@ -11,9 +11,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.capstone_404.ui.component.BottomNavigationBar
 import com.example.capstone_404.ui.component.bottomTabs
-import com.example.capstone_404.ui.group.GroupScreen
-import com.example.capstone_404.ui.login.LoginScreen
-import com.example.capstone_404.ui.login.ProfileInputScreen
+import com.example.capstone_404.feature.group.ui.GroupScreen
+import com.example.capstone_404.feature.group.ui.RoleSelectScreen
+import com.example.capstone_404.feature.group.ui.SurveyIntroScreen
+import com.example.capstone_404.feature.login.ui.LoginScreen
+import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -63,7 +65,21 @@ fun AppNavGraph(navController: NavHostController) {
             }
             // 그룹 메인
             composable(Route.GROUP) {
-                GroupScreen()
+                GroupScreen(
+                    onCreate = {
+                        navController.navigate(Route.ROLE_SELECT)
+                    }
+                )
+            }
+            // 그룹 역할 선택
+            composable(Route.ROLE_SELECT) {
+                RoleSelectScreen(
+                    onSubmit = {}
+                )
+            }
+            // 가입 완료 문구 + 설문 안내
+            composable(Route.SURVEY_INTRO) {
+                SurveyIntroScreen()
             }
 
             // 임시 정의

@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group
+package com.example.capstone_404.feature.group.ui
 
 import android.Manifest
 import android.net.Uri
@@ -22,17 +22,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.ui.component.CustomTopBar
-import com.example.capstone_404.ui.group.content.GroupJoinedContent
-import com.example.capstone_404.ui.group.content.GroupNotJoinedContent
-import com.example.capstone_404.ui.group.dialog.GroupCancelDialog
-import com.example.capstone_404.ui.group.dialog.GroupCreateDialog
-import com.example.capstone_404.ui.group.dialog.ImageSelectDialog
-import com.example.capstone_404.ui.group.viewmodel.GroupViewModel
+import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
+import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
+import com.example.capstone_404.feature.group.ui.dialog.GroupCancelDialog
+import com.example.capstone_404.feature.group.ui.dialog.GroupCreateDialog
+import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
+import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.utils.createImageUri
 
 @Composable
 fun GroupScreen(
-    viewModel: GroupViewModel = hiltViewModel()
+    viewModel: GroupViewModel = hiltViewModel(),
+    onCreate: () -> Unit
 ) {
     val context = LocalContext.current
     // 그룹 가입 여부
@@ -144,6 +145,7 @@ fun GroupScreen(
             onConfirm = { groupName, imageUri ->
                 // Todo: 역할 선택 페이지로 데이터 넘기기
                 showCreateDialog = false
+                onCreate()
             },
             onSelectPhoto = { showSelectDialog = true },
             selectedImageUri = selectedImageUri

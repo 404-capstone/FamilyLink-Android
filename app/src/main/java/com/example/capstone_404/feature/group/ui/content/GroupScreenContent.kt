@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.group.content
+package com.example.capstone_404.feature.group.ui.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.capstone_404.feature.group.model.GuideImageList
+import com.example.capstone_404.feature.group.ui.component.OnboardingGuide
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.ButtonOutline
 import com.example.capstone_404.ui.theme.Stroke
@@ -69,7 +71,7 @@ fun GroupNotJoinedContent(
                 onClick = onJoinClick,
             )
         }
-        GroupGuide()
+        OnboardingGuide(images = GuideImageList.groupGuide)
     }
 }
 

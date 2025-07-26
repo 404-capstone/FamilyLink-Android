@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.login.viewmodel
+package com.example.capstone_404.feature.login.viewmodel
 
 
 import androidx.compose.runtime.getValue

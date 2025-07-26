@@ -13,6 +13,7 @@ import com.example.capstone_404.ui.component.BottomNavigationBar
 import com.example.capstone_404.ui.component.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
 import com.example.capstone_404.feature.group.ui.RoleSelectScreen
+import com.example.capstone_404.feature.group.ui.SurveyIntroScreen
 import com.example.capstone_404.feature.login.ui.LoginScreen
 import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 
@@ -75,6 +76,10 @@ fun AppNavGraph(navController: NavHostController) {
                 RoleSelectScreen(
                     onSubmit = {}
                 )
+            }
+            // 가입 완료 문구 + 설문 안내
+            composable(Route.SURVEY_INTRO) {
+                SurveyIntroScreen()
             }
 
             // 임시 정의

@@ -9,6 +9,7 @@ object Route {
     // 그룹 관련
     const val GROUP = "group"
     const val ROLE_SELECT = "role_select"
+    const val SURVEY_INTRO = "survey_intro"
 
     // 캘린더 관련
     const val CALENDAR = "calendar"

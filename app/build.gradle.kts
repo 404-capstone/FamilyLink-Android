@@ -27,6 +27,10 @@ android {
         // Naver Key
         buildConfigField("String", "NAVER_CLIENT_ID", gradleLocalProperties(rootDir, providers).getProperty("naver_client_id"))
         buildConfigField("String", "NAVER_CLIENT_SECRET", gradleLocalProperties(rootDir, providers).getProperty("naver_client_secret"))
+        //Base_URL
+        buildConfigField("String", "BASE_URL", gradleLocalProperties(rootDir, providers).getProperty("BASE_URL"))
+        //Naver_Redirect_Uri
+        buildConfigField("String", "NAVER_REDIRECT_URI", gradleLocalProperties(rootDir, providers).getProperty("NAVER_REDIRECT_URI"))
     }
 
     buildTypes {
@@ -69,6 +73,10 @@ dependencies {
     // Coil 라이브러리 (비동기 이미지 로딩)
     implementation("io.coil-kt.coil3:coil-compose:3.0.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0")
+    //Retrofit 모듈
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

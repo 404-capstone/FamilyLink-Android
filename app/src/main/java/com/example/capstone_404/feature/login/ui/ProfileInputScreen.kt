@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.login
+package com.example.capstone_404.feature.login.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,7 +29,7 @@ import com.example.capstone_404.R
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.CustomTopBar
 import com.example.capstone_404.ui.component.DropdownField
-import com.example.capstone_404.ui.login.viewmodel.ProfileInputViewModel
+import com.example.capstone_404.feature.login.viewmodel.ProfileInputViewModel
 import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable

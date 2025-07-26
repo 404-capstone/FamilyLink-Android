@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.login
+package com.example.capstone_404.feature.login.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -23,9 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
-import com.example.capstone_404.ui.login.componet.KakaoLoginButton
-import com.example.capstone_404.ui.login.componet.NaverLoginButton
-import com.example.capstone_404.ui.login.viewmodel.LoginViewModel
+import com.example.capstone_404.feature.login.ui.componet.KakaoLoginButton
+import com.example.capstone_404.feature.login.ui.componet.NaverLoginButton
+import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
 import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable

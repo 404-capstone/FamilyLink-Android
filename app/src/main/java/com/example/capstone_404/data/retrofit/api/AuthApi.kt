@@ -15,7 +15,7 @@ interface AuthApi {
 
     // 토큰 재발급 (만료 시 자동)
     @GET("/user/token/refresh")
-    suspend fun refreshToken(
+    suspend fun refreshAccessToken(
         @Header("Refresh-Token") refreshToken: String
     ): Response<TokenRefreshResponse>
 }

@@ -17,7 +17,7 @@ class TokenAutoRefresh @Inject constructor(
 
     override fun authenticate(route: Route?, response: Response): Request? {
         // 무한 루프 방지
-        if (responseCount(response) >= 5) return null
+        if (responseCount(response) >= 3) return null
 
         // refreshToken 복호화
         val refreshToken = runBlocking {
@@ -28,7 +28,7 @@ class TokenAutoRefresh @Inject constructor(
         // refresh API 호출
         val tokenResponse = runBlocking {
             try {
-                authApi.refreshToken(refreshToken)
+                authApi.refreshAccessToken(refreshToken)
             } catch (e: Exception) {
                 null
             }

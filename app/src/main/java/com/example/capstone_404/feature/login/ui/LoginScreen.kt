@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.login.ui
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -26,6 +29,7 @@ import com.example.capstone_404.R
 import com.example.capstone_404.feature.login.ui.componet.KakaoLoginButton
 import com.example.capstone_404.feature.login.ui.componet.NaverLoginButton
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
+import com.example.capstone_404.social.naver.NaverAuthManager
 import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
@@ -36,6 +40,20 @@ fun LoginScreen(
     val context = LocalContext.current
     // 로그인 결과 변수
     val loginResult = viewModel.socialLoginState
+
+    // 네이버 로그인 상태 모니터링
+    val isNaverLoggedIn by NaverAuthManager.getLoginState(context).collectAsState(initial = false)
+
+    // 네이버 로그인 결과 처리
+    LaunchedEffect(isNaverLoggedIn) {
+        if (isNaverLoggedIn) {
+            val token = NaverAuthManager.getToken(context)
+            if (!token.isNullOrEmpty()) {
+                Log.d("LoginScreen", "네이버 로그인 상태 감지")
+                onLoginSuccess(token)
+            }
+        }
+    }
 
     // 로그인 결과 처리
     LaunchedEffect(loginResult) {

@@ -12,7 +12,7 @@ import com.example.capstone_404.feature.group.model.RoleType
 import com.example.capstone_404.feature.group.model.SelectedRoleState
 import com.example.capstone_404.feature.group.model.toKorean
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 @HiltViewModel
 class GroupViewModel @Inject constructor() : ViewModel() {

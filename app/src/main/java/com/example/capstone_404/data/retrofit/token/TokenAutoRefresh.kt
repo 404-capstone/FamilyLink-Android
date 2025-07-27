@@ -2,12 +2,12 @@ package com.example.capstone_404.data.retrofit.token
 
 import com.example.capstone_404.data.retrofit.api.AuthApi
 import com.example.capstone_404.utils.EncryptionUtil
-import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
+import javax.inject.Inject
 
 // 토큰 만료 시 자동 재발급
 class TokenAutoRefresh @Inject constructor(

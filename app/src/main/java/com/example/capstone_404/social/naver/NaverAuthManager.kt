@@ -134,12 +134,6 @@ object NaverAuthManager {
         }.first()
     }
 
-    //로그인 상태 확인, 임의 구현
-    suspend fun isLoggedIn(context: Context): Boolean {
-        return !getToken(context).isNullOrEmpty()
-    }
-
-
     //로그아웃 (모든 인증 데이터 삭제), 임의 구현
     suspend fun logout(context: Context) {
         context.naverAuthDataStore.edit { preferences ->

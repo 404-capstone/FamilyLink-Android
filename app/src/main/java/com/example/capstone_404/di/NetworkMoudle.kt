@@ -9,7 +9,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Interceptor
@@ -18,6 +17,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
+import javax.inject.Singleton
 
 // APIRetrofit 수정 - 객체 재사용, Hilt 기반 자동 주입
 @Module
@@ -32,12 +33,34 @@ object NetworkModule {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
+    // accessToken이 필요 없는 API 용 Retrofit
+    @Provides
+    @Singleton
+    @Named("auth_no_token")
+    fun provideAuthRetrofitWithoutToken(): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL)
+            .client(
+                OkHttpClient.Builder()
+                    .addInterceptor(provideLoggingInterceptor())
+                    .build()
+            )
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    // 위 Retrofit 인터페이스 제공
+    @Provides
+    @Singleton
+    @Named("auth_no_token")
+    fun provideAuthApiWithoutToken(@Named("auth_no_token") retrofit: Retrofit): AuthApi =
+        retrofit.create(AuthApi::class.java)
+
     // 토큰 만료 시 자동 재발급
     @Provides
     @Singleton
     fun provideTokenAuthenticator(
         tokenManager: TokenManager,
-        authApi: AuthApi
+        @Named("auth_no_token") authApi: AuthApi
     ): Authenticator = TokenAutoRefresh(tokenManager, authApi)
 
     @Provides

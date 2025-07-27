@@ -7,30 +7,46 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.capstone_404.social.kakao.KakaoAuthManager
+import com.example.capstone_404.data.repository.AuthRepository
+import com.example.capstone_404.data.retrofit.model.response.KakaoLoginData
+import com.example.capstone_404.data.retrofit.token.TokenManager
 import com.example.capstone_404.social.naver.NaverAuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+    private val tokenManager: TokenManager
+) : ViewModel() {
+
+    // 자동 로그인 용 상태 관리
+    private val _isLoggedIn = MutableStateFlow<Boolean?>(null)
+    val isLoggedIn: StateFlow<Boolean?> = _isLoggedIn
+
+    // 카카오 로그인 상태 관리
+    private val _kakaoLoginResult = MutableStateFlow<Result<KakaoLoginData>?>(null)
+    val kakaoLoginResult: StateFlow<Result<KakaoLoginData>?> = _kakaoLoginResult
+
+    // 자동 로그인 체크 함수
+    fun checkAutoLogin() {
+        viewModelScope.launch {
+            _isLoggedIn.value = tokenManager.hasValidToken()
+        }
+    }
 
     // 소셜 로그인 상태 관리
     var socialLoginState by mutableStateOf<Result<String>?>(null)
         private set
 
     // 카카오 로그인 함수
-    fun loginWithKakao(context: Context) {
+    fun loginWithKakao() {
         viewModelScope.launch {
-            try {
-                // 임시 진행
-                val token = KakaoAuthManager.login(context)
-                socialLoginState = Result.success(token)
-                Log.d("Access_Token","Kakao: $token")
-            } catch (e: Exception) {
-                socialLoginState = Result.failure(e)
-            }
+            val result = authRepository.loginWithKakao()
+            _kakaoLoginResult.value = result
         }
     }
 
@@ -44,6 +60,13 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                 socialLoginState = Result.failure(e)
                 Log.e("NaverLogin", "NaverLogin failed: ${e.message}")
             }
+        }
+    }
+
+    // 토큰 저장 함수
+    fun saveTokens(accessToken: String, refreshToken: String) {
+        viewModelScope.launch {
+            tokenManager.saveTokens(accessToken, refreshToken)
         }
     }
 }

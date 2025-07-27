@@ -16,6 +16,7 @@ import com.example.capstone_404.feature.group.ui.RoleSelectScreen
 import com.example.capstone_404.feature.group.ui.SurveyIntroScreen
 import com.example.capstone_404.feature.login.ui.LoginScreen
 import com.example.capstone_404.feature.login.ui.ProfileInputScreen
+import com.example.capstone_404.feature.login.ui.SplashScreen
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -44,15 +45,21 @@ fun AppNavGraph(navController: NavHostController) {
         NavHost(
             navController = navController,
             // UI 빌드 테스트 할 때 startDestination = Route.{테스트 UI 경로}로 바꿔서 테스트하고 다시 LOGIN으로 돌려놓으면 됨
-            startDestination = Route.LOGIN,
+            startDestination = Route.SPLASH,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // 스플래시(자동 로그인)
+            composable(Route.SPLASH) {
+                SplashScreen(
+                    onLoggedIn = { navController.navigate(Route.GROUP) { popUpTo("splash") { inclusive = true } } },
+                    onNotLoggedIn = { navController.navigate(Route.LOGIN) { popUpTo("splash") { inclusive = true } } }
+                )
+            }
             // 로그인
             composable(Route.LOGIN) {
                 LoginScreen(
-                    onLoginSuccess = {
-                        navController.navigate(Route.PROFILE_INPUT)
-                    }
+                    onNavigateToHome = { navController.navigate(Route.GROUP) { popUpTo("login") { inclusive = true } } },
+                    onNavigateToProfileInput = { navController.navigate(Route.PROFILE_INPUT) { popUpTo("login") { inclusive = true } } }
                 )
             }
             // 추가 정보 입력

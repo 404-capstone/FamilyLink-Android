@@ -35,11 +35,12 @@ import com.example.capstone_404.ui.theme.TextWhite
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
-    onLoginSuccess: (String) -> Unit
+    onNavigateToHome: () -> Unit,
+    onNavigateToProfileInput: () -> Unit
 ) {
     val context = LocalContext.current
     // 로그인 결과 변수
-    val loginResult = viewModel.socialLoginState
+    val loginResult by viewModel.kakaoLoginResult.collectAsState()
 
     // 네이버 로그인 상태 모니터링
     val isNaverLoggedIn by NaverAuthManager.getLoginState(context).collectAsState(initial = false)
@@ -57,10 +58,17 @@ fun LoginScreen(
 
     // 로그인 결과 처리
     LaunchedEffect(loginResult) {
-        loginResult?.onSuccess { token ->
-            onLoginSuccess(token)
-        }?.onFailure { e ->
-            Toast.makeText(context, "로그인 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+        loginResult?.onSuccess { data ->
+            // 토큰 저장
+            viewModel.saveTokens(data.accessToken, data.refreshToken)
+            // 화면 이동 처리
+            if (data.newUser) {
+                onNavigateToProfileInput()
+            } else {
+                onNavigateToHome()
+            }
+        }?.onFailure { error ->
+            Toast.makeText(context, "로그인 실패: ${error.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -106,11 +114,11 @@ fun LoginScreen(
 
             // 로그인 버튼 컬럼
             Column {
-                KakaoLoginButton(onClick = { viewModel.loginWithKakao(context) })
+                KakaoLoginButton(onClick = { viewModel.loginWithKakao() })
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                NaverLoginButton(onClick = { viewModel.loginWithNaver(context) })
+                NaverLoginButton(onClick = {  })
             }
         }
     }

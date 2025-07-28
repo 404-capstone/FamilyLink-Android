@@ -6,9 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.example.capstone_404.ui.component.BottomNavigationBar
 import com.example.capstone_404.ui.component.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
@@ -73,15 +75,24 @@ fun AppNavGraph(navController: NavHostController) {
             // 그룹 메인
             composable(Route.GROUP) {
                 GroupScreen(
-                    onCreate = {
-                        navController.navigate(Route.ROLE_SELECT)
+                    onCreate = { groupName, encodedUri ->
+                        navController.navigate("roleSelect?groupName=$groupName&imageUri=$encodedUri")
                     }
                 )
             }
             // 그룹 역할 선택
-            composable(Route.ROLE_SELECT) {
+            composable(
+                route = Route.ROLE_SELECT,
+                arguments = listOf(
+                    navArgument("groupName") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("imageUri") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("inviteCode") { type = NavType.StringType; defaultValue = "" }
+                )
+            ) {
                 RoleSelectScreen(
-                    onSubmit = {}
+                    onSubmit = {
+                        navController.navigate(Route.SURVEY_INTRO)
+                    }
                 )
             }
             // 가입 완료 문구 + 설문 안내

@@ -1,6 +1,7 @@
 package com.example.capstone_404.data.retrofit.token
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -59,6 +60,7 @@ class TokenManager @Inject constructor(
     suspend fun hasValidToken(): Boolean {
         val access = getAccessToken()
         val refresh = getRefreshToken()
+        Log.d("Token_Value", "access: $access\nrefresh: $refresh")
         return access.isNotBlank() && refresh.isNotBlank()
     }
 }

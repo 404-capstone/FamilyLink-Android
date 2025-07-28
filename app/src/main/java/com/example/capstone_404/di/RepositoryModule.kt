@@ -2,6 +2,8 @@ package com.example.capstone_404.di
 
 import com.example.capstone_404.data.repository.AuthRepository
 import com.example.capstone_404.data.repository.AuthRepositoryImpl
+import com.example.capstone_404.data.repository.GroupRepository
+import com.example.capstone_404.data.repository.GroupRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,4 +18,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGroupRepository(impl: GroupRepositoryImpl): GroupRepository
 }

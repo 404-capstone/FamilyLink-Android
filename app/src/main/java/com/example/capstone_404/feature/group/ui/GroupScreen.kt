@@ -33,7 +33,7 @@ import com.example.capstone_404.utils.createImageUri
 @Composable
 fun GroupScreen(
     viewModel: GroupViewModel = hiltViewModel(),
-    onCreate: () -> Unit
+    onCreate: (groupName: String, encodedUri: String) -> Unit
 ) {
     val context = LocalContext.current
     // 그룹 가입 여부
@@ -143,9 +143,10 @@ fun GroupScreen(
         GroupCreateDialog(
             onDismiss = { showCancelDialog = true },
             onConfirm = { groupName, imageUri ->
-                // Todo: 역할 선택 페이지로 데이터 넘기기
                 showCreateDialog = false
-                onCreate()
+                val encodedUri = Uri.encode(imageUri?.toString() ?: "")
+                onCreate(groupName, encodedUri)
+
             },
             onSelectPhoto = { showSelectDialog = true },
             selectedImageUri = selectedImageUri

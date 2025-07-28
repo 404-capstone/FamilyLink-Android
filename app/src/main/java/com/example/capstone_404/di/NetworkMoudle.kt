@@ -2,6 +2,7 @@ package com.example.capstone_404.di
 
 import com.example.capstone_404.BuildConfig
 import com.example.capstone_404.data.retrofit.api.AuthApi
+import com.example.capstone_404.data.retrofit.api.GroupApi
 import com.example.capstone_404.data.retrofit.token.TokenAutoRefresh
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import com.example.capstone_404.utils.EncryptionUtil
@@ -108,4 +109,10 @@ object NetworkModule {
     @Singleton
     fun provideAuthApi(retrofit: Retrofit): AuthApi =
         retrofit.create(AuthApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideGroupApi(retrofit: Retrofit): GroupApi {
+        return retrofit.create(GroupApi::class.java)
+    }
 }

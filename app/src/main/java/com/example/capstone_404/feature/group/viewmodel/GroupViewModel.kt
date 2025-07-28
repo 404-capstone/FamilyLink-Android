@@ -1,62 +1,85 @@
 package com.example.capstone_404.feature.group.viewmodel
 
-import android.net.Uri
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.example.capstone_404.feature.group.model.GroupEntryState
+import androidx.lifecycle.viewModelScope
+import com.example.capstone_404.data.repository.GroupRepository
+import com.example.capstone_404.data.retrofit.model.response.GroupData
 import com.example.capstone_404.feature.group.model.OrderType
 import com.example.capstone_404.feature.group.model.RoleType
 import com.example.capstone_404.feature.group.model.SelectedRoleState
 import com.example.capstone_404.feature.group.model.toKorean
+import com.example.capstone_404.utils.prepareImagePart
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @HiltViewModel
-class GroupViewModel @Inject constructor() : ViewModel() {
-
+class GroupViewModel @Inject constructor(
+    private val groupRepository: GroupRepository,
+    @ApplicationContext private val appContext: Context,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     // 그룹 가입 여부 상태 관리
     var isJoined by mutableStateOf(false)
         private set
-
-    // 역할 선택 페이지 이동 경로(데이터) 관리
-    private var groupEntryState by mutableStateOf<GroupEntryState>(GroupEntryState.None)
 
     // 역할 선택 상태
     var selectedRoleState by mutableStateOf(SelectedRoleState())
         private set
 
-    // 생성하기 경로일 때
-    fun setGenerationState(groupName: String, imageUri: Uri?) {
-        groupEntryState = GroupEntryState.Generation(groupName, imageUri)
-    }
-    // 가입하기 경로일 때
-    fun setAccessState(inviteCode: String) {
-        groupEntryState = GroupEntryState.Access(inviteCode)
-    }
-    // 초기화
-    fun clearState() {
-        groupEntryState = GroupEntryState.None
-    }
+    // API 호출에 필요한 데이터 저장
+    private val groupName = savedStateHandle["groupName"] ?: ""
+    private val imageUri = savedStateHandle.get<String>("imageUri")?.takeIf { it.isNotBlank() }?.toUri()
+    private val inviteCode = savedStateHandle["inviteCode"] ?: ""
+
+    // 그룹 생성 상태 관리
+    private val _createResult = MutableStateFlow<Result<GroupData>?>(null)
+    val createResult: StateFlow<Result<GroupData>?> = _createResult
 
     // 역할 선택 상태 변경
     fun updateSelectedRole(role: RoleType?) {
         selectedRoleState = selectedRoleState.copy(role = role)
-
         if (role != RoleType.SON && role != RoleType.DAUGHTER) {
             selectedRoleState = selectedRoleState.copy(order = null)
         }
     }
-
     // 아들&딸 Order 변경
     fun updateSelectedOrder(order: OrderType?) {
         selectedRoleState = selectedRoleState.copy(order = order)
     }
 
-    // 최종 생성 or 가입(임시로 로그만)
-    fun groupSubmit() {
-        Log.d("GroupViewModel", "전달 데이터: $groupEntryState + ${(selectedRoleState.order?.label ?: "") + selectedRoleState.role?.toKorean()}" )
+    // 가입 or 생성에 따른 제출 처리
+    fun submitGroupEntry() {
+        val role = selectedRoleState.role ?: return
+        val roleLabel = if (role == RoleType.SON || role == RoleType.DAUGHTER) {
+            val order = selectedRoleState.order ?: return
+            "${order.label}${role.toKorean()}"
+        } else {
+            role.toKorean()
+        }
+
+        viewModelScope.launch {
+            if (inviteCode.isNotBlank()) {
+                // Todo : 그룹 가입 API 호출 예정
+                Log.d("GroupViewModel", "그룹 가입 요청: code=$inviteCode, role=$roleLabel")
+//                _createResult.value = groupRepository.JoinGroup(inviteCode, roleLabel)
+                Log.d("GroupViewModel", "가입 결과: $_createResult")
+            } else {
+                val imagePart = imageUri?.let { prepareImagePart(appContext, it) }
+                Log.d("GroupViewModel", "그룹 생성 요청: groupName : $groupName, role : $roleLabel, image : $imagePart")
+                _createResult.value = groupRepository.createGroup(groupName, roleLabel, imagePart)
+                Log.d("GroupViewModel", "생성 결과: $_createResult")
+            }
+        }
     }
 }

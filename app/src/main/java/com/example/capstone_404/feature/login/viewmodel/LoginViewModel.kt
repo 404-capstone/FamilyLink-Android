@@ -38,12 +38,11 @@ class LoginViewModel @Inject constructor() : ViewModel() {
     fun loginWithNaver(context: Context) {
         viewModelScope.launch {
             try {
-                // 임시 진행
-                val token = NaverAuthManager.login(context)
-                socialLoginState = Result.success(token)
-                Log.d("Access_Token","Naver: $token")
+                NaverAuthManager.login(context)
+                Log.d("NaverLogin", "NaverLogin start")
             } catch (e: Exception) {
                 socialLoginState = Result.failure(e)
+                Log.e("NaverLogin", "NaverLogin failed: ${e.message}")
             }
         }
     }

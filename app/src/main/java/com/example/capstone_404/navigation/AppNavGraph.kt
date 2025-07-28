@@ -53,22 +53,22 @@ fun AppNavGraph(navController: NavHostController) {
             // 스플래시(자동 로그인)
             composable(Route.SPLASH) {
                 SplashScreen(
-                    onLoggedIn = { navController.navigate(Route.GROUP) { popUpTo("splash") { inclusive = true } } },
-                    onNotLoggedIn = { navController.navigate(Route.LOGIN) { popUpTo("splash") { inclusive = true } } }
+                    onLoggedIn = { navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } } },
+                    onNotLoggedIn = { navController.navigate(Route.LOGIN) { popUpTo(0) { inclusive = true } } }
                 )
             }
             // 로그인
             composable(Route.LOGIN) {
                 LoginScreen(
-                    onNavigateToHome = { navController.navigate(Route.GROUP) { popUpTo("login") { inclusive = true } } },
-                    onNavigateToProfileInput = { navController.navigate(Route.PROFILE_INPUT) { popUpTo("login") { inclusive = true } } }
+                    onNavigateToHome = { navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } } },
+                    onNavigateToProfileInput = { navController.navigate(Route.PROFILE_INPUT) { popUpTo(0) { inclusive = true } } }
                 )
             }
             // 추가 정보 입력
             composable(Route.PROFILE_INPUT) {
                 ProfileInputScreen(
                     onStartClicked = {
-                        navController.navigate(Route.GROUP)
+                        navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                     }
                 )
             }
@@ -91,7 +91,7 @@ fun AppNavGraph(navController: NavHostController) {
             ) {
                 RoleSelectScreen(
                     onSubmit = {
-                        navController.navigate(Route.SURVEY_INTRO)
+                        navController.navigate(Route.SURVEY_INTRO) { popUpTo("group") { inclusive = false } }
                     }
                 )
             }

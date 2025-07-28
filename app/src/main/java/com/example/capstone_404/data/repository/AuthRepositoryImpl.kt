@@ -2,7 +2,8 @@ package com.example.capstone_404.data.repository
 
 import android.util.Log
 import com.example.capstone_404.data.retrofit.api.AuthApi
-import com.example.capstone_404.data.retrofit.model.response.KakaoLoginData
+import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
+import com.example.capstone_404.data.retrofit.model.response.SocialLoginResponse
 import com.example.capstone_404.data.retrofit.model.response.TokenData
 import com.example.capstone_404.data.retrofit.model.response.TokenRefreshResponse
 import com.example.capstone_404.data.retrofit.token.TokenManager
@@ -17,12 +18,15 @@ class AuthRepositoryImpl @Inject constructor(
     private val tokenManager: TokenManager
 ) : AuthRepository {
 
-    override suspend fun loginWithKakao(): Result<KakaoLoginData> {
+    // SessionId로 토큰 발급
+    override suspend fun loginWithSession(sessionId: String): Result<SocialLoginData> {
         return try {
-            val response = authApi.loginWithKakao()
+            val response: Response<SocialLoginResponse> = authApi.loginWithSession(sessionId)
+
             if (response.isSuccessful) {
-                response.body()?.data?.let { Result.success(it) }
-                    ?: Result.failure(Exception("응답 본문이 비어 있습니다"))
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 본문이 비어 있음"))
             } else {
                 Result.failure(Exception("로그인 실패: ${response.code()}"))
             }

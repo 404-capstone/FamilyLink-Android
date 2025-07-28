@@ -4,12 +4,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,9 +30,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.login.ui.componet.KakaoLoginButton
 import com.example.capstone_404.feature.login.ui.componet.NaverLoginButton
+import com.example.capstone_404.feature.login.viewmodel.LoginState
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
-import com.example.capstone_404.social.naver.NaverAuthManager
 import com.example.capstone_404.ui.theme.TextWhite
+import com.example.capstone_404.utils.SocialLoginManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginScreen(
@@ -39,36 +44,47 @@ fun LoginScreen(
     onNavigateToProfileInput: () -> Unit
 ) {
     val context = LocalContext.current
-    // 로그인 결과 변수
-    val loginResult by viewModel.kakaoLoginResult.collectAsState()
+    // 로그인 상태 변수
+    val loginState by viewModel.loginState.collectAsState()
 
-    // 네이버 로그인 상태 모니터링
-    val isNaverLoggedIn by NaverAuthManager.getLoginState(context).collectAsState(initial = false)
+    // SessionId 감지 시 로그인 처리
+    LaunchedEffect(Unit) {
+        val sessionId = withContext(Dispatchers.IO) {
+            viewModel.tokenManager.getSessionId()
+        }
+        if (sessionId.isNotBlank()) {
+            Log.d("LoginScreen", "저장된 sessionId: $sessionId")
+            viewModel.loginWithSessionId(sessionId)
 
-    // 네이버 로그인 결과 처리
-    LaunchedEffect(isNaverLoggedIn) {
-        if (isNaverLoggedIn) {
-            val token = NaverAuthManager.getToken(context)
-            if (!token.isNullOrEmpty()) {
-                Log.d("LoginScreen", "네이버 로그인 상태 감지")
-                onLoginSuccess(token)
-            }
+            // 로그인 처리 후 삭제
+            viewModel.tokenManager.clearSessionId()
         }
     }
 
-    // 로그인 결과 처리
-    LaunchedEffect(loginResult) {
-        loginResult?.onSuccess { data ->
-            // 토큰 저장
-            viewModel.saveTokens(data.accessToken, data.refreshToken)
-            // 화면 이동 처리
-            if (data.newUser) {
-                onNavigateToProfileInput()
-            } else {
-                onNavigateToHome()
+    // 로그인 상태에 따른 처리
+    LaunchedEffect(loginState) {
+        Log.d("LoginScreen", "LaunchedEffect 시작")
+        when (loginState) {
+            is LoginState.Success -> {
+                val isNewUser = (loginState as LoginState.Success).isNewUser
+                Log.d("LoginScreen", "신규 여부 : $isNewUser")
+                if (isNewUser) {
+                    onNavigateToProfileInput()
+                } else {
+                    onNavigateToHome()
+                }
             }
-        }?.onFailure { error ->
-            Toast.makeText(context, "로그인 실패: ${error.message}", Toast.LENGTH_SHORT).show()
+            is LoginState.Error -> {
+                val errorMsg = (loginState as LoginState.Error).message
+                Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+            }
+            else -> {}
+        }
+    }
+    // 로그인 진행 중 로딩 표시
+    if (loginState is LoginState.Loading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
     }
 
@@ -114,11 +130,11 @@ fun LoginScreen(
 
             // 로그인 버튼 컬럼
             Column {
-                KakaoLoginButton(onClick = { viewModel.loginWithKakao() })
+                KakaoLoginButton(onClick = { SocialLoginManager.login(context, SocialLoginManager.SocialPlatform.KAKAO) })
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                NaverLoginButton(onClick = {  })
+                NaverLoginButton(onClick = { SocialLoginManager.login(context, SocialLoginManager.SocialPlatform.NAVER) })
             }
         }
     }

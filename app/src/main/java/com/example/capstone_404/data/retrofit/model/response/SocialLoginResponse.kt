@@ -1,15 +1,15 @@
 package com.example.capstone_404.data.retrofit.model.response
 
-data class KakaoLoginResponse(
+// 소셜 로그인 : 토큰 반환
+data class SocialLoginResponse(
     val code: Int,
     val message: String,
-    val data: KakaoLoginData
+    val data: SocialLoginData
 )
 
-data class KakaoLoginData(
-    val id: Long,
-    val social: String,
-    val newUser: Boolean,
+data class SocialLoginData(
     val accessToken: String,
-    val refreshToken: String
+    val refreshToken: String,
+    val userId: String,
+    val flag: Boolean
 )

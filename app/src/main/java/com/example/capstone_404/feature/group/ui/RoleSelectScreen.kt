@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.group.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +14,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,12 +34,25 @@ fun RoleSelectScreen(
     viewModel: GroupViewModel = hiltViewModel(),
     onSubmit: () -> Unit
 ) {
+    val context = LocalContext.current
     // 전체 역할 선택 상태
     val selectedRoleState = viewModel.selectedRoleState
     // 역할만
     val selectedRole = selectedRoleState.role
     // 순서만
     val selectedOrder = selectedRoleState.order
+    // 생성 결과 상태
+    val createResult by viewModel.createResult.collectAsState()
+    // 생성 결과에 따른 처리
+    LaunchedEffect(createResult) {
+        createResult?.let { result ->
+            if (result.isSuccess) {
+                onSubmit()
+            } else {
+                Toast.makeText(context, "그룹 생성에 실패했어요. 처음부터 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -90,8 +108,7 @@ fun RoleSelectScreen(
                 ButtonDefault(
                     text = "선택 완료",
                     onClick = {
-                        viewModel.groupSubmit()
-                        onSubmit()
+                        viewModel.submitGroupEntry()
                     },
                     // 아들 or 딸일 때는 Order까지 선택해야 활성화
                     enabled =  selectedRole != null &&

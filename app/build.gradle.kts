@@ -21,16 +21,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Kakao Key
-        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", gradleLocalProperties(rootDir, providers).getProperty("kakao_native_app_key"))
-        manifestPlaceholders["KAKAO_SCHEME"] = "kakao${gradleLocalProperties(rootDir, providers).getProperty("kakao_native_key")}"
-        // Naver Key
-        buildConfigField("String", "NAVER_CLIENT_ID", gradleLocalProperties(rootDir, providers).getProperty("naver_client_id"))
-        buildConfigField("String", "NAVER_CLIENT_SECRET", gradleLocalProperties(rootDir, providers).getProperty("naver_client_secret"))
         //Base_URL
         buildConfigField("String", "BASE_URL", gradleLocalProperties(rootDir, providers).getProperty("BASE_URL"))
-        //Naver_Redirect_Uri
-        buildConfigField("String", "NAVER_REDIRECT_URI", gradleLocalProperties(rootDir, providers).getProperty("NAVER_REDIRECT_URI"))
     }
 
     buildTypes {
@@ -66,19 +58,16 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     // Kakao 모듈
-    implementation(libs.v2.user)  // 카카오 소셜 로그인
     implementation(libs.v2.share) // 카카오톡 공유
-    // Naver SDK 모듈
-    implementation (libs.oauth)
     // Coil 라이브러리 (비동기 이미지 로딩)
-    implementation("io.coil-kt.coil3:coil-compose:3.0.0")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0")
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     //Retrofit 모듈
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
-    // DataStore 모듈
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.okhttp)
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

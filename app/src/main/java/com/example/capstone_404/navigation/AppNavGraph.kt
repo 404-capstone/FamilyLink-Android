@@ -6,9 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.example.capstone_404.ui.component.BottomNavigationBar
 import com.example.capstone_404.ui.component.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
@@ -16,6 +18,7 @@ import com.example.capstone_404.feature.group.ui.RoleSelectScreen
 import com.example.capstone_404.feature.group.ui.SurveyIntroScreen
 import com.example.capstone_404.feature.login.ui.LoginScreen
 import com.example.capstone_404.feature.login.ui.ProfileInputScreen
+import com.example.capstone_404.feature.login.ui.SplashScreen
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -44,37 +47,52 @@ fun AppNavGraph(navController: NavHostController) {
         NavHost(
             navController = navController,
             // UI 빌드 테스트 할 때 startDestination = Route.{테스트 UI 경로}로 바꿔서 테스트하고 다시 LOGIN으로 돌려놓으면 됨
-            startDestination = Route.LOGIN,
+            startDestination = Route.SPLASH,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // 스플래시(자동 로그인)
+            composable(Route.SPLASH) {
+                SplashScreen(
+                    onLoggedIn = { navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } } },
+                    onNotLoggedIn = { navController.navigate(Route.LOGIN) { popUpTo(0) { inclusive = true } } }
+                )
+            }
             // 로그인
             composable(Route.LOGIN) {
                 LoginScreen(
-                    onLoginSuccess = {
-                        navController.navigate(Route.PROFILE_INPUT)
-                    }
+                    onNavigateToHome = { navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } } },
+                    onNavigateToProfileInput = { navController.navigate(Route.PROFILE_INPUT) { popUpTo(0) { inclusive = true } } }
                 )
             }
             // 추가 정보 입력
             composable(Route.PROFILE_INPUT) {
                 ProfileInputScreen(
                     onStartClicked = {
-                        navController.navigate(Route.GROUP)
+                        navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                     }
                 )
             }
             // 그룹 메인
             composable(Route.GROUP) {
                 GroupScreen(
-                    onCreate = {
-                        navController.navigate(Route.ROLE_SELECT)
+                    onCreate = { groupName, encodedUri ->
+                        navController.navigate("roleSelect?groupName=$groupName&imageUri=$encodedUri")
                     }
                 )
             }
             // 그룹 역할 선택
-            composable(Route.ROLE_SELECT) {
+            composable(
+                route = Route.ROLE_SELECT,
+                arguments = listOf(
+                    navArgument("groupName") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("imageUri") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("inviteCode") { type = NavType.StringType; defaultValue = "" }
+                )
+            ) {
                 RoleSelectScreen(
-                    onSubmit = {}
+                    onSubmit = {
+                        navController.navigate(Route.SURVEY_INTRO) { popUpTo("group") { inclusive = false } }
+                    }
                 )
             }
             // 가입 완료 문구 + 설문 안내

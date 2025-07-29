@@ -14,7 +14,7 @@ class GroupRepositoryImpl @Inject constructor(
     override suspend fun createGroup(
         groupName: String,
         role: String,
-        image: MultipartBody.Part?
+        image: MultipartBody.Part
     ): Result<GroupData> {
         return try {
             val response = groupApi.createGroup(groupName, role, image)

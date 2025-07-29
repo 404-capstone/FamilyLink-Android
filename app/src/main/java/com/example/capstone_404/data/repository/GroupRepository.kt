@@ -10,6 +10,6 @@ interface GroupRepository {
     suspend fun createGroup(
         groupName: String,
         role: String,
-        image: MultipartBody.Part? = null
+        image: MultipartBody.Part
     ): Result<GroupData>
 }

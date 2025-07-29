@@ -17,6 +17,6 @@ interface GroupApi {
     suspend fun createGroup(
         @Query("groupname") groupName: String,
         @Query("role") role: String,
-        @Part image: MultipartBody.Part?
+        @Part image: MultipartBody.Part
     ): Response<GroupCreateResponse>
 }

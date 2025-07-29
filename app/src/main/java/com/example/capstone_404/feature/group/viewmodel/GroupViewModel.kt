@@ -115,7 +115,7 @@ class GroupViewModel @Inject constructor(
             // Todo : api 연동
             val totalScore = _surveyResponses.values.sum()
             val result = calculateSurveyResult(totalScore)
-            Log.d("GroupScreen", "Level: ${result.level}\n Score: ${result.score}\n Percent: ${result.percent}\n description: ${result.description}")
+            Log.d("GroupScreen", "Level: ${result.level}\n Score: ${result.score}\n Percent: ${result.percent}")
             isLoading = false
             onComplete()
         }

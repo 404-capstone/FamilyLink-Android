@@ -4,8 +4,7 @@ package com.example.capstone_404.feature.group.model
 data class SurveyResult(
     val level: String,
     val score: Int,
-    val percent: String,
-    val description: String
+    val percent: String
 )
 
 // 원점수에 따른 퍼센트 매핑
@@ -23,10 +22,20 @@ fun calculateSurveyResult(totalScore: Int): SurveyResult {
     val percent = scoreToPercentageMap[totalScore] ?: "10%"
 
     return when (totalScore) {
-        in 44..50 -> SurveyResult("매우 높음\n86~99%", totalScore, percent, "님은 본인 가족의 의사소통의 질과 양에 대하여 매우 긍정적으로 느낍니다.")
-        in 40..43 -> SurveyResult("높음\n70~83%", totalScore, percent, "님은 본인 가족의 의사소통에 대하여 좋게 느끼며, 이에 대한 걱정이 거의 없습니다.")
-        in 36..39 -> SurveyResult("중간\n50~65%", totalScore, percent, "님은 본인 가족의 의사소통에 대하여 어느 정도 좋게 느끼지만, 이에 대한 걱정을 조금 합니다.")
-        in 30..35 -> SurveyResult("낮음\n24~44%", totalScore, percent, "님은 본인 가족의 의사소통의 질에 대하여 꽤 걱정을 합니다.")
-        else -> SurveyResult("매우 낮음\n10~20%", totalScore, percent, "님은 본인 가족의 의사소통의 질에 대하여 매우 걱정합니다.")
+        in 44..50 -> SurveyResult("매우 높음\n86~99%", totalScore, percent)
+        in 40..43 -> SurveyResult("높음\n70~83%", totalScore, percent)
+        in 36..39 -> SurveyResult("중간\n50~65%", totalScore, percent)
+        in 30..35 -> SurveyResult("낮음\n24~44%", totalScore, percent)
+        else -> SurveyResult("매우 낮음\n10~20%", totalScore, percent)
     }
+}
+
+// 레벨에 따른 설명 반환
+fun getSurveyDescription(level: String): String = when (level) {
+    "매우 높음\n86~99%" -> "님은 본인 가족의 의사소통의 질과 양에 대하여 매우 긍정적으로 느낍니다."
+    "높음\n70~83%" -> "님은 본인 가족의 의사소통에 대하여 좋게 느끼며, 이에 대한 걱정이 거의 없습니다."
+    "중간\n50~65%" -> "님은 본인 가족의 의사소통에 대하여 어느 정도 좋게 느끼지만, 약간의 걱정이 있습니다."
+    "낮음\n24~44%" -> "님은 본인 가족의 의사소통의 질에 대하여 꽤 걱정을 하고 있습니다."
+    "매우 낮음\n10~20%" -> "님은 본인 가족의 의사소통의 질에 대하여 매우 걱정을 하고 있습니다."
+    else -> ""
 }

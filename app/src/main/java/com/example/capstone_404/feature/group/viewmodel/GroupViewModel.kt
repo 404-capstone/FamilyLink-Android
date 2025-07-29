@@ -23,13 +23,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.feature.group.model.calculateSurveyResult
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
     private val groupRepository: GroupRepository,
     @ApplicationContext private val appContext: Context,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val userInfoManager: UserInfoManager
 ) : ViewModel() {
     // -------------------- 상태 변수 --------------------
     // 그룹 가입 여부
@@ -79,7 +84,7 @@ class GroupViewModel @Inject constructor(
         val role = selectedRoleState.role ?: return
         val roleLabel = if (role == RoleType.SON || role == RoleType.DAUGHTER) {
             val order = selectedRoleState.order ?: return
-            "${order.label}${role.toKorean()}"
+            "${order.label} ${role.toKorean()}"
         } else {
             role.toKorean()
         }
@@ -90,9 +95,26 @@ class GroupViewModel @Inject constructor(
 //                _createResult.value = groupRepository.JoinGroup(inviteCode, roleLabel)
                 Log.d("GroupViewModel", "가입 결과: $_createResult")
             } else {
+                // 이미지 없는 경우 empty value 전달
                 val imagePart = imageUri?.let { prepareImagePart(appContext, it) }
+                    ?: MultipartBody.Part.createFormData(
+                        name = "image",
+                        filename = "",
+                        body = "".toRequestBody("application/octet-stream".toMediaTypeOrNull())
+                    )
                 Log.d("GroupViewModel", "그룹 생성 요청: groupName : $groupName, role : $roleLabel, image : $imagePart")
-                _createResult.value = groupRepository.createGroup(groupName, roleLabel, imagePart)
+
+                val result = groupRepository.createGroup(groupName, roleLabel, imagePart)
+
+                val data = result.getOrNull()
+                val exception = result.exceptionOrNull()
+                if (data != null) {
+                    // groupId 저장
+                    userInfoManager.saveGroupId(data.groupId)
+                    _createResult.value = result
+                } else {
+                    Log.d("GroupViewModel", "생성 실패 : $exception")
+                }
                 Log.d("GroupViewModel", "생성 결과: $_createResult")
             }
         }

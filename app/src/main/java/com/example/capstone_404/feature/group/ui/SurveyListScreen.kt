@@ -37,7 +37,7 @@ fun SurveyListScreen(
     // 설문 응답 저장
     val surveyResponses = viewModel.surveyResponses
     // 로딩 여부
-    val isLoading = viewModel.isSurveyLoading
+    val isLoading = viewModel.isLoading
 
     if (isLoading) {
         LoadingDialog("점수를 계산하고 있어요\n잠시만 기다려주세요!")

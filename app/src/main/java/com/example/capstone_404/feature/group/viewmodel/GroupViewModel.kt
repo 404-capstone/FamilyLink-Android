@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
-import kotlinx.coroutines.delay
+import com.example.capstone_404.feature.group.model.calculateSurveyResult
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
@@ -41,7 +41,7 @@ class GroupViewModel @Inject constructor(
         private set
 
     // 로딩 출력 여부
-    var isSurveyLoading by mutableStateOf(false)
+    var isLoading by mutableStateOf(false)
         private set
 
     // 그룹 생성 결과
@@ -110,11 +110,13 @@ class GroupViewModel @Inject constructor(
     }
     // 제출 처리
     fun submitSurvey(onComplete: () -> Unit) {
-        isSurveyLoading = true
+        isLoading = true
         viewModelScope.launch {
-            // Todo : 계산 로직 추가(임시로 딜레이 설정)
-            delay(2000L)
-            isSurveyLoading = false
+            // Todo : api 연동
+            val totalScore = _surveyResponses.values.sum()
+            val result = calculateSurveyResult(totalScore)
+            Log.d("GroupScreen", "Level: ${result.level}\n Score: ${result.score}\n Percent: ${result.percent}\n description: ${result.description}")
+            isLoading = false
             onComplete()
         }
     }

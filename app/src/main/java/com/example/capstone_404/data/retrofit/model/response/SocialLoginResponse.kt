@@ -10,6 +10,6 @@ data class SocialLoginResponse(
 data class SocialLoginData(
     val accessToken: String,
     val refreshToken: String,
-    val userId: String,
+    val userId: Int,
     val flag: Boolean
 )

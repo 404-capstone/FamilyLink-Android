@@ -16,6 +16,7 @@ import com.example.capstone_404.ui.component.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
 import com.example.capstone_404.feature.group.ui.RoleSelectScreen
 import com.example.capstone_404.feature.group.ui.SurveyIntroScreen
+import com.example.capstone_404.feature.group.ui.SurveyListScreen
 import com.example.capstone_404.feature.login.ui.LoginScreen
 import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 import com.example.capstone_404.feature.login.ui.SplashScreen
@@ -97,7 +98,19 @@ fun AppNavGraph(navController: NavHostController) {
             }
             // 가입 완료 문구 + 설문 안내
             composable(Route.SURVEY_INTRO) {
-                SurveyIntroScreen()
+                SurveyIntroScreen(
+                    onNextPage = {
+                        navController.navigate(Route.SURVEY_LIST) { popUpTo("group") { inclusive = false } }
+                    }
+                )
+            }
+            // Todo : 수정
+            // 설문지
+            composable(Route.SURVEY_LIST) {
+                SurveyListScreen(
+                    onSubmitComplete = {},
+                    onClickToBack = {}
+                )
             }
 
             // 임시 정의

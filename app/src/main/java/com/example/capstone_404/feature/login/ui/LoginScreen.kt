@@ -32,6 +32,7 @@ import com.example.capstone_404.feature.login.ui.componet.KakaoLoginButton
 import com.example.capstone_404.feature.login.ui.componet.NaverLoginButton
 import com.example.capstone_404.feature.login.viewmodel.LoginState
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
+import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.TextWhite
 import com.example.capstone_404.utils.SocialLoginManager
 import kotlinx.coroutines.Dispatchers
@@ -84,7 +85,7 @@ fun LoginScreen(
     // 로그인 진행 중 로딩 표시
     if (loginState is LoginState.Loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = Main)
         }
     }
 

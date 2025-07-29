@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
+import com.example.capstone_404.ui.theme.Main
 
 // 자동 로그인 처리 화면
 @Composable
@@ -46,6 +47,6 @@ fun SplashScreen(
             modifier = Modifier.fillMaxSize()
         )
         // 로딩 UI
-        CircularProgressIndicator()
+        CircularProgressIndicator(color = Main)
     }
 }

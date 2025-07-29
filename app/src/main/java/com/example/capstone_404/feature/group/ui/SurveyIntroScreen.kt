@@ -24,7 +24,7 @@ import com.example.capstone_404.ui.component.GuideWarningCard
 // 설문 안내 페이지
 @Composable
 fun SurveyIntroScreen(
-
+onNextPage: () -> Unit
 ) {
     Scaffold(
         topBar = { CustomTopBar(title = "설문 안내") }
@@ -75,7 +75,7 @@ fun SurveyIntroScreen(
 
                 ButtonDefault(
                     text = "설문 진행하기",
-                    onClick = {  }
+                    onClick = { onNextPage() }
                 )
             }
         }

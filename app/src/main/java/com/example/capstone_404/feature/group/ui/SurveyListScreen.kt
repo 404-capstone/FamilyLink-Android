@@ -14,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +41,14 @@ fun SurveyListScreen(
     val surveyResponses = viewModel.surveyResponses
     // 로딩 여부
     val isLoading = viewModel.isLoading
+    val isSaved by viewModel.isSaved.collectAsState()
 
+    // 설문 결과 저장 완료 시 이동
+    LaunchedEffect(isSaved) {
+        if (isSaved) {
+            onSubmitComplete()
+        }
+    }
     if (isLoading) {
         LoadingDialog("점수를 계산하고 있어요\n잠시만 기다려주세요!")
     }
@@ -105,8 +115,8 @@ fun SurveyListScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 ButtonDefault(
-                    text = "제출하기",
-                    onClick = { viewModel.submitSurvey(onSubmitComplete) },
+                    text = "설문 제출",
+                    onClick = { viewModel.submitSurvey() },
                     enabled = viewModel.isSurveySubmitEnabled(surveyQuestions.size)
                 )
             }

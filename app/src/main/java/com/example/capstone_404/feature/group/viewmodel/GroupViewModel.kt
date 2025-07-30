@@ -53,9 +53,13 @@ class GroupViewModel @Inject constructor(
     private val _createResult = MutableStateFlow<Result<GroupData>?>(null)
     val createResult: StateFlow<Result<GroupData>?> = _createResult
 
-    // 설문 응답 저장
+    // 사용자 설문 응답 저장
     private val _surveyResponses = mutableStateMapOf<Int, Int>()
     val surveyResponses: Map<Int, Int> get() = _surveyResponses
+
+    // 서버에 설문 결과 저장의 결과
+    private val _isSaved = MutableStateFlow(false)
+    val isSaved: StateFlow<Boolean> = _isSaved
 
 
     // -------------------- 생성|가입에 필요한 전달 데이터 --------------------
@@ -131,15 +135,38 @@ class GroupViewModel @Inject constructor(
         return _surveyResponses.size == totalQuestions
     }
     // 제출 처리
-    fun submitSurvey(onComplete: () -> Unit) {
+    fun submitSurvey() {
         isLoading = true
         viewModelScope.launch {
-            // Todo : api 연동
             val totalScore = _surveyResponses.values.sum()
-            val result = calculateSurveyResult(totalScore)
-            Log.d("GroupScreen", "Level: ${result.level}\n Score: ${result.score}\n Percent: ${result.percent}")
-            isLoading = false
-            onComplete()
+            val surveyResult = calculateSurveyResult(totalScore)
+            val groupId = userInfoManager.getGroupId()
+            Log.d("GroupScreen", "Level: ${surveyResult.level}\n Score: ${surveyResult.score}\n Percent: ${surveyResult.percent}%")
+            try {
+                val result = groupId?.let {
+                    groupRepository.saveSurveyResult(
+                        groupId = it,
+                        level = surveyResult.level,
+                        score = surveyResult.score,
+                        percent = surveyResult.percent
+                    )
+                }
+                if (result != null) {
+                    result.onSuccess { data ->
+                        Log.d("GroupScreen", "설문 결과 저장 완료 : $data")
+                        _isSaved.value = true
+                        isLoading = false
+                    }.onFailure { e ->
+                        Log.d("GroupScreen", "설문 결과 저장 실패 : ${e.message}")
+                        _isSaved.value = false
+                        isLoading = false
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("GroupScreen", "설문 결과 저장 실패 : ${e.message}")
+                _isSaved.value = false
+                isLoading = false
+            }
         }
     }
 }

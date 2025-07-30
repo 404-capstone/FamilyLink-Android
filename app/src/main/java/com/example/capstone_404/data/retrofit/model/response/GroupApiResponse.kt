@@ -17,3 +17,10 @@ data class GroupIdResponse(
     val message: String,
     val data: Int
 )
+
+// 설문 결과 저장 Response
+data class SaveSurveyResultResponse<T>(
+    val code: Int,
+    val message: String,
+    val data: T
+)

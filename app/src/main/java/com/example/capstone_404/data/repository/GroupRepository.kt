@@ -15,4 +15,7 @@ interface GroupRepository {
 
     // 그룹 ID 조회
     suspend fun getGroupIdFromServer(): Result<Int>
+
+    // 설문 결과 저장
+    suspend fun saveSurveyResult(groupId: Int, level: String, score: Int, percent: Int): Result<String>
 }

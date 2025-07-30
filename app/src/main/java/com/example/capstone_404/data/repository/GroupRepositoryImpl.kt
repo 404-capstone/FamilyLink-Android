@@ -1,6 +1,7 @@
 package com.example.capstone_404.data.repository
 
 import com.example.capstone_404.data.retrofit.api.GroupApi
+import com.example.capstone_404.data.retrofit.model.request.SaveSurveyResultRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupData
 import okhttp3.MultipartBody
 import javax.inject.Inject
@@ -42,6 +43,28 @@ class GroupRepositoryImpl @Inject constructor(
                 } else {
                     Result.failure(Exception("응답 데이터 없음"))
                 }
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 설문 결과 저장
+    override suspend fun saveSurveyResult(
+        groupId: Int,
+        level: String,
+        score: Int,
+        percent: Int
+    ): Result<String> {
+        return try {
+            val body = SaveSurveyResultRequest(level = level, score = score, percent = percent)
+            val response = groupApi.saveSurveyResult(groupId, body)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 Result.failure(Exception("오류 코드: ${response.code()}"))
             }

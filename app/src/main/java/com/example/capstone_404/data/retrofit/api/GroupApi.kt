@@ -1,9 +1,12 @@
 package com.example.capstone_404.data.retrofit.api
 
+import com.example.capstone_404.data.retrofit.model.request.SaveSurveyResultRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupCreateResponse
 import com.example.capstone_404.data.retrofit.model.response.GroupIdResponse
+import com.example.capstone_404.data.retrofit.model.response.SaveSurveyResultResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -25,4 +28,11 @@ interface GroupApi {
     // 그룹 ID 조회
     @GET("/group/id/search")
     suspend fun getGroupId(): Response<GroupIdResponse>
+
+    // 설문 결과 저장
+    @POST("/group/servey/save")
+    suspend fun saveSurveyResult(
+        @Query("groupId") groupId: Int,
+        @Body body: SaveSurveyResultRequest
+    ): Response<SaveSurveyResultResponse<String>>
 }

@@ -51,7 +51,7 @@ fun GroupNotJoinedContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "가입된 그룹이 없습니다.",
+                text = "가입된 그룹이 없습니다",
                 style = MaterialTheme.typography.headlineSmall
             )
 
@@ -65,14 +65,14 @@ fun GroupNotJoinedContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             ButtonDefault(
-                text = "생성하기",
+                text = "그룹 생성",
                 onClick = onCreateClick
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             ButtonOutline(
-                text = "가입하기",
+                text = "그룹 가입",
                 onClick = onJoinClick,
             )
         }

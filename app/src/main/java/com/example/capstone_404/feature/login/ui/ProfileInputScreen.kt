@@ -130,7 +130,7 @@ fun ProfileInputScreen(
                 }
 
                 ButtonDefault(
-                    text = "시작하기",
+                    text = "정보 제출",
                     onClick = onStartClicked,
                     enabled = isButtonEnabled
                 )

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.AuthRepository
+import com.example.capstone_404.data.repository.GroupRepository
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val groupRepository: GroupRepository,
     val tokenManager: TokenManager,
     private val userInfoManager: UserInfoManager
 ) : ViewModel() {
@@ -23,9 +25,13 @@ class LoginViewModel @Inject constructor(
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState
 
-    // 자동 로그인 용 상태 관리
+    // 자동 로그인용 상태 관리
     private val _isLoggedIn = MutableStateFlow<Boolean?>(null)
     val isLoggedIn: StateFlow<Boolean?> = _isLoggedIn
+
+    // 그룹 ID 저장 상태 관리
+    private val _isSaved = MutableStateFlow(false)
+    val isSaved: StateFlow<Boolean> = _isSaved
 
     // 자동 로그인 체크 함수
     fun checkAutoLogin() {
@@ -38,6 +44,27 @@ class LoginViewModel @Inject constructor(
     fun saveSessionId(sessionId: String) {
         viewModelScope.launch {
             tokenManager.saveSessionId(sessionId)
+        }
+    }
+
+    // DataStore에 groupID 저장 함수
+    fun saveGroupId() {
+        viewModelScope.launch {
+            try {
+                val result = groupRepository.getGroupIdFromServer()
+
+                result.onSuccess { groupId ->
+                    userInfoManager.saveGroupId(groupId)
+                    Log.d("User_Info", "그룹 ID 저장 완료 : $groupId")
+                    _isSaved.value = true
+                }.onFailure { e ->
+                    Log.d("User_Info", "그룹 ID 조회 실패 : ${e.message}")
+                    _isSaved.value = true
+                }
+            } catch (e: Exception) {
+                Log.e("User_Info", "그룹 ID 조회 실패 : ${e.message}")
+                _isSaved.value = true
+            }
         }
     }
 
@@ -56,7 +83,10 @@ class LoginViewModel @Inject constructor(
                 tokenManager.saveTokens(data.accessToken, data.refreshToken)
                 // userId 저장
                 userInfoManager.saveUserId(data.userId)
-                Log.d("User_Info", "${data.userId} 저장 완료")
+                Log.d("User_Info", "userId 저장 완료 : ${data.userId}")
+                // sessionId 삭제
+                tokenManager.clearSessionId()
+                Log.d("User_Info", "SessionId 삭제 완료")
 
                 _loginState.value = LoginState.Success(data.flag)
             } else {

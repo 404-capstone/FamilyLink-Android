@@ -11,6 +11,7 @@ class GroupRepositoryImpl @Inject constructor(
     private val groupApi: GroupApi
 ) : GroupRepository {
 
+    // 그룹 생성
     override suspend fun createGroup(
         groupName: String,
         role: String,
@@ -22,6 +23,25 @@ class GroupRepositoryImpl @Inject constructor(
                 response.body()?.data?.let {
                     Result.success(it)
                 } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 그룹 ID 조회
+    override suspend fun getGroupIdFromServer(): Result<Int> {
+        return try {
+            val response = groupApi.getGroupId()
+            if (response.isSuccessful) {
+                val groupId = response.body()?.data
+                if (groupId != null) {
+                    Result.success(groupId)
+                } else {
+                    Result.failure(Exception("응답 데이터 없음"))
+                }
             } else {
                 Result.failure(Exception("오류 코드: ${response.code()}"))
             }

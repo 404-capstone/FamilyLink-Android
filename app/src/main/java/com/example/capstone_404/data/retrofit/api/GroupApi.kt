@@ -1,8 +1,10 @@
 package com.example.capstone_404.data.retrofit.api
 
 import com.example.capstone_404.data.retrofit.model.response.GroupCreateResponse
+import com.example.capstone_404.data.retrofit.model.response.GroupIdResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
+import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -19,4 +21,8 @@ interface GroupApi {
         @Query("role") role: String,
         @Part image: MultipartBody.Part
     ): Response<GroupCreateResponse>
+
+    // 그룹 ID 조회
+    @GET("/group/id/search")
+    suspend fun getGroupId(): Response<GroupIdResponse>
 }

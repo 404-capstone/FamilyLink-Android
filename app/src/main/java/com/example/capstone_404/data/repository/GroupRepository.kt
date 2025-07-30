@@ -12,4 +12,7 @@ interface GroupRepository {
         role: String,
         image: MultipartBody.Part
     ): Result<GroupData>
+
+    // 그룹 ID 조회
+    suspend fun getGroupIdFromServer(): Result<Int>
 }

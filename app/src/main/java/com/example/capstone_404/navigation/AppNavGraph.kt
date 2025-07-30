@@ -78,7 +78,9 @@ fun AppNavGraph(navController: NavHostController) {
                 GroupScreen(
                     onCreate = { groupName, encodedUri ->
                         navController.navigate("roleSelect?groupName=$groupName&imageUri=$encodedUri")
-                    }
+                    },
+                    onNavigateToWrite = {},
+                    onNavigateToResult = {}
                 )
             }
             // 그룹 역할 선택

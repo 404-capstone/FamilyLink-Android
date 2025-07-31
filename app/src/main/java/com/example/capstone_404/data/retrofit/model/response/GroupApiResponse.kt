@@ -1,26 +1,32 @@
 package com.example.capstone_404.data.retrofit.model.response
 
+import kotlinx.serialization.Serializable
+
 // 그룹 생성 Response
-data class GroupCreateResponse(
-    val code: Int,
-    val message: String,
-    val data: GroupData
-)
 data class GroupData(
     val groupName: String,
     val groupId: Int
 )
 
-// 그룹 ID 조회 Response
-data class GroupIdResponse(
-    val code: Int,
-    val message: String,
-    val data: Int
+// 그룹 ID 조회 Response - BaseResponse 사용
+
+// 그룹 정보 조회 Response - 그룹 정보
+@Serializable
+data class GroupInfoData(
+    val group_id: Int,
+    val group_name: String,
+    val group_image: String? = null,
+    val userinfo: List<GroupUserInfoData>
+)
+// 그룹 정보 조회 Response - 그룹원 정보
+@Serializable
+data class GroupUserInfoData(
+    val userId: Int,
+    val username: String,
+    val role: String,
+    val age: String? = null,
+    val image: String? = null,
+    val leader: Boolean
 )
 
-// 설문 결과 저장 Response
-data class SaveSurveyResultResponse<T>(
-    val code: Int,
-    val message: String,
-    val data: T
-)
+// 설문 결과 저장 Response - BaseResponse 사용

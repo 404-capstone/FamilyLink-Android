@@ -3,6 +3,7 @@ package com.example.capstone_404.feature.login.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.AuthRepository
 import com.example.capstone_404.data.repository.GroupRepository
@@ -12,13 +13,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.capstone_404.data.info.GroupInfo
+import com.example.capstone_404.data.info.GroupUserInfo
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val groupRepository: GroupRepository,
     val tokenManager: TokenManager,
-    private val userInfoManager: UserInfoManager
+    private val userInfoManager: UserInfoManager,
+    private val groupInfoManager: GroupInfoManager
 ) : ViewModel() {
 
     // 소셜 로그인 상태 관리
@@ -56,7 +60,7 @@ class LoginViewModel @Inject constructor(
                 result.onSuccess { groupId ->
                     userInfoManager.saveGroupId(groupId)
                     Log.d("User_Info", "그룹 ID 저장 완료 : $groupId")
-                    _isSaved.value = true
+                    saveGroupInfo(groupId)
                 }.onFailure { e ->
                     Log.d("User_Info", "그룹 ID 조회 실패 : ${e.message}")
                     _isSaved.value = true
@@ -65,6 +69,34 @@ class LoginViewModel @Inject constructor(
                 Log.e("User_Info", "그룹 ID 조회 실패 : ${e.message}")
                 _isSaved.value = true
             }
+        }
+    }
+
+    // DataStore에 그룹 정보 저장 함수
+    private fun saveGroupInfo(groupId: Int) {
+        viewModelScope.launch {
+            val result = groupRepository.getGroupInfo(groupId)
+            result.onSuccess { data ->
+                val groupInfo = GroupInfo(
+                    groupName = data.group_name,
+                    groupImage = data.group_image ?: "",
+                    userinfo = data.userinfo.map {
+                        GroupUserInfo(
+                            userId = it.userId,
+                            username = it.username,
+                            role = it.role,
+                            age = it.age ?: "연령대 미지정",
+                            image = it.image ?: "",
+                            leader = it.leader
+                        )
+                    }
+                )
+                groupInfoManager.saveGroupInfo(groupInfo)
+                Log.d("User_Info", "그룹 정보 저장 완료 : $groupInfo")
+            }.onFailure {
+                Log.e("User_Info", "그룹 정보 조회 실패: ${it.message}")
+            }
+            _isSaved.value = true
         }
     }
 

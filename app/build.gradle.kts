@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("kotlinx-serialization")
 }
 
 android {
@@ -68,6 +69,8 @@ dependencies {
     implementation (libs.okhttp)
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+    // JSON 인코딩 & 디코딩
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

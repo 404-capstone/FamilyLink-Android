@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.capstone_404.feature.group.model.GroupInfoSample
 import com.example.capstone_404.feature.group.ui.component.SurveyFab
 import com.example.capstone_404.ui.component.CustomTopBar
 import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
@@ -44,8 +44,9 @@ fun GroupScreen(
     onNavigateToResult: () -> Unit
 ) {
     val context = LocalContext.current
-    // 그룹 가입 여부
-    val isJoined = viewModel.isJoined
+    // 그룹 정보 갱신
+    val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
+    val userId by viewModel.userIdFlow.collectAsState(initial = null)
     // 다이얼로그 상태 관리
     var showCreateDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
@@ -140,11 +141,10 @@ fun GroupScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
-                    if (isJoined) {
+                    if (groupInfo != null && userId != null) {
                         GroupJoinedContent(
-                            // Todo : API 연결하고 수정
-                            groupInfo = GroupInfoSample,
-                            currentUserId = 2,
+                            groupInfo = groupInfo!!,
+                            currentUserId = userId!!,
                             onEditGroup = {},
                             onInvite = {},
                             onLeaveGroup = {}
@@ -157,7 +157,7 @@ fun GroupScreen(
                     }
                 }
                 // 가입된 상태에만 Fab 출력
-                if (isJoined) {
+                if (groupInfo != null && userId != null) {
                     SurveyFab(
                         expanded = isFabExpanded,
                         onToggle = { isFabExpanded = !isFabExpanded },

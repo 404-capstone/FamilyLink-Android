@@ -41,7 +41,7 @@ fun SplashScreen(
         }
     }
 
-    // 그룹 ID 저장 완료 시 이동
+    // 그룹 ID & 그룹 정보 저장 완료 시 이동
     LaunchedEffect(isSaved) {
         if (isSaved) {
             onLoggedIn()

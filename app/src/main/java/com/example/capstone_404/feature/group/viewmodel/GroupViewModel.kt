@@ -23,8 +23,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.example.capstone_404.data.info.GroupInfo
+import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.feature.group.model.calculateSurveyResult
+import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -34,12 +37,14 @@ class GroupViewModel @Inject constructor(
     private val groupRepository: GroupRepository,
     @ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
-    private val userInfoManager: UserInfoManager
+    private val userInfoManager: UserInfoManager,
+    groupInfoManager: GroupInfoManager
 ) : ViewModel() {
     // -------------------- 상태 변수 --------------------
-    // 그룹 가입 여부
-    var isJoined by mutableStateOf(false)
-        private set
+    // 그룹 정보 Flow
+    val groupInfoFlow: Flow<GroupInfo?> = groupInfoManager.groupInfoFlow
+    // 유저 ID Flow
+    val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
 
     // 역할 선택 상태
     var selectedRoleState by mutableStateOf(SelectedRoleState())

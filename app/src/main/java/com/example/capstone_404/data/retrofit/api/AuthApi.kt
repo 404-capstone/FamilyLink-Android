@@ -1,7 +1,8 @@
 package com.example.capstone_404.data.retrofit.api
 
-import com.example.capstone_404.data.retrofit.model.response.SocialLoginResponse
-import com.example.capstone_404.data.retrofit.model.response.TokenRefreshResponse
+import com.example.capstone_404.data.retrofit.model.response.BaseResponse
+import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
+import com.example.capstone_404.data.retrofit.model.response.TokenData
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -14,11 +15,11 @@ interface AuthApi {
     @GET("/user/login/code")
     suspend fun loginWithSession(
         @Query("session") sessionId: String
-    ): Response<SocialLoginResponse>
+    ): Response<BaseResponse<SocialLoginData>>
 
     // 토큰 재발급 (만료 시 자동)
     @GET("/user/token/refresh")
     suspend fun refreshAccessToken(
         @Header("Refresh-Token") refreshToken: String
-    ): Response<TokenRefreshResponse>
+    ): Response<BaseResponse<TokenData>>
 }

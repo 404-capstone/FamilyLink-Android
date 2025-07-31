@@ -1,9 +1,9 @@
 package com.example.capstone_404.data.retrofit.api
 
 import com.example.capstone_404.data.retrofit.model.request.SaveSurveyResultRequest
-import com.example.capstone_404.data.retrofit.model.response.GroupCreateResponse
-import com.example.capstone_404.data.retrofit.model.response.GroupIdResponse
-import com.example.capstone_404.data.retrofit.model.response.SaveSurveyResultResponse
+import com.example.capstone_404.data.retrofit.model.response.BaseResponse
+import com.example.capstone_404.data.retrofit.model.response.GroupData
+import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -23,16 +23,23 @@ interface GroupApi {
         @Query("groupname") groupName: String,
         @Query("role") role: String,
         @Part image: MultipartBody.Part
-    ): Response<GroupCreateResponse>
+    ): Response<BaseResponse<GroupData>>
 
     // 그룹 ID 조회
     @GET("/group/id/search")
-    suspend fun getGroupId(): Response<GroupIdResponse>
+    suspend fun getGroupId(
+    ): Response<BaseResponse<Int>>
+
+    // 그룹 정보 조회
+    @GET("/group/search")
+    suspend fun getGroupInfo(
+        @Query("groupId") groupId: Int
+    ): Response<BaseResponse<GroupInfoData>>
 
     // 설문 결과 저장
     @POST("/group/servey/save")
     suspend fun saveSurveyResult(
         @Query("groupId") groupId: Int,
         @Body body: SaveSurveyResultRequest
-    ): Response<SaveSurveyResultResponse<String>>
+    ): Response<BaseResponse<String>>
 }

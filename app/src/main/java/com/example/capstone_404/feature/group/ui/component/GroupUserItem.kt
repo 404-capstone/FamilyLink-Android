@@ -23,13 +23,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.example.capstone_404.feature.group.model.GroupUserUiModel
+import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.feature.group.model.getColor
+import com.example.capstone_404.feature.group.model.parseRoleAndOrder
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
 
 @Composable
-fun GroupUserItem(user: GroupUserUiModel, isCurrentUser: Boolean) {
+fun GroupUserItem(user: GroupUserInfo, isCurrentUser: Boolean) {
+    // 역할 텍스트 나누기
+    val splitRole = parseRoleAndOrder(user.role)
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -41,7 +46,7 @@ fun GroupUserItem(user: GroupUserUiModel, isCurrentUser: Boolean) {
     ) {
         // 프로필 이미지
         AsyncImage(
-            model = user.imageUrl,
+            model = user.image,
             contentDescription = "프로필 이미지",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -76,7 +81,7 @@ fun GroupUserItem(user: GroupUserUiModel, isCurrentUser: Boolean) {
                     modifier = Modifier
                         .size(12.dp)
                         .clip(CircleShape)
-                        .background(user.roleColor)
+                        .background(splitRole.first.getColor(splitRole.second))
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -87,7 +92,7 @@ fun GroupUserItem(user: GroupUserUiModel, isCurrentUser: Boolean) {
             }
         }
         // 그룹장 텍스트
-        if (user.isLeader) {
+        if (user.leader) {
             Text(
                 text = "그룹장",
                 style = MaterialTheme.typography.bodySmall,

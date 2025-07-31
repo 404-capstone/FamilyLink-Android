@@ -3,6 +3,7 @@ package com.example.capstone_404.data.repository
 import com.example.capstone_404.data.retrofit.api.GroupApi
 import com.example.capstone_404.data.retrofit.model.request.SaveSurveyResultRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupData
+import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import okhttp3.MultipartBody
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,6 +44,22 @@ class GroupRepositoryImpl @Inject constructor(
                 } else {
                     Result.failure(Exception("응답 데이터 없음"))
                 }
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 그룹 정보 조회
+    override suspend fun getGroupInfo(groupId: Int): Result<GroupInfoData> {
+        return try {
+            val response = groupApi.getGroupInfo(groupId)
+            if (response.isSuccessful) {
+                response.body()?.data?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 Result.failure(Exception("오류 코드: ${response.code()}"))
             }

@@ -3,11 +3,8 @@ package com.example.capstone_404.data.repository
 import android.util.Log
 import com.example.capstone_404.data.retrofit.api.AuthApi
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
-import com.example.capstone_404.data.retrofit.model.response.SocialLoginResponse
 import com.example.capstone_404.data.retrofit.model.response.TokenData
-import com.example.capstone_404.data.retrofit.model.response.TokenRefreshResponse
 import com.example.capstone_404.data.retrofit.token.TokenManager
-import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -21,7 +18,7 @@ class AuthRepositoryImpl @Inject constructor(
     // SessionId로 토큰 발급
     override suspend fun loginWithSession(sessionId: String): Result<SocialLoginData> {
         return try {
-            val response: Response<SocialLoginResponse> = authApi.loginWithSession(sessionId)
+            val response = authApi.loginWithSession(sessionId)
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
@@ -38,8 +35,7 @@ class AuthRepositoryImpl @Inject constructor(
     // 수동 토큰 재발급
     override suspend fun tokenRefresh(providedRefreshToken: String): Result<TokenData> {
         return try {
-            val response: Response<TokenRefreshResponse> =
-                authApi.refreshAccessToken("Bearer $providedRefreshToken")
+            val response = authApi.refreshAccessToken("Bearer $providedRefreshToken")
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->

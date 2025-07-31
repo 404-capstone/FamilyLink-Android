@@ -30,3 +30,11 @@ data class GroupUserInfoData(
 )
 
 // 설문 결과 저장 Response - BaseResponse 사용
+
+// 설문 결과 조회 Response
+@Serializable
+data class SurveyResultData(
+    val level: String,
+    val score: Int,
+    val percent: Int
+)

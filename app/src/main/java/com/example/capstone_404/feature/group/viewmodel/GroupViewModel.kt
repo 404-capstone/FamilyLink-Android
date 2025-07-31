@@ -25,6 +25,7 @@ import javax.inject.Inject
 import androidx.core.net.toUri
 import com.example.capstone_404.data.info.GroupInfo
 import com.example.capstone_404.data.info.GroupInfoManager
+import com.example.capstone_404.data.info.SurveyResult
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.feature.group.model.calculateSurveyResult
 import kotlinx.coroutines.flow.Flow
@@ -38,13 +39,15 @@ class GroupViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
     private val userInfoManager: UserInfoManager,
-    groupInfoManager: GroupInfoManager
+    private val groupInfoManager: GroupInfoManager
 ) : ViewModel() {
     // -------------------- 상태 변수 --------------------
     // 그룹 정보 Flow
     val groupInfoFlow: Flow<GroupInfo?> = groupInfoManager.groupInfoFlow
     // 유저 ID Flow
     val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
+    // 설문 결과 Flow
+    val surveyResultFlow: Flow<SurveyResult?> = groupInfoManager.surveyResultFlow
 
     // 역할 선택 상태
     var selectedRoleState by mutableStateOf(SelectedRoleState())
@@ -139,14 +142,14 @@ class GroupViewModel @Inject constructor(
     fun isSurveySubmitEnabled(totalQuestions: Int): Boolean {
         return _surveyResponses.size == totalQuestions
     }
-    // 제출 처리
+    // 설문 응답 제출 처리
     fun submitSurvey() {
         isLoading = true
         viewModelScope.launch {
             val totalScore = _surveyResponses.values.sum()
             val surveyResult = calculateSurveyResult(totalScore)
             val groupId = userInfoManager.getGroupId()
-            Log.d("GroupScreen", "Level: ${surveyResult.level}\n Score: ${surveyResult.score}\n Percent: ${surveyResult.percent}%")
+            Log.d("GroupViewModel","설문 결과 : $surveyResult")
             try {
                 val result = groupId?.let {
                     groupRepository.saveSurveyResult(
@@ -158,11 +161,13 @@ class GroupViewModel @Inject constructor(
                 }
                 if (result != null) {
                     result.onSuccess { data ->
-                        Log.d("GroupScreen", "설문 결과 저장 완료 : $data")
+                        groupInfoManager.saveSurveyResult(surveyResult)
+                        Log.d("User_Info", "설문 결과 저장 완료 : $surveyResult")
+                        Log.d("GroupViewModel", "설문 결과 저장 완료 : $data")
                         _isSaved.value = true
                         isLoading = false
                     }.onFailure { e ->
-                        Log.d("GroupScreen", "설문 결과 저장 실패 : ${e.message}")
+                        Log.d("GroupViewModel", "설문 결과 저장 실패 : ${e.message}")
                         _isSaved.value = false
                         isLoading = false
                     }

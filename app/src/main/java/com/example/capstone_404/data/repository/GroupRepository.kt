@@ -2,6 +2,7 @@ package com.example.capstone_404.data.repository
 
 import com.example.capstone_404.data.retrofit.model.response.GroupData
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
+import com.example.capstone_404.data.retrofit.model.response.SurveyResultData
 import okhttp3.MultipartBody
 
 // 그룹 관련 API Repository 인터페이스
@@ -30,4 +31,9 @@ interface GroupRepository {
         score: Int,
         percent: Int
     ): Result<String>
+
+    // 설문 결과 조회
+    suspend fun getSurveyResult(
+        groupId: Int
+    ): Result<SurveyResultData>
 }

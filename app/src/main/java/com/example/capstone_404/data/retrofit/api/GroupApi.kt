@@ -4,6 +4,7 @@ import com.example.capstone_404.data.retrofit.model.request.SaveSurveyResultRequ
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.GroupData
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
+import com.example.capstone_404.data.retrofit.model.response.SurveyResultData
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -42,4 +43,10 @@ interface GroupApi {
         @Query("groupId") groupId: Int,
         @Body body: SaveSurveyResultRequest
     ): Response<BaseResponse<String>>
+
+    // 설문 결과 조회
+    @GET("/group/servey/search")
+    suspend fun getSurveyResult(
+        @Query("groupId") groupId: Int
+    ): Response<BaseResponse<SurveyResultData>>
 }

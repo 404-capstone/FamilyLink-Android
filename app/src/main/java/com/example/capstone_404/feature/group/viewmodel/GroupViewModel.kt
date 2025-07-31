@@ -25,9 +25,12 @@ import javax.inject.Inject
 import androidx.core.net.toUri
 import com.example.capstone_404.data.info.GroupInfo
 import com.example.capstone_404.data.info.GroupInfoManager
+import com.example.capstone_404.data.info.GroupUserInfo
 import com.example.capstone_404.data.info.SurveyResult
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.feature.group.model.calculateSurveyResult
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -123,12 +126,43 @@ class GroupViewModel @Inject constructor(
                 if (data != null) {
                     // groupId 저장
                     userInfoManager.saveGroupId(data.groupId)
+                    Log.d("User_Info", "(G)그룹 ID 저장 완료 : ${data.groupId}")
+                    // 그룹 정보 저장
+                    coroutineScope {
+                        val groupInfoDeferred = async { saveGroupInfo(data.groupId) }
+                        // 처리가 끝날 때까지 대기
+                        groupInfoDeferred.await()
+                    }
                     _createResult.value = result
                 } else {
                     Log.d("GroupViewModel", "생성 실패 : $exception")
                 }
                 Log.d("GroupViewModel", "생성 결과: $_createResult")
             }
+        }
+    }
+    // DataStore에 [GroupInfo] 저장
+    private suspend fun saveGroupInfo(groupId: Int) {
+        val result = groupRepository.getGroupInfo(groupId)
+        result.onSuccess { data ->
+            val groupInfo = GroupInfo(
+                groupName = data.group_name,
+                groupImage = data.group_image ?: "",
+                userinfo = data.userinfo.map {
+                    GroupUserInfo(
+                        userId = it.userId,
+                        username = it.username,
+                        role = it.role,
+                        age = it.age ?: "연령대 미지정",
+                        image = it.image ?: "",
+                        leader = it.leader
+                    )
+                }
+            )
+            groupInfoManager.saveGroupInfo(groupInfo)
+            Log.d("User_Info", "(G)그룹 정보 저장 완료 : $groupInfo")
+        }.onFailure {
+            Log.e("User_Info", "(G)그룹 정보 조회 실패: ${it.message}")
         }
     }
 
@@ -162,7 +196,7 @@ class GroupViewModel @Inject constructor(
                 if (result != null) {
                     result.onSuccess { data ->
                         groupInfoManager.saveSurveyResult(surveyResult)
-                        Log.d("User_Info", "설문 결과 저장 완료 : $surveyResult")
+                        Log.d("User_Info", "(G)설문 결과 저장 완료 : $surveyResult")
                         Log.d("GroupViewModel", "설문 결과 저장 완료 : $data")
                         _isSaved.value = true
                         isLoading = false
@@ -173,7 +207,7 @@ class GroupViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                Log.d("GroupScreen", "설문 결과 저장 실패 : ${e.message}")
+                Log.d("GroupViewModel", "설문 결과 저장 실패 : ${e.message}")
                 _isSaved.value = false
                 isLoading = false
             }

@@ -12,6 +12,7 @@ object Route {
     const val ROLE_SELECT = "roleSelect?groupName={groupName}&imageUri={imageUri}&inviteCode={inviteCode}"
     const val SURVEY_INTRO = "survey_intro"
     const val SURVEY_LIST = "survey_list"
+    const val SURVEY_RESULT = "survey_result"
 
     // 캘린더 관련
     const val CALENDAR = "calendar"

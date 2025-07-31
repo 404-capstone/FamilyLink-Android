@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
+import com.example.capstone_404.ui.theme.Main
 
 // 자동 로그인 처리 화면
 @Composable
@@ -23,20 +24,30 @@ fun SplashScreen(
     onLoggedIn: () -> Unit,
     onNotLoggedIn: () -> Unit
     ) {
-    // 자동 로그인 상태 변수
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val isSaved by viewModel.isSaved.collectAsState()
 
+    // 로그인 상태 확인
     LaunchedEffect(Unit) {
         viewModel.checkAutoLogin()
     }
 
+    // 자동 로그인 성공 후 그룹 ID 저장
     LaunchedEffect(isLoggedIn) {
-        when (isLoggedIn) {
-            true -> onLoggedIn()
-            false -> onNotLoggedIn()
-            else -> onNotLoggedIn()
+        if (isLoggedIn == true) {
+            viewModel.saveGroupId()
+        } else if (isLoggedIn == false) {
+            onNotLoggedIn()
         }
     }
+
+    // 그룹 ID & 그룹 정보 저장 완료 시 이동
+    LaunchedEffect(isSaved) {
+        if (isSaved) {
+            onLoggedIn()
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         // 배경 이미지
         Image(
@@ -46,6 +57,6 @@ fun SplashScreen(
             modifier = Modifier.fillMaxSize()
         )
         // 로딩 UI
-        CircularProgressIndicator()
+        CircularProgressIndicator(color = Main)
     }
 }

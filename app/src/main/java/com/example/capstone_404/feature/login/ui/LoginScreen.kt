@@ -32,6 +32,7 @@ import com.example.capstone_404.feature.login.ui.componet.KakaoLoginButton
 import com.example.capstone_404.feature.login.ui.componet.NaverLoginButton
 import com.example.capstone_404.feature.login.viewmodel.LoginState
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
+import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.TextWhite
 import com.example.capstone_404.utils.SocialLoginManager
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,7 @@ fun LoginScreen(
     val context = LocalContext.current
     // 로그인 상태 변수
     val loginState by viewModel.loginState.collectAsState()
+    val isSaved by viewModel.isSaved.collectAsState()
 
     // SessionId 감지 시 로그인 처리
     LaunchedEffect(Unit) {
@@ -55,9 +57,6 @@ fun LoginScreen(
         if (sessionId.isNotBlank()) {
             Log.d("LoginScreen", "저장된 sessionId: $sessionId")
             viewModel.loginWithSessionId(sessionId)
-
-            // 로그인 처리 후 삭제
-            viewModel.tokenManager.clearSessionId()
         }
     }
 
@@ -71,7 +70,7 @@ fun LoginScreen(
                 if (isNewUser) {
                     onNavigateToProfileInput()
                 } else {
-                    onNavigateToHome()
+                    viewModel.saveGroupId()
                 }
             }
             is LoginState.Error -> {
@@ -81,10 +80,18 @@ fun LoginScreen(
             else -> {}
         }
     }
+
+    // 그룹 ID 저장 완료 시 이동
+    LaunchedEffect(isSaved) {
+        if (isSaved) {
+            onNavigateToHome()
+        }
+    }
+
     // 로그인 진행 중 로딩 표시
     if (loginState is LoginState.Loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = Main)
         }
     }
 

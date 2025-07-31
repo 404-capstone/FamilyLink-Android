@@ -3,6 +3,7 @@ package com.example.capstone_404.feature.group.viewmodel
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
@@ -22,30 +23,60 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.example.capstone_404.data.info.GroupInfo
+import com.example.capstone_404.data.info.GroupInfoManager
+import com.example.capstone_404.data.info.SurveyResult
+import com.example.capstone_404.data.info.UserInfoManager
+import com.example.capstone_404.feature.group.model.calculateSurveyResult
+import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 @HiltViewModel
 class GroupViewModel @Inject constructor(
     private val groupRepository: GroupRepository,
     @ApplicationContext private val appContext: Context,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val userInfoManager: UserInfoManager,
+    private val groupInfoManager: GroupInfoManager
 ) : ViewModel() {
-    // 그룹 가입 여부 상태 관리
-    var isJoined by mutableStateOf(false)
-        private set
+    // -------------------- 상태 변수 --------------------
+    // 그룹 정보 Flow
+    val groupInfoFlow: Flow<GroupInfo?> = groupInfoManager.groupInfoFlow
+    // 유저 ID Flow
+    val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
+    // 설문 결과 Flow
+    val surveyResultFlow: Flow<SurveyResult?> = groupInfoManager.surveyResultFlow
 
     // 역할 선택 상태
     var selectedRoleState by mutableStateOf(SelectedRoleState())
         private set
 
-    // API 호출에 필요한 데이터 저장
+    // 로딩 출력 여부
+    var isLoading by mutableStateOf(false)
+        private set
+
+    // 그룹 생성 결과
+    private val _createResult = MutableStateFlow<Result<GroupData>?>(null)
+    val createResult: StateFlow<Result<GroupData>?> = _createResult
+
+    // 사용자 설문 응답 저장
+    private val _surveyResponses = mutableStateMapOf<Int, Int>()
+    val surveyResponses: Map<Int, Int> get() = _surveyResponses
+
+    // 서버에 설문 결과 저장의 결과
+    private val _isSaved = MutableStateFlow(false)
+    val isSaved: StateFlow<Boolean> = _isSaved
+
+
+    // -------------------- 생성|가입에 필요한 전달 데이터 --------------------
     private val groupName = savedStateHandle["groupName"] ?: ""
     private val imageUri = savedStateHandle.get<String>("imageUri")?.takeIf { it.isNotBlank() }?.toUri()
     private val inviteCode = savedStateHandle["inviteCode"] ?: ""
 
-    // 그룹 생성 상태 관리
-    private val _createResult = MutableStateFlow<Result<GroupData>?>(null)
-    val createResult: StateFlow<Result<GroupData>?> = _createResult
 
+    // -------------------- 역할 선택 함수 --------------------
     // 역할 선택 상태 변경
     fun updateSelectedRole(role: RoleType?) {
         selectedRoleState = selectedRoleState.copy(role = role)
@@ -58,16 +89,17 @@ class GroupViewModel @Inject constructor(
         selectedRoleState = selectedRoleState.copy(order = order)
     }
 
+
+    // -------------------- 가입|생성 함수 --------------------
     // 가입 or 생성에 따른 제출 처리
     fun submitGroupEntry() {
         val role = selectedRoleState.role ?: return
         val roleLabel = if (role == RoleType.SON || role == RoleType.DAUGHTER) {
             val order = selectedRoleState.order ?: return
-            "${order.label}${role.toKorean()}"
+            "${order.label} ${role.toKorean()}"
         } else {
             role.toKorean()
         }
-
         viewModelScope.launch {
             if (inviteCode.isNotBlank()) {
                 // Todo : 그룹 가입 API 호출 예정
@@ -75,10 +107,75 @@ class GroupViewModel @Inject constructor(
 //                _createResult.value = groupRepository.JoinGroup(inviteCode, roleLabel)
                 Log.d("GroupViewModel", "가입 결과: $_createResult")
             } else {
+                // 이미지 없는 경우 empty value 전달
                 val imagePart = imageUri?.let { prepareImagePart(appContext, it) }
+                    ?: MultipartBody.Part.createFormData(
+                        name = "image",
+                        filename = "",
+                        body = "".toRequestBody("application/octet-stream".toMediaTypeOrNull())
+                    )
                 Log.d("GroupViewModel", "그룹 생성 요청: groupName : $groupName, role : $roleLabel, image : $imagePart")
-                _createResult.value = groupRepository.createGroup(groupName, roleLabel, imagePart)
+
+                val result = groupRepository.createGroup(groupName, roleLabel, imagePart)
+
+                val data = result.getOrNull()
+                val exception = result.exceptionOrNull()
+                if (data != null) {
+                    // groupId 저장
+                    userInfoManager.saveGroupId(data.groupId)
+                    _createResult.value = result
+                } else {
+                    Log.d("GroupViewModel", "생성 실패 : $exception")
+                }
                 Log.d("GroupViewModel", "생성 결과: $_createResult")
+            }
+        }
+    }
+
+
+    // -------------------- 설문지 함수 --------------------
+    // 응답 선택
+    fun onAnswerSelected(questionId: Int, selectedOption: Int) {
+        _surveyResponses[questionId] = selectedOption
+    }
+    // 버튼 활성화(모든 설문에 대한 응답 선택 시)
+    fun isSurveySubmitEnabled(totalQuestions: Int): Boolean {
+        return _surveyResponses.size == totalQuestions
+    }
+    // 설문 응답 제출 처리
+    fun submitSurvey() {
+        isLoading = true
+        viewModelScope.launch {
+            val totalScore = _surveyResponses.values.sum()
+            val surveyResult = calculateSurveyResult(totalScore)
+            val groupId = userInfoManager.getGroupId()
+            Log.d("GroupViewModel","설문 결과 : $surveyResult")
+            try {
+                val result = groupId?.let {
+                    groupRepository.saveSurveyResult(
+                        groupId = it,
+                        level = surveyResult.level,
+                        score = surveyResult.score,
+                        percent = surveyResult.percent
+                    )
+                }
+                if (result != null) {
+                    result.onSuccess { data ->
+                        groupInfoManager.saveSurveyResult(surveyResult)
+                        Log.d("User_Info", "설문 결과 저장 완료 : $surveyResult")
+                        Log.d("GroupViewModel", "설문 결과 저장 완료 : $data")
+                        _isSaved.value = true
+                        isLoading = false
+                    }.onFailure { e ->
+                        Log.d("GroupViewModel", "설문 결과 저장 실패 : ${e.message}")
+                        _isSaved.value = false
+                        isLoading = false
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("GroupScreen", "설문 결과 저장 실패 : ${e.message}")
+                _isSaved.value = false
+                isLoading = false
             }
         }
     }

@@ -6,12 +6,17 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.capstone_404.feature.group.ui.component.SurveyFab
 import com.example.capstone_404.ui.component.CustomTopBar
 import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
 import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
@@ -33,16 +39,22 @@ import com.example.capstone_404.utils.createImageUri
 @Composable
 fun GroupScreen(
     viewModel: GroupViewModel = hiltViewModel(),
-    onCreate: (groupName: String, encodedUri: String) -> Unit
+    onCreate: (groupName: String, encodedUri: String) -> Unit,
+    onNavigateToWrite: () -> Unit,
+    onNavigateToResult: () -> Unit
 ) {
     val context = LocalContext.current
-    // 그룹 가입 여부
-    val isJoined = viewModel.isJoined
+    // 그룹 정보 갱신
+    val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
+    val userId by viewModel.userIdFlow.collectAsState(initial = null)
     // 다이얼로그 상태 관리
     var showCreateDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
     var showSelectDialog by remember { mutableStateOf(false) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    // Fab 확장 상태 관리
+    var isFabExpanded by remember { mutableStateOf(false) }
+
     // 카메라 이미지 저장
     val cameraImageUri = remember { mutableStateOf<Uri?>(null) }
 
@@ -120,19 +132,37 @@ fun GroupScreen(
                 maxHeight < 800.dp -> 32.dp
                 else -> 40.dp
             }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = horizontalPadding, vertical = verticalPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (isJoined) {
-                    GroupJoinedContent()
-                } else {
-                    GroupNotJoinedContent(
-                        onCreateClick = { showCreateDialog = true },
-                        onJoinClick = {}
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    if (groupInfo != null && userId != null) {
+                        GroupJoinedContent(
+                            groupInfo = groupInfo!!,
+                            currentUserId = userId!!,
+                            onEditGroup = {},
+                            onInvite = {},
+                            onLeaveGroup = {}
+                        )
+                    } else {
+                        GroupNotJoinedContent(
+                            onCreateClick = { showCreateDialog = true },
+                            onJoinClick = {}
+                        )
+                    }
+                }
+                // 가입된 상태에만 Fab 출력
+                if (groupInfo != null && userId != null) {
+                    SurveyFab(
+                        expanded = isFabExpanded,
+                        onToggle = { isFabExpanded = !isFabExpanded },
+                        onSurveyWriteClick = { onNavigateToWrite() },
+                        onSurveyResultClick = { onNavigateToResult() }
                     )
                 }
             }

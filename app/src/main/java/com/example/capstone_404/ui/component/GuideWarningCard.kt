@@ -23,12 +23,12 @@ import com.example.capstone_404.ui.theme.TextGray
 
 // 안내 문구 카드
 @Composable
-fun GuideWarningCard() {
+fun GuideWarningCard(text: String) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -39,8 +39,8 @@ fun GuideWarningCard() {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "설문 결과는 본인만 열람이 가능하며,\n다른 사용자에게 공유되지 않습니다!",
-            style = MaterialTheme.typography.bodySmall,
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
             color = TextGray,
             textAlign = TextAlign.Left
         )

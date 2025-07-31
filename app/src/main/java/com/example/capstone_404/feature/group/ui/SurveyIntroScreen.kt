@@ -24,7 +24,7 @@ import com.example.capstone_404.ui.component.GuideWarningCard
 // 설문 안내 페이지
 @Composable
 fun SurveyIntroScreen(
-
+onNextPage: () -> Unit
 ) {
     Scaffold(
         topBar = { CustomTopBar(title = "설문 안내") }
@@ -71,11 +71,11 @@ fun SurveyIntroScreen(
 
                 OnboardingGuide(GuideImageList.surveyGuide)
 
-                GuideWarningCard()
+                GuideWarningCard("설문 결과는 본인만 열람이 가능하며, 다른 사용자에게 공유되지 않습니다!")
 
                 ButtonDefault(
-                    text = "설문 진행하기",
-                    onClick = {  }
+                    text = "설문 진행",
+                    onClick = { onNextPage() }
                 )
             }
         }

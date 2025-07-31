@@ -16,6 +16,8 @@ import com.example.capstone_404.ui.component.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
 import com.example.capstone_404.feature.group.ui.RoleSelectScreen
 import com.example.capstone_404.feature.group.ui.SurveyIntroScreen
+import com.example.capstone_404.feature.group.ui.SurveyListScreen
+import com.example.capstone_404.feature.group.ui.SurveyResultScreen
 import com.example.capstone_404.feature.login.ui.LoginScreen
 import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 import com.example.capstone_404.feature.login.ui.SplashScreen
@@ -77,6 +79,12 @@ fun AppNavGraph(navController: NavHostController) {
                 GroupScreen(
                     onCreate = { groupName, encodedUri ->
                         navController.navigate("roleSelect?groupName=$groupName&imageUri=$encodedUri")
+                    },
+                    onNavigateToWrite = {
+                        navController.navigate("survey_list") { popUpTo("group") { inclusive = false } }
+                    },
+                    onNavigateToResult = {
+                        navController.navigate("survey_result") { popUpTo("group") { inclusive = false } }
                     }
                 )
             }
@@ -97,7 +105,30 @@ fun AppNavGraph(navController: NavHostController) {
             }
             // 가입 완료 문구 + 설문 안내
             composable(Route.SURVEY_INTRO) {
-                SurveyIntroScreen()
+                SurveyIntroScreen(
+                    onNextPage = {
+                        navController.navigate(Route.SURVEY_LIST) { popUpTo("group") { inclusive = false } }
+                    }
+                )
+            }
+            // 설문지
+            composable(Route.SURVEY_LIST) {
+                SurveyListScreen(
+                    onSubmitComplete = {
+                        navController.navigate(Route.SURVEY_RESULT) { popUpTo("group") { inclusive = false } }
+                    },
+                    onClickToBack = {
+                        navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
+                    }
+                )
+            }
+            // 설문 결과
+            composable(Route.SURVEY_RESULT) {
+                SurveyResultScreen(
+                    onClickGoHome = {
+                        navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
+                    }
+                )
             }
 
             // 임시 정의

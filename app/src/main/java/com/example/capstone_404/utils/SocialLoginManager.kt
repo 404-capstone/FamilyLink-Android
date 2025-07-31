@@ -14,7 +14,7 @@ object SocialLoginManager {
     fun login(context: Context, platform: SocialPlatform) {
         val loginUrl = when (platform) {
             SocialPlatform.NAVER -> "$BASE_URL/oauth2/authorization/naver"
-            SocialPlatform.KAKAO -> "$BASE_URL/user/custom/kakao"
+            SocialPlatform.KAKAO -> "$BASE_URL/oauth2/authorization/kakao"
         }
 
         val activity = context as? Activity ?: return

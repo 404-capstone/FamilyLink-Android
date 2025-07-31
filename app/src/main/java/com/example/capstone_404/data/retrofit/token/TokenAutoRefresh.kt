@@ -28,7 +28,7 @@ class TokenAutoRefresh @Inject constructor(
         // refresh API 호출
         val tokenResponse = runBlocking {
             try {
-                authApi.refreshAccessToken(refreshToken)
+                authApi.refreshAccessToken("Bearer $refreshToken")
             } catch (e: Exception) {
                 null
             }

@@ -1,6 +1,7 @@
 package com.example.capstone_404.feature.group.viewmodel
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -30,6 +31,7 @@ import com.example.capstone_404.data.info.SurveyResult
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.feature.group.model.InviteCodeStatus
 import com.example.capstone_404.feature.group.model.calculateSurveyResult
+import com.example.capstone_404.feature.group.model.inviteMessage
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -271,5 +273,21 @@ class GroupViewModel @Inject constructor(
                 Log.e("GroupViewModel", "초대 코드 생성 실패: ${e.message}")
             }
         }
+    }
+    // 초대 코드 공유(텍스트 임시)
+    fun shareInviteCode(context: Context) {
+        val message = inviteMessage(
+            code = _inviteCodeValue.value.toString(),
+            inviteUrl = "",
+            downloadUrl = ""
+        )
+
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, message)
+            type = "text/plain"
+        }
+        val shareIntent = Intent.createChooser(sendIntent, "초대 코드 공유")
+        context.startActivity(shareIntent)
     }
 }

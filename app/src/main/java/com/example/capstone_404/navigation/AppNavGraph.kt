@@ -137,7 +137,6 @@ fun AppNavGraph(navController: NavHostController) {
             // 그룹원 초대
             composable(Route.INVITE_CODE) {
                 InviteCodeScreen(
-                    onShareClick = {},
                     onClickToBack = {
                         navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                     }

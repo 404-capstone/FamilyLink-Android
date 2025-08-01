@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,9 +43,9 @@ import com.example.capstone_404.ui.theme.TextBlack
 @Composable
 fun InviteCodeScreen(
     viewModel: GroupViewModel = hiltViewModel(),
-    onShareClick: () -> Unit,
     onClickToBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val status by viewModel.inviteCodeStatus.collectAsState()
     val code by viewModel.inviteCodeValue.collectAsState()
 
@@ -171,8 +172,8 @@ fun InviteCodeScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     ButtonOutline(
-                        text = "SNS로 공유",
-                        onClick = {  },
+                        text = "초대 코드 공유",
+                        onClick = { viewModel.shareInviteCode(context) },
                         enabled = (status == InviteCodeStatus.GENERATED)
                     )
                 }

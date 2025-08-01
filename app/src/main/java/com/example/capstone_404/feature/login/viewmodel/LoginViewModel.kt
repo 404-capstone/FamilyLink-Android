@@ -62,10 +62,10 @@ class LoginViewModel @Inject constructor(
                 tokenManager.saveTokens(data.accessToken, data.refreshToken)
                 // userId 저장
                 userInfoManager.saveUserId(data.userId)
-                Log.d("User_Info", "userId 저장 완료 : ${data.userId}")
+                Log.d("User_Info", "(L)userId 저장 완료 : ${data.userId}")
                 // sessionId 삭제
                 tokenManager.clearSessionId()
-                Log.d("User_Info", "SessionId 삭제 완료")
+                Log.d("User_Info", "(L)SessionId 삭제 완료")
 
                 _loginState.value = LoginState.Success(data.flag)
             } else {
@@ -92,7 +92,7 @@ class LoginViewModel @Inject constructor(
 
                 result.onSuccess { groupId ->
                     userInfoManager.saveGroupId(groupId)
-                    Log.d("User_Info", "그룹 ID 저장 완료 : $groupId")
+                    Log.d("User_Info", "(L)그룹 ID 저장 완료 : $groupId")
                     // 사용자 정보 저장 병렬 처리
                     // Todo : 조회 API 다 여기에 연결
                     coroutineScope {
@@ -104,11 +104,11 @@ class LoginViewModel @Inject constructor(
                     }
                     _isSaved.value = true
                 }.onFailure { e ->
-                    Log.d("User_Info", "그룹 ID 조회 실패 : ${e.message}")
+                    Log.d("User_Info", "(L)그룹 ID 조회 실패 : ${e.message}")
                     _isSaved.value = true
                 }
             } catch (e: Exception) {
-                Log.e("User_Info", "그룹 ID 조회 실패 : ${e.message}")
+                Log.e("User_Info", "(L)그룹 ID 조회 실패 : ${e.message}")
                 _isSaved.value = true
             }
         }
@@ -133,9 +133,9 @@ class LoginViewModel @Inject constructor(
                 }
             )
             groupInfoManager.saveGroupInfo(groupInfo)
-            Log.d("User_Info", "그룹 정보 저장 완료 : $groupInfo")
+            Log.d("User_Info", "(L)그룹 정보 저장 완료 : $groupInfo")
         }.onFailure {
-            Log.e("User_Info", "그룹 정보 조회 실패: ${it.message}")
+            Log.e("User_Info", "(L)그룹 정보 조회 실패: ${it.message}")
         }
     }
 
@@ -149,9 +149,9 @@ class LoginViewModel @Inject constructor(
                 percent = data.percent
             )
             groupInfoManager.saveSurveyResult(surveyResult)
-            Log.d("User_Info", "설문 결과 저장 완료 : $surveyResult")
+            Log.d("User_Info", "(L)설문 결과 저장 완료 : $surveyResult")
         }.onFailure {
-            Log.e("User_Info", "설문 결과 저장 실패 : ${it.message}")
+            Log.e("User_Info", "(L)설문 결과 저장 실패 : ${it.message}")
         }
     }
 }

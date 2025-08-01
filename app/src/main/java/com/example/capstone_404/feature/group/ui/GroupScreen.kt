@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,25 +33,40 @@ import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
 import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
 import com.example.capstone_404.feature.group.ui.dialog.GroupCancelDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupCreateDialog
+import com.example.capstone_404.feature.group.ui.dialog.GroupInfoDialog
+import com.example.capstone_404.feature.group.ui.dialog.GroupJoinDialog
 import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
+import com.example.capstone_404.ui.component.LoadingDialog
 import com.example.capstone_404.utils.createImageUri
 
 @Composable
 fun GroupScreen(
     viewModel: GroupViewModel = hiltViewModel(),
     onCreate: (groupName: String, encodedUri: String) -> Unit,
+    onJoin: (inviteCode: String) -> Unit,
     onNavigateToWrite: () -> Unit,
-    onNavigateToResult: () -> Unit
+    onNavigateToResult: () -> Unit,
+    onNavigateToInvite: () -> Unit
 ) {
     val context = LocalContext.current
+    //로딩 여부
+    val isLoading = viewModel.isLoading
     // 그룹 정보 갱신
     val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
+    // 초대 코드
+    var inviteCode by remember { mutableStateOf("") }
+    // 코드 기반 조회 그룹 정보
+    val groupInfoByCode by viewModel.groupInfoByCode.collectAsState()
+    val getError by viewModel.getError.collectAsState()
+
     // 다이얼로그 상태 관리
     var showCreateDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
     var showSelectDialog by remember { mutableStateOf(false) }
+    var showJoinDialog by remember { mutableStateOf(false) }
+    var showGroupInfoDialog by remember { mutableStateOf(false) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     // Fab 확장 상태 관리
     var isFabExpanded by remember { mutableStateOf(false) }
@@ -146,13 +162,13 @@ fun GroupScreen(
                             groupInfo = groupInfo!!,
                             currentUserId = userId!!,
                             onEditGroup = {},
-                            onInvite = {},
+                            onInvite = { onNavigateToInvite() },
                             onLeaveGroup = {}
                         )
                     } else {
                         GroupNotJoinedContent(
                             onCreateClick = { showCreateDialog = true },
-                            onJoinClick = {}
+                            onJoinClick = { showJoinDialog = true }
                         )
                     }
                 }
@@ -210,6 +226,50 @@ fun GroupScreen(
                 showSelectDialog = false
             },
             onDismiss = { showSelectDialog = false }
+        )
+    }
+
+    // 그룹 가입 다이얼로그
+    if (showJoinDialog) {
+        GroupJoinDialog(
+            onDismiss = {
+                viewModel.resetInviteError()
+                showJoinDialog = false
+                },
+            onConfirm = { code ->
+                inviteCode = code
+                viewModel.getGroupByInviteCode(code)
+            },
+            isError = getError
+        )
+    }
+
+    // 초대 코드 기반 조회 중 로딩
+    if (isLoading) {
+        LoadingDialog("정보를 가져오고 있어요\n잠시만 기다려주세요!")
+    }
+
+    // 그룹 정보 다이얼로그 표시
+    LaunchedEffect(groupInfoByCode) {
+        if (groupInfoByCode != null) {
+            showGroupInfoDialog = true
+        }
+    }
+
+    // 그룹 정보 다이얼로그
+    if (showGroupInfoDialog) {
+        GroupInfoDialog(
+            groupInfo = groupInfoByCode,
+            onDismiss = {
+                viewModel.resetGroupInfoByCode()
+                showGroupInfoDialog = false
+                },
+            onConfirm = {
+                viewModel.resetGroupInfoByCode()
+                showGroupInfoDialog = false
+                showJoinDialog = false
+                onJoin(inviteCode)
+            }
         )
     }
 }

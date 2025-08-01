@@ -49,7 +49,7 @@ fun RoleSelectScreen(
             if (result.isSuccess) {
                 onSubmit()
             } else {
-                Toast.makeText(context, "그룹 생성에 실패했어요. 처음부터 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "그룹 생성|가입에 실패했어요. 처음부터 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
             }
         }
     }

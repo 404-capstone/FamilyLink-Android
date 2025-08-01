@@ -106,4 +106,72 @@ class GroupRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    // 초대 코드 조회
+    override suspend fun getInviteCode(groupId: Int): Result<String> {
+        return try {
+            val response = groupApi.getInviteCode(groupId)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                val errorData = response.errorBody()?.string()
+                Result.failure(Exception("오류 결과: $errorData"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 초대 코드 생성
+    override suspend fun createInviteCode(groupId: Int): Result<String> {
+        return try {
+            val response = groupApi.createInviteCode(groupId)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 초대 코드 기반 그룹 ID 조회
+    override suspend fun getGroupIdByCode(inviteCode: String): Result<Int> {
+        return try {
+            val response = groupApi.getGroupIdByCode(inviteCode)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 그룹 가입
+    override suspend fun joinGroup(
+        inviteCode: String,
+        role: String
+    ): Result<GroupData> {
+        return try {
+            val response = groupApi.joinGroup(inviteCode, role)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

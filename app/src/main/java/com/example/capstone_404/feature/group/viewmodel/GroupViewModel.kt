@@ -28,10 +28,12 @@ import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.GroupUserInfo
 import com.example.capstone_404.data.info.SurveyResult
 import com.example.capstone_404.data.info.UserInfoManager
+import com.example.capstone_404.feature.group.model.InviteCodeStatus
 import com.example.capstone_404.feature.group.model.calculateSurveyResult
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asStateFlow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -71,6 +73,14 @@ class GroupViewModel @Inject constructor(
     // 서버에 설문 결과 저장의 결과
     private val _isSaved = MutableStateFlow(false)
     val isSaved: StateFlow<Boolean> = _isSaved
+
+    // 초대 코드 상태 (로딩, 없음, 발급, 만료)
+    private val _inviteCodeStatus = MutableStateFlow(InviteCodeStatus.LOADING)
+    val inviteCodeStatus: StateFlow<InviteCodeStatus> = _inviteCodeStatus.asStateFlow()
+
+    // 초대 코드 값
+    private val _inviteCodeValue = MutableStateFlow<String?>(null)
+    val inviteCodeValue: StateFlow<String?> = _inviteCodeValue.asStateFlow()
 
 
     // -------------------- 생성|가입에 필요한 전달 데이터 --------------------

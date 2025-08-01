@@ -35,7 +35,7 @@ fun AccountManagement(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(16.dp),
         border = BorderStroke(0.5.dp, Stroke),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {

@@ -32,6 +32,8 @@ import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
 import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
 import com.example.capstone_404.feature.group.ui.dialog.GroupCancelDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupCreateDialog
+import com.example.capstone_404.feature.group.ui.dialog.GroupInfoDialog
+import com.example.capstone_404.feature.group.ui.dialog.GroupJoinDialog
 import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.utils.createImageUri
@@ -40,6 +42,7 @@ import com.example.capstone_404.utils.createImageUri
 fun GroupScreen(
     viewModel: GroupViewModel = hiltViewModel(),
     onCreate: (groupName: String, encodedUri: String) -> Unit,
+    onJoin: (inviteCode: String) -> Unit,
     onNavigateToWrite: () -> Unit,
     onNavigateToResult: () -> Unit,
     onNavigateToInvite: () -> Unit
@@ -48,10 +51,14 @@ fun GroupScreen(
     // 그룹 정보 갱신
     val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
+    // 초대 코드
+    var inviteCode by remember { mutableStateOf("") }
     // 다이얼로그 상태 관리
     var showCreateDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
     var showSelectDialog by remember { mutableStateOf(false) }
+    var showJoinDialog by remember { mutableStateOf(false) }
+    var showGroupInfoDialog by remember { mutableStateOf(false) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     // Fab 확장 상태 관리
     var isFabExpanded by remember { mutableStateOf(false) }
@@ -153,7 +160,7 @@ fun GroupScreen(
                     } else {
                         GroupNotJoinedContent(
                             onCreateClick = { showCreateDialog = true },
-                            onJoinClick = {}
+                            onJoinClick = { showJoinDialog = true }
                         )
                     }
                 }
@@ -212,5 +219,28 @@ fun GroupScreen(
             },
             onDismiss = { showSelectDialog = false }
         )
+    }
+
+    // 그룹 가입 다이얼로그
+    if (showJoinDialog) {
+        GroupJoinDialog(
+            onDismiss = { showJoinDialog = false },
+            onConfirm = { code ->
+                inviteCode = code
+                showGroupInfoDialog = true
+            },
+            isError = false,
+        )
+    }
+
+    // 그룹 정보 다이얼로그
+    if (showGroupInfoDialog) {
+        groupInfo?.let {
+            GroupInfoDialog(
+                groupInfo = it,
+                onDismiss = { showGroupInfoDialog = false },
+                onConfirm = { onJoin(inviteCode) }
+            )
+        }
     }
 }

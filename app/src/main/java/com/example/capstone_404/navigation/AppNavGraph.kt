@@ -81,6 +81,9 @@ fun AppNavGraph(navController: NavHostController) {
                     onCreate = { groupName, encodedUri ->
                         navController.navigate("roleSelect?groupName=$groupName&imageUri=$encodedUri")
                     },
+                    onJoin = { inviteCode ->
+                        navController.navigate("roleSelect?inviteCode=$inviteCode")
+                    },
                     onNavigateToWrite = {
                         navController.navigate("survey_list") { popUpTo("group") { inclusive = false } }
                     },

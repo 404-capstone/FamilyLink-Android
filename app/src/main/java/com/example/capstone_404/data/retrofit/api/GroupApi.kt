@@ -49,4 +49,10 @@ interface GroupApi {
     suspend fun getSurveyResult(
         @Query("groupId") groupId: Int
     ): Response<BaseResponse<SurveyResultData>>
+
+    // 초대 코드 조회
+    @GET("/group/code/search")
+    suspend fun getInviteCode(
+        @Query("groupid") groupId: Int
+    ): Response<BaseResponse<String>>
 }

@@ -36,4 +36,9 @@ interface GroupRepository {
     suspend fun getSurveyResult(
         groupId: Int
     ): Result<SurveyResultData>
+
+    // 초대 코드 조회
+    suspend fun getInviteCode(
+        groupId: Int
+    ): Result<String>
 }

@@ -106,4 +106,21 @@ class GroupRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    // 초대 코드 조회
+    override suspend fun getInviteCode(groupId: Int): Result<String> {
+        return try {
+            val response = groupApi.getInviteCode(groupId)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                val errorData = response.errorBody()?.string()
+                Result.failure(Exception("오류 결과: $errorData"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

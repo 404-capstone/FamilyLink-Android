@@ -26,4 +26,6 @@ object Route {
 
     // 내정보 관련
     const val MYPAGE = "mypage"
+    const val PROFILE_EDIT = "profile_edit"
+
 }

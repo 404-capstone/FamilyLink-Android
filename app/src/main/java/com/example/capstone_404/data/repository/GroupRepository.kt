@@ -51,4 +51,10 @@ interface GroupRepository {
     suspend fun getGroupIdByCode(
         inviteCode: String
     ): Result<Int>
+
+    // 그룹 가입
+    suspend fun joinGroup(
+        inviteCode: String,
+        role: String
+    ): Result<GroupData>
 }

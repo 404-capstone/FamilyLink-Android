@@ -67,4 +67,11 @@ interface GroupApi {
     suspend fun getGroupIdByCode(
         @Query("code") code: String
     ): Response<BaseResponse<Int>>
+
+    // 그룹 가입
+    @POST("/group/access")
+    suspend fun joinGroup(
+        @Query("code") code: String,
+        @Query("role") role: String
+    ): Response<BaseResponse<GroupData>>
 }

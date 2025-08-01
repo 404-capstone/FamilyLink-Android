@@ -171,10 +171,16 @@ class GroupViewModel @Inject constructor(
         }
         viewModelScope.launch {
             if (inviteCode.isNotBlank()) {
-                // Todo : 그룹 가입 API 호출 예정
-                Log.d("GroupViewModel", "그룹 가입 요청: code=$inviteCode, role=$roleLabel")
-//                _createResult.value = groupRepository.JoinGroup(inviteCode, roleLabel)
-                Log.d("GroupViewModel", "가입 결과: $_createResult")
+                Log.d("GroupViewModel", "그룹 가입 요청 : code=$inviteCode, role=$roleLabel")
+
+                val result = groupRepository.joinGroup(inviteCode, roleLabel)
+
+                result.onSuccess { data ->
+                    Log.d("GroupViewModel", "그룹 가입 완료 : $data")
+                    groupEntrySuccess(data.groupId, result)
+                }.onFailure {
+                    Log.d("GroupViewModel", "그룹 가입 실패 : ${it.message}")
+                }
             } else {
                 // 이미지 없는 경우 empty value 전달
                 val imagePart = imageUri?.let { prepareImagePart(appContext, it) }
@@ -187,25 +193,27 @@ class GroupViewModel @Inject constructor(
 
                 val result = groupRepository.createGroup(groupName, roleLabel, imagePart)
 
-                val data = result.getOrNull()
-                val exception = result.exceptionOrNull()
-                if (data != null) {
-                    // groupId 저장
-                    userInfoManager.saveGroupId(data.groupId)
-                    Log.d("User_Info", "(G)그룹 ID 저장 완료 : ${data.groupId}")
-                    // 그룹 정보 저장
-                    coroutineScope {
-                        val groupInfoDeferred = async { saveGroupInfo(data.groupId) }
-                        // 처리가 끝날 때까지 대기
-                        groupInfoDeferred.await()
-                    }
-                    _createResult.value = result
-                } else {
-                    Log.d("GroupViewModel", "생성 실패 : $exception")
+                result.onSuccess { data ->
+                    Log.d("GroupViewModel", "그룹 생성 완료 : $data")
+                    groupEntrySuccess(data.groupId, result)
+                }.onFailure {
+                    Log.d("GroupViewModel", "그룹 생성 실패 : ${it.message}")
                 }
-                Log.d("GroupViewModel", "생성 결과: $_createResult")
             }
         }
+    }
+    // 그룹 생성|가입 성공 시 저장 함수
+    private suspend fun groupEntrySuccess(groupId: Int, result: Result<GroupData>) {
+        // groupId 저장
+        userInfoManager.saveGroupId(groupId)
+        Log.d("User_Info", "(G) 그룹 ID 저장 완료 : $groupId")
+        // 그룹 정보 저장
+        coroutineScope {
+            val groupInfoDeferred = async { saveGroupInfo(groupId) }
+            groupInfoDeferred.await()
+        }
+        _createResult.value = result
+        Log.d("GroupViewModel", "그룹 생성|가입 결과 : ${_createResult.value}")
     }
     // DataStore에 [GroupInfo] 저장
     private suspend fun saveGroupInfo(groupId: Int) {

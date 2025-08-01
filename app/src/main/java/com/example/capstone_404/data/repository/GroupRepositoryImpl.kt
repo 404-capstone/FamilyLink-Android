@@ -155,4 +155,23 @@ class GroupRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    // 그룹 가입
+    override suspend fun joinGroup(
+        inviteCode: String,
+        role: String
+    ): Result<GroupData> {
+        return try {
+            val response = groupApi.joinGroup(inviteCode, role)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

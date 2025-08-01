@@ -141,7 +141,10 @@ fun GroupJoinDialog(
                 // 그룹 정보 조회 버튼
                 ButtonDefault(
                     text = "그룹 조회",
-                    onClick = { onConfirm(inviteCode) },
+                    onClick = {
+                        onConfirm(inviteCode)
+                        inviteCode = ""
+                        },
                     enabled = inviteCode.length == 6
                 )
             }

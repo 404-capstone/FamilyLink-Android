@@ -46,4 +46,9 @@ interface GroupRepository {
     suspend fun createInviteCode(
         groupId: Int
     ): Result<String>
+
+    // 초대 코드 기반 그룹 ID 조회
+    suspend fun getGroupIdByCode(
+        inviteCode: String
+    ): Result<Int>
 }

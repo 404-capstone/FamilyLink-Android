@@ -31,7 +31,7 @@ import com.example.capstone_404.ui.theme.Stroke
 
 @Composable
 fun GroupInfoDialog(
-    groupInfo: GroupInfo,
+    groupInfo: GroupInfo?,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -52,7 +52,7 @@ fun GroupInfoDialog(
             ) {
                 // 그룹 이미지
                 AsyncImage(
-                    model = groupInfo.groupImage,
+                    model = groupInfo?.groupImage ?: "",
                     contentDescription = "그룹 이미지",
                     modifier = Modifier
                         .size(96.dp)
@@ -61,24 +61,18 @@ fun GroupInfoDialog(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+                // 그룹 이름
+                Text(
+                    text = groupInfo?.groupName ?: "정보 없음",
+                    style = MaterialTheme.typography.headlineSmall
+                )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // 그룹 이름
-                    Text(
-                        text = groupInfo.groupName,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    // 그룹원 수
-                    Text(
-                        text = "그룹원 ${groupInfo.userinfo.size}명",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                Spacer(modifier = Modifier.height(4.dp))
+                // 그룹원 수
+                Text(
+                    text = "그룹원 ${groupInfo?.userinfo?.size ?: 0}명",
+                    style = MaterialTheme.typography.bodyMedium
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 

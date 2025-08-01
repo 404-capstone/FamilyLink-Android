@@ -84,6 +84,14 @@ class GroupViewModel @Inject constructor(
     private val _inviteCodeValue = MutableStateFlow<String?>(null)
     val inviteCodeValue: StateFlow<String?> = _inviteCodeValue.asStateFlow()
 
+    // 코드 기반 조회 그룹 정보
+    private val _groupInfoByCode = MutableStateFlow<GroupInfo?>(null)
+    val groupInfoByCode: StateFlow<GroupInfo?> = _groupInfoByCode
+
+    // 코드 기반 조회 결과
+    private val _getError = MutableStateFlow(false)
+    val getError: StateFlow<Boolean> = _getError
+
 
     // -------------------- 생성|가입에 필요한 전달 데이터 --------------------
     private val groupName = savedStateHandle["groupName"] ?: ""
@@ -106,6 +114,52 @@ class GroupViewModel @Inject constructor(
 
 
     // -------------------- 가입|생성 함수 --------------------
+    // 초대 코드 기반 그룹 정보 조회
+    fun getGroupByInviteCode(code: String) {
+        viewModelScope.launch {
+            isLoading = true
+            _getError.value = false
+            // 코드 기반 그룹 ID 조회
+            val groupIdResult = groupRepository.getGroupIdByCode(code)
+            groupIdResult.onSuccess { groupId ->
+                Log.d("GroupViewModel", "코드 기반 그룹 ID 조회 완료 : $groupId")
+                // 그룹 정보 조회
+                val groupInfoResult = groupRepository.getGroupInfo(groupId)
+                groupInfoResult.onSuccess { data ->
+                    Log.d("GroupViewModel", "코드 기반 그룹 정보 조회 완료 : $data")
+                    _groupInfoByCode.value = GroupInfo(
+                        groupName = data.group_name,
+                        groupImage = data.group_image ?: "",
+                        userinfo = data.userinfo.map {
+                            GroupUserInfo(
+                                userId = it.userId,
+                                username = it.username,
+                                role = it.role,
+                                age = it.age ?: "연령대 미지정",
+                                image = it.image ?: "",
+                                leader = it.leader
+                            )
+                        }
+                    )
+                }.onFailure {
+                    Log.d("GroupViewModel", "코드 기반 그룹 정보 조회 실패 : ${it.message}")
+                    _getError.value = true
+                }
+            }.onFailure {
+                Log.d("GroupViewModel", "코드 기반 그룹 ID 조회 실패 : ${it.message}")
+                _getError.value = true
+            }
+            isLoading = false
+        }
+    }
+    // 에러 상태 초기화
+    fun resetInviteError() {
+        _getError.value = false
+    }
+    // 조회 정보 초기화
+    fun resetGroupInfoByCode() {
+        _groupInfoByCode.value = null
+    }
     // 가입 or 생성에 따른 제출 처리
     fun submitGroupEntry() {
         val role = selectedRoleState.role ?: return

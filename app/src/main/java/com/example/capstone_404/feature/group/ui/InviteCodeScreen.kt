@@ -42,8 +42,6 @@ import com.example.capstone_404.ui.theme.TextBlack
 @Composable
 fun InviteCodeScreen(
     viewModel: GroupViewModel = hiltViewModel(),
-    onGenerateClick: () -> Unit,
-    onRegenerateClick: () -> Unit,
     onShareClick: () -> Unit,
     onClickToBack: () -> Unit
 ) {
@@ -125,7 +123,7 @@ fun InviteCodeScreen(
                                     ButtonOutline(
                                         text = "초대 코드 생성",
                                         style = MaterialTheme.typography.headlineLarge,
-                                        onClick = { },
+                                        onClick = { viewModel.createInviteCode() },
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 }
@@ -166,7 +164,7 @@ fun InviteCodeScreen(
                 ) {
                     ButtonDefault(
                         text = "코드 재발급",
-                        onClick = {  },
+                        onClick = { viewModel.createInviteCode() },
                         enabled = (status == InviteCodeStatus.EXPIRED)
                     )
 

@@ -55,4 +55,10 @@ interface GroupApi {
     suspend fun getInviteCode(
         @Query("groupid") groupId: Int
     ): Response<BaseResponse<String>>
+
+    // 초대 코드 생성
+    @POST("/group/code")
+    suspend fun createInviteCode(
+        @Query("groupid") groupId: Int
+    ): Response<BaseResponse<String>>
 }

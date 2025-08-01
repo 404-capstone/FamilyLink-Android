@@ -225,7 +225,7 @@ class GroupViewModel @Inject constructor(
     }
 
     // -------------------- 그룹원 초대 함수 --------------------
-    // 가입 코드 조회
+    // 초대 코드 조회
     suspend fun fetchInviteCode() {
         _inviteCodeStatus.value = InviteCodeStatus.LOADING
         val groupId = userInfoManager.getGroupId()
@@ -251,6 +251,24 @@ class GroupViewModel @Inject constructor(
                         _inviteCodeStatus.value = InviteCodeStatus.NOT_GENERATED
                     }
                 }
+            }
+        }
+    }
+    // 초대 코드 생성
+    fun createInviteCode() {
+        _inviteCodeStatus.value = InviteCodeStatus.LOADING
+        viewModelScope.launch {
+            val groupId = userInfoManager.getGroupId()
+            val result = groupId?.let { groupRepository.createInviteCode(it) }
+
+            result?.onSuccess { code ->
+                Log.d("GroupViewModel", "초대 코드 생성 완료 : $code")
+                _inviteCodeValue.value = code
+                _inviteCodeStatus.value = InviteCodeStatus.GENERATED
+            }?.onFailure { e ->
+                _inviteCodeValue.value = null
+                _inviteCodeStatus.value = InviteCodeStatus.NOT_GENERATED
+                Log.e("GroupViewModel", "초대 코드 생성 실패: ${e.message}")
             }
         }
     }

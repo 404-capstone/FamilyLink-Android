@@ -13,6 +13,7 @@ object Route {
     const val SURVEY_INTRO = "survey_intro"
     const val SURVEY_LIST = "survey_list"
     const val SURVEY_RESULT = "survey_result"
+    const val INVITE_CODE = "invite_code"
 
     // 캘린더 관련
     const val CALENDAR = "calendar"

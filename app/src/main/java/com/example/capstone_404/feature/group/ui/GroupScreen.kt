@@ -41,7 +41,8 @@ fun GroupScreen(
     viewModel: GroupViewModel = hiltViewModel(),
     onCreate: (groupName: String, encodedUri: String) -> Unit,
     onNavigateToWrite: () -> Unit,
-    onNavigateToResult: () -> Unit
+    onNavigateToResult: () -> Unit,
+    onNavigateToInvite: () -> Unit
 ) {
     val context = LocalContext.current
     // 그룹 정보 갱신
@@ -146,7 +147,7 @@ fun GroupScreen(
                             groupInfo = groupInfo!!,
                             currentUserId = userId!!,
                             onEditGroup = {},
-                            onInvite = {},
+                            onInvite = { onNavigateToInvite() },
                             onLeaveGroup = {}
                         )
                     } else {

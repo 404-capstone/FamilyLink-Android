@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.example.capstone_404.ui.component.BottomNavigationBar
 import com.example.capstone_404.ui.component.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
+import com.example.capstone_404.feature.group.ui.InviteCodeScreen
 import com.example.capstone_404.feature.group.ui.RoleSelectScreen
 import com.example.capstone_404.feature.group.ui.SurveyIntroScreen
 import com.example.capstone_404.feature.group.ui.SurveyListScreen
@@ -85,6 +86,9 @@ fun AppNavGraph(navController: NavHostController) {
                     },
                     onNavigateToResult = {
                         navController.navigate("survey_result") { popUpTo("group") { inclusive = false } }
+                    },
+                    onNavigateToInvite = {
+                        navController.navigate("invite_code") { popUpTo("group") { inclusive = false } }
                     }
                 )
             }
@@ -128,6 +132,15 @@ fun AppNavGraph(navController: NavHostController) {
                     onClickGoHome = {
                         navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                     }
+                )
+            }
+            // 그룹원 초대
+            composable(Route.INVITE_CODE) {
+                InviteCodeScreen(
+                    onGenerateClick = {},
+                    onRegenerateClick = {},
+                    onShareClick = {},
+                    onClickToBack = {}
                 )
             }
 

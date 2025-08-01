@@ -44,7 +44,7 @@ fun SurveyResultScreen(
     onClickGoHome: () -> Unit
 ) {
     val surveyResult by viewModel.surveyResultFlow.collectAsState(initial = null)
-    val description = getSurveyDescription(surveyResult?.level ?: "설문 결과가 없습니다.\n먼저 설문 작성을 진행해주세요!")
+    val description = getSurveyDescription(surveyResult?.level ?: "")
     // Todo : 회원 정보 조회 API 연동 후 수정
     val name = "홍길동"
 
@@ -128,12 +128,12 @@ fun SurveyResultScreen(
                                 )
                                 ResultBox(
                                     title = "원점수",
-                                    value = "${surveyResult?.score}점",
+                                    value = "${surveyResult?.score ?: 0}점",
                                     modifier = Modifier.weight(1f)
                                 )
                                 ResultBox(
                                     title = "퍼센트(%)",
-                                    value = "${surveyResult?.percent}%",
+                                    value = "${surveyResult?.percent ?: 0}%",
                                     modifier = Modifier.weight(1f)
                                 )
                             }

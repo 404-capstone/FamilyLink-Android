@@ -2,7 +2,7 @@ package com.example.capstone_404.data.retrofit.model.response
 
 import kotlinx.serialization.Serializable
 
-// 그룹 생성 Response
+// 그룹 생성 & 가입 Response
 data class GroupData(
     val groupName: String,
     val groupId: Int

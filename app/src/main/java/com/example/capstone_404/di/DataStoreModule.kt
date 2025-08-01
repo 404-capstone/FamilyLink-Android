@@ -1,6 +1,7 @@
 package com.example.capstone_404.di
 
 import android.content.Context
+import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import dagger.Module
 import dagger.Provides
@@ -19,4 +20,10 @@ object DataStoreModule {
     fun provideUserInfoManager(
         @ApplicationContext context: Context
     ): UserInfoManager = UserInfoManager(context)
+
+    @Provides
+    @Singleton
+    fun provideGroupInfoManager(
+        @ApplicationContext context: Context
+    ): GroupInfoManager = GroupInfoManager(context)
 }

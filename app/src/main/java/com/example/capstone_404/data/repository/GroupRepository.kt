@@ -36,4 +36,25 @@ interface GroupRepository {
     suspend fun getSurveyResult(
         groupId: Int
     ): Result<SurveyResultData>
+
+    // 초대 코드 조회
+    suspend fun getInviteCode(
+        groupId: Int
+    ): Result<String>
+
+    // 초대 코드 생성
+    suspend fun createInviteCode(
+        groupId: Int
+    ): Result<String>
+
+    // 초대 코드 기반 그룹 ID 조회
+    suspend fun getGroupIdByCode(
+        inviteCode: String
+    ): Result<Int>
+
+    // 그룹 가입
+    suspend fun joinGroup(
+        inviteCode: String,
+        role: String
+    ): Result<GroupData>
 }

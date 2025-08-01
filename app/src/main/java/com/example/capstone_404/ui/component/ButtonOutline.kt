@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.ui.theme.ButtonDisabled
@@ -22,6 +23,7 @@ import com.example.capstone_404.ui.theme.Stroke
 @Composable
 fun ButtonOutline(
     text: String,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
     onClick: () -> Unit,
     enabled: Boolean = true,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
@@ -41,7 +43,7 @@ fun ButtonOutline(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium
+            style = style
         )
     }
 }

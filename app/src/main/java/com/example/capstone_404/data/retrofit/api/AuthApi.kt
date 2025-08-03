@@ -26,7 +26,5 @@ interface AuthApi {
 
     // 사용자 정보 조회
     @GET("/user/search")
-    suspend fun getUserInfo(
-        @Header("Authorization") accessToken: String
-    ): Response<BaseResponse<UserInfoResponse>>
+    suspend fun getUserInfo(): Response<BaseResponse<UserInfoResponse>>
 }

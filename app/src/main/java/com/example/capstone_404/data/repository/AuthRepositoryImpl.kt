@@ -7,6 +7,7 @@ import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoResponse
 import com.example.capstone_404.data.retrofit.token.TokenManager
+import com.example.capstone_404.utils.AgeConverter
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -14,6 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     @Named("auth_no_token") private val authApi: AuthApi,
+    @Named("auth_with_token") private val authApiWithToken: AuthApi,
     private val tokenManager: TokenManager,
     private val userInfoManager: UserInfoManager,
 ) : AuthRepository {
@@ -58,12 +60,7 @@ class AuthRepositoryImpl @Inject constructor(
     // 사용자 정보 조회
     override suspend fun getUserInfo(): Result<UserInfoResponse> {
         return try {
-            val accessToken = tokenManager.getAccessToken()
-            if (accessToken.isBlank()) {
-                return Result.failure(Exception("Access Token이 없습니다."))
-            }
-
-            val response = authApi.getUserInfo("Bearer $accessToken")
+            val response = authApiWithToken.getUserInfo()
 
             if (response.isSuccessful) {
                 val baseResponse = response.body()
@@ -81,7 +78,7 @@ class AuthRepositoryImpl @Inject constructor(
                     userInfoManager.saveGender(convertedGender)
 
                     // 나이 - 연령대 변환 저장
-                    val ageRange = convertAgeToRange(userInfo.age)
+                    val ageRange = AgeConverter.convertAgeToRange(userInfo.age)
                     userInfoManager.saveAge(ageRange)
 
                     // 소셜 로그인 제공자 정보 저장
@@ -107,22 +104,6 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("AuthRepository", "사용자 정보 조회 실패: ${e.message}")
             Result.failure(e)
-        }
-    }
-
-    // 나이 변환 함수
-    private fun convertAgeToRange(age: Int): String {
-        return when (age) {
-            in 0..9 -> "10대 미만"
-            in 10..19 -> "10대"
-            in 20..29 -> "20대"
-            in 30..39 -> "30대"
-            in 40..49 -> "40대"
-            in 50..59 -> "50대"
-            in 60..69 -> "60대"
-            in 70..79 -> "70대"
-            in 80..89 -> "80대"
-            else -> "90대 이상"
         }
     }
 }

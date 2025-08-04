@@ -1,7 +1,7 @@
 package com.example.capstone_404.di
 
 import com.example.capstone_404.BuildConfig
-import com.example.capstone_404.data.retrofit.api.AuthApi
+import com.example.capstone_404.data.retrofit.api.UserApi
 import com.example.capstone_404.data.retrofit.api.GroupApi
 import com.example.capstone_404.data.retrofit.token.TokenAutoRefresh
 import com.example.capstone_404.data.retrofit.token.TokenManager
@@ -53,16 +53,16 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("auth_no_token")
-    fun provideAuthApiWithoutToken(@Named("auth_no_token") retrofit: Retrofit): AuthApi =
-        retrofit.create(AuthApi::class.java)
+    fun provideAuthApiWithoutToken(@Named("auth_no_token") retrofit: Retrofit): UserApi =
+        retrofit.create(UserApi::class.java)
 
     // 토큰 만료 시 자동 재발급
     @Provides
     @Singleton
     fun provideTokenAuthenticator(
         tokenManager: TokenManager,
-        @Named("auth_no_token") authApi: AuthApi
-    ): Authenticator = TokenAutoRefresh(tokenManager, authApi)
+        @Named("auth_no_token") userApi: UserApi
+    ): Authenticator = TokenAutoRefresh(tokenManager, userApi)
 
     @Provides
     @Singleton
@@ -107,9 +107,9 @@ object NetworkModule {
     // Todo : 기능 별 API 인터페이스 추가할 때 여기에 추가 해야 됨
     @Provides
     @Singleton
-    @Named("auth_with_token")   //name 어노테이션 추가
-    fun provideAuthApi(retrofit: Retrofit): AuthApi =
-        retrofit.create(AuthApi::class.java)
+    fun provideAuthApi(retrofit: Retrofit): UserApi {
+        return retrofit.create(UserApi::class.java)
+    }
 
     @Provides
     @Singleton

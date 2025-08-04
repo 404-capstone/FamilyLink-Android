@@ -2,10 +2,10 @@ package com.example.capstone_404.data.repository
 
 import android.util.Log
 import com.example.capstone_404.data.info.UserInfoManager
-import com.example.capstone_404.data.retrofit.api.AuthApi
+import com.example.capstone_404.data.retrofit.api.UserApi
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
-import com.example.capstone_404.data.retrofit.model.response.UserInfoResponse
+import com.example.capstone_404.data.retrofit.model.response.UserInfoData
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import com.example.capstone_404.utils.AgeConverter
 import javax.inject.Inject
@@ -13,17 +13,17 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-class AuthRepositoryImpl @Inject constructor(
-    @Named("auth_no_token") private val authApi: AuthApi,
-    @Named("auth_with_token") private val authApiWithToken: AuthApi,
+class UserRepositoryImpl @Inject constructor(
+    @Named("auth_no_token") private val noTokenUserApi: UserApi,
+    private val userApi: UserApi,
     private val tokenManager: TokenManager,
     private val userInfoManager: UserInfoManager,
-) : AuthRepository {
+) : UserRepository {
 
     // SessionId로 토큰 발급
     override suspend fun loginWithSession(sessionId: String): Result<SocialLoginData> {
         return try {
-            val response = authApi.loginWithSession(sessionId)
+            val response = noTokenUserApi.loginWithSession(sessionId)
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
@@ -40,7 +40,7 @@ class AuthRepositoryImpl @Inject constructor(
     // 수동 토큰 재발급
     override suspend fun tokenRefresh(providedRefreshToken: String): Result<TokenData> {
         return try {
-            val response = authApi.refreshAccessToken("Bearer $providedRefreshToken")
+            val response = noTokenUserApi.refreshAccessToken("Bearer $providedRefreshToken")
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
@@ -58,28 +58,25 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     // 사용자 정보 조회
-    override suspend fun getUserInfo(): Result<UserInfoResponse> {
+    override suspend fun getUserInfo(): Result<UserInfoData> {
         return try {
-            val response = authApiWithToken.getUserInfo()
+            val response = userApi.getUserInfo()
 
             if (response.isSuccessful) {
                 val baseResponse = response.body()
-                if (baseResponse != null && baseResponse.data != null) {
+                if (baseResponse?.data != null) {
                     // 사용자 정보 로컬 저장
                     val userInfo = baseResponse.data
                     userInfoManager.saveNickname(userInfo.username)
 
-                    // 성별 변환
-                    val convertedGender = when(userInfo.gender) {
-                        "남자" -> "남성"
-                        "여자" -> "여성"
-                        else -> userInfo.gender
-                    }
-                    userInfoManager.saveGender(convertedGender)
+                    // 성별 저장
+                    userInfoManager.saveGender(userInfo.gender)
 
                     // 나이 - 연령대 변환 저장
                     val ageRange = AgeConverter.convertAgeToRange(userInfo.age)
-                    userInfoManager.saveAge(ageRange)
+                    if (ageRange != null) {
+                        userInfoManager.saveAge(ageRange)
+                    }
 
                     // 소셜 로그인 제공자 정보 저장
                     if (userInfo.social.isNotBlank()) {

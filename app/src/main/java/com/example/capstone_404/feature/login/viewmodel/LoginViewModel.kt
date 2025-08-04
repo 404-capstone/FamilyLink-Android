@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
-import com.example.capstone_404.data.repository.AuthRepository
+import com.example.capstone_404.data.repository.UserRepository
 import com.example.capstone_404.data.repository.GroupRepository
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,7 @@ import kotlinx.coroutines.coroutineScope
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
     private val groupRepository: GroupRepository,
     val tokenManager: TokenManager,
     private val userInfoManager: UserInfoManager,
@@ -52,7 +52,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
 
-            val result = authRepository.loginWithSession(sessionId)
+            val result = userRepository.loginWithSession(sessionId)
 
             val data = result.getOrNull()
             val exception = result.exceptionOrNull()

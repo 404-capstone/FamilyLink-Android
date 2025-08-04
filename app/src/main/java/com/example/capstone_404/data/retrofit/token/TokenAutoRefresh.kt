@@ -1,6 +1,6 @@
 package com.example.capstone_404.data.retrofit.token
 
-import com.example.capstone_404.data.retrofit.api.AuthApi
+import com.example.capstone_404.data.retrofit.api.UserApi
 import com.example.capstone_404.utils.EncryptionUtil
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
@@ -12,7 +12,7 @@ import javax.inject.Inject
 // 토큰 만료 시 자동 재발급
 class TokenAutoRefresh @Inject constructor(
     private val tokenManager: TokenManager,
-    private val authApi: AuthApi
+    private val userApi: UserApi
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -28,7 +28,7 @@ class TokenAutoRefresh @Inject constructor(
         // refresh API 호출
         val tokenResponse = runBlocking {
             try {
-                authApi.refreshAccessToken("Bearer $refreshToken")
+                userApi.refreshAccessToken("Bearer $refreshToken")
             } catch (e: Exception) {
                 null
             }

@@ -40,16 +40,16 @@ class TokenManager @Inject constructor(
     }
 
     // 복호화된 accessToken Flow
-    val accessTokenFlow: Flow<String> = context.dataStore.data
+    private val accessTokenFlow: Flow<String> = context.dataStore.data
         .map { prefs -> prefs[ACCESS_TOKEN_KEY]?.let { EncryptionUtil.decrypt(it) } ?: "" }
 
     // 복호화된 refreshToken Flow
-    val refreshTokenFlow: Flow<String> = context.dataStore.data
+    private val refreshTokenFlow: Flow<String> = context.dataStore.data
         .map { prefs -> prefs[REFRESH_TOKEN_KEY]?.let { EncryptionUtil.decrypt(it) } ?: "" }
 
     // 토큰 가져오기
-    suspend fun getAccessToken(): String = accessTokenFlow.first()
-    suspend fun getRefreshToken(): String = refreshTokenFlow.first()
+    private suspend fun getAccessToken(): String = accessTokenFlow.first()
+    private suspend fun getRefreshToken(): String = refreshTokenFlow.first()
 
     // 암호화된 accessToken 반환
     suspend fun getEncryptedAccessToken(): String =
@@ -84,6 +84,14 @@ class TokenManager @Inject constructor(
     suspend fun clearSessionId() {
         context.dataStore.edit { prefs ->
             prefs.remove(SESSION_ID_KEY)
+        }
+    }
+
+    // 토큰 전체 삭제
+    suspend fun clearToken() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(ACCESS_TOKEN_KEY)
+            prefs.remove(REFRESH_TOKEN_KEY)
         }
     }
 }

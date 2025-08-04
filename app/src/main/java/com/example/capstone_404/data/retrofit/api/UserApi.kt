@@ -3,14 +3,14 @@ package com.example.capstone_404.data.retrofit.api
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
-import com.example.capstone_404.data.retrofit.model.response.UserInfoResponse
+import com.example.capstone_404.data.retrofit.model.response.UserInfoData
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
 
 // 로그인 관련 API 인터페이스
-interface AuthApi {
+interface UserApi {
 
     // SessionId로 토큰 발급
     @GET("/user/login/code")
@@ -26,5 +26,6 @@ interface AuthApi {
 
     // 사용자 정보 조회
     @GET("/user/search")
-    suspend fun getUserInfo(): Response<BaseResponse<UserInfoResponse>>
+    suspend fun getUserInfo(
+    ): Response<BaseResponse<UserInfoData>>
 }

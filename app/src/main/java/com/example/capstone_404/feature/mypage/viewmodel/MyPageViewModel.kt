@@ -3,8 +3,10 @@ package com.example.capstone_404.feature.mypage.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
-import com.example.capstone_404.data.repository.AuthRepository
+import com.example.capstone_404.data.repository.UserRepository
+import com.example.capstone_404.data.retrofit.token.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +17,9 @@ import javax.inject.Inject
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val userInfoManager: UserInfoManager,
-    private val authRepository: AuthRepository
+    private val groupInfoManager: GroupInfoManager,
+    private val tokenManager: TokenManager,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     // 사용자 닉네임 Flow
@@ -48,6 +52,8 @@ class MyPageViewModel @Inject constructor(
 
                 // 로컬 데이터 정리
                 userInfoManager.clearAll()
+                groupInfoManager.clearAll()
+                tokenManager.clearToken()
 
                 _logoutState.value = LogoutState.Success
             } catch (e: Exception) {
@@ -91,7 +97,7 @@ class MyPageViewModel @Inject constructor(
     fun loadUserInfo() {
         viewModelScope.launch {
             try {
-                val result = authRepository.getUserInfo()
+                val result = userRepository.getUserInfo()
                 result.onSuccess {
                     Log.d("MyPageViewModel", "사용자 정보 로드 성공")
                 }.onFailure { exception ->

@@ -271,6 +271,24 @@ class GroupViewModel @Inject constructor(
             isLoading = false
         }
     }
+    // 그룹장 변경
+    fun changeLeader(groupId: Int, targetId: Int) {
+        viewModelScope.launch {
+            isLoading = true
+            val result = groupRepository.changeLeader(groupId, targetId)
+
+            result.onSuccess {
+                coroutineScope {
+                    val groupInfoDeferred = async { saveGroupInfo(groupId) }
+                    groupInfoDeferred.await()
+                }
+                Log.d("GroupViewModel", "그룹장 변경 완료")
+            }.onFailure {
+                Log.e("GroupViewModel", "그룹장 변경 실패 : ${it.message}")
+            }
+            isLoading = false
+        }
+    }
 
 
     // -------------------- 설문지 함수 --------------------

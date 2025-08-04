@@ -46,7 +46,7 @@ fun GroupMemberDialog(
     currentUserId: Int,
     groupLeaderId: Int,
     onDismiss: () -> Unit,
-    onTransferLeader: () -> Unit,
+    onChangeLeader: (targetId: Int) -> Unit,
     onExpel: () -> Unit
 ) {
     val splitRole = parseRoleAndOrder(user.role)
@@ -172,7 +172,7 @@ fun GroupMemberDialog(
                         )
                         ButtonDefault(
                             text = "그룹장 이전",
-                            onClick = onTransferLeader,
+                            onClick = { onChangeLeader(user.userId) },
                             modifier = Modifier.weight(1f)
                         )
                     }

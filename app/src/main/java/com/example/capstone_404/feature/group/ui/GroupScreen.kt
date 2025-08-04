@@ -318,7 +318,10 @@ fun GroupScreen(
             currentUserId = userId!!,
             groupLeaderId = groupLeaderId,
             onDismiss = { selectedUser = null },
-            onTransferLeader = {  },
+            onChangeLeader = { targetId ->
+                viewModel.changeLeader(groupId!!, targetId)
+                selectedUser = null
+            },
             onExpel = {  }
         )
     }

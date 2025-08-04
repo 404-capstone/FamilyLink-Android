@@ -84,4 +84,11 @@ interface GroupApi {
         @Query("code") code: String,
         @Query("role") role: String
     ): Response<BaseResponse<GroupData>>
+
+    // 그룹장 변경
+    @PATCH("/group/leader/change")
+    suspend fun changeLeader(
+        @Query("groupId") groupId: Int,
+        @Query("userId") userId: Int
+    ): Response<BaseResponse<String>>
 }

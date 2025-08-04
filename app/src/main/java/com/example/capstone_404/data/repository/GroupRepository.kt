@@ -64,4 +64,10 @@ interface GroupRepository {
         inviteCode: String,
         role: String
     ): Result<GroupData>
+
+    // 그룹장 변경
+    suspend fun changeLeader(
+        groupId: Int,
+        userId: Int
+    ): Result<String>
 }

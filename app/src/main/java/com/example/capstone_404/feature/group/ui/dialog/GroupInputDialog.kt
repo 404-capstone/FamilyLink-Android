@@ -46,15 +46,18 @@ import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
 
 @Composable
-fun GroupCreateDialog(
+fun GroupInputDialog(
+    isEdit: Boolean = false,
+    initialGroupName: String = "",
+    initialGroupImage: String = "",
+    selectedImageUri: Uri?,
     onDismiss: () -> Unit,
-    onConfirm: (groupName: String, imageUri: Uri?) -> Unit,
     onSelectPhoto: () -> Unit,
-    selectedImageUri: Uri?
+    onConfirm: (groupName: String, imageUri: Uri?) -> Unit,
 ) {
     // 그룹 이름 최대 길이
     val maxLength = 20
-    var groupName by remember { mutableStateOf("") }
+    var groupName by remember { mutableStateOf(initialGroupName) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -63,8 +66,7 @@ fun GroupCreateDialog(
         Surface(
             modifier = Modifier
                 .wrapContentHeight()
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             color = Background
         ) {
@@ -75,18 +77,27 @@ fun GroupCreateDialog(
                 // 대표 사진
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(96.dp)
                         .clip(CircleShape)
                         .clickable { onSelectPhoto() }
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
                     if (selectedImageUri == null) {
-                        Image(
-                            painter = painterResource(id = R.drawable.default_group),
-                            contentDescription = "기본 그룹 이미지",
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        if (initialGroupImage != "") {
+                            AsyncImage(
+                                model = initialGroupImage,
+                                contentDescription = "기존 그룹 이미지",
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.default_group),
+                                contentDescription = "기본 그룹 이미지",
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
                     } else {
                         AsyncImage(
                             model = selectedImageUri,
@@ -106,7 +117,7 @@ fun GroupCreateDialog(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-                // 입력 필드
+                // 그룹명 입력 필드
                 OutlinedTextField(
                     value = groupName,
                     onValueChange = { if (it.length <= maxLength) groupName = it },
@@ -147,7 +158,7 @@ fun GroupCreateDialog(
                     )
 
                     ButtonDefault(
-                        text = "생성하기",
+                        text = if (isEdit) "정보 수정" else "그룹 생성",
                         onClick = {
                             onConfirm(groupName, selectedImageUri)
                         },

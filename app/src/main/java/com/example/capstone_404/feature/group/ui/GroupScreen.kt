@@ -171,6 +171,7 @@ fun GroupScreen(
                     if (groupInfo != null && userId != null) {
                         GroupJoinedContent(
                             groupInfo = groupInfo!!,
+                            currentUserId = userId!!,
                             onEditGroup = { showEditDialog = true },
                             onInvite = { onNavigateToInvite() },
                             onLeaveGroup = {},

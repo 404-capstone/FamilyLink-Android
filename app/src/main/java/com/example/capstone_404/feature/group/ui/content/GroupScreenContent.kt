@@ -84,10 +84,10 @@ fun GroupNotJoinedContent(
 }
 
 // 그룹 가입(O)
-// Todo: API 연결하고 추가 수정
 @Composable
 fun GroupJoinedContent(
     groupInfo: GroupInfo,
+    currentUserId: Int,
     onEditGroup: () -> Unit,
     onInvite: () -> Unit,
     onLeaveGroup: () -> Unit,
@@ -126,6 +126,7 @@ fun GroupJoinedContent(
                     groupInfo.userinfo.forEach { user ->
                         GroupUserItem(
                             user = user,
+                            isCurrentUser = user.userId == currentUserId,
                             onClick = { onUserClick(user) }
                         )
                         Spacer(modifier = Modifier.height(8.dp))

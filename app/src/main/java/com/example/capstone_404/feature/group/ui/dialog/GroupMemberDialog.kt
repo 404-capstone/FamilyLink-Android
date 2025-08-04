@@ -38,6 +38,7 @@ import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
+import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
 fun GroupMemberDialog(
@@ -52,15 +53,23 @@ fun GroupMemberDialog(
     val isSelectedUserLeader = user.leader
     val isMyProfile = currentUserId == user.userId
     val iAmLeader = currentUserId == groupLeaderId
+    // 넓이 조절
+    val surfaceModifier = if (iAmLeader && !isMyProfile) {
+        Modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+    } else {
+        Modifier
+            .wrapContentHeight()
+            .width(250.dp)
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = true)
     ) {
         Surface(
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth(),
+            modifier = surfaceModifier,
             shape = RoundedCornerShape(16.dp),
             color = Background
         ) {
@@ -95,6 +104,22 @@ fun GroupMemberDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 // 이름 + 연령 Row
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isMyProfile) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(Stroke),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "나",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TextWhite,
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
                     Text(
                         text = user.username,
                         style = MaterialTheme.typography.headlineSmall,

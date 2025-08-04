@@ -30,10 +30,12 @@ import com.example.capstone_404.feature.group.model.parseRoleAndOrder
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
+import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
 fun GroupUserItem(
     user: GroupUserInfo,
+    isCurrentUser: Boolean,
     onClick: () -> Unit
 ) {
     // 역할 텍스트 나누기
@@ -68,6 +70,22 @@ fun GroupUserItem(
         ) {
             // 이름 + 연령 Row
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isCurrentUser) {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(Stroke),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "나",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = TextWhite,
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
                 Text(
                     text = user.username,
                     style = MaterialTheme.typography.bodyMedium,

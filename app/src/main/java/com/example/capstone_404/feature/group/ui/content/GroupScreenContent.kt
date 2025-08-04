@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.data.info.GroupInfo
+import com.example.capstone_404.data.info.GroupUserInfo
 import com.example.capstone_404.feature.group.model.GuideImageList
 import com.example.capstone_404.feature.group.ui.component.GroupInfoCard
 import com.example.capstone_404.feature.group.ui.component.GroupUserItem
@@ -87,10 +88,10 @@ fun GroupNotJoinedContent(
 @Composable
 fun GroupJoinedContent(
     groupInfo: GroupInfo,
-    currentUserId: Int,
     onEditGroup: () -> Unit,
     onInvite: () -> Unit,
-    onLeaveGroup: () -> Unit
+    onLeaveGroup: () -> Unit,
+    onUserClick: (GroupUserInfo) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // 그룹 정보 Card
@@ -125,7 +126,7 @@ fun GroupJoinedContent(
                     groupInfo.userinfo.forEach { user ->
                         GroupUserItem(
                             user = user,
-                            isCurrentUser = user.userId == currentUserId
+                            onClick = { onUserClick(user) }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }

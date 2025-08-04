@@ -71,7 +71,7 @@ fun GroupInputDialog(
             color = Background
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 대표 사진

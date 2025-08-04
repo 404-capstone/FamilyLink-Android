@@ -2,6 +2,7 @@ package com.example.capstone_404.feature.group.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +32,10 @@ import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
 
 @Composable
-fun GroupUserItem(user: GroupUserInfo, isCurrentUser: Boolean) {
+fun GroupUserItem(
+    user: GroupUserInfo,
+    onClick: () -> Unit
+) {
     // 역할 텍스트 나누기
     val splitRole = parseRoleAndOrder(user.role)
 
@@ -43,6 +47,7 @@ fun GroupUserItem(user: GroupUserInfo, isCurrentUser: Boolean) {
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
             .padding(12.dp)
+            .clickable { onClick() }
     ) {
         // 프로필 이미지
         AsyncImage(

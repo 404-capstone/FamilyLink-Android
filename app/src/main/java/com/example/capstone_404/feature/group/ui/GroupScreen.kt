@@ -41,6 +41,8 @@ import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.LoadingDialog
 import com.example.capstone_404.utils.createImageUri
 import androidx.core.net.toUri
+import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.feature.group.ui.dialog.GroupMemberDialog
 
 @Composable
 fun GroupScreen(
@@ -58,6 +60,10 @@ fun GroupScreen(
     val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
     val groupId by viewModel.groupIdFlow.collectAsState(initial = null)
+    // 그룹 리더 Id 저장
+    val groupLeaderId = groupInfo?.userinfo?.firstOrNull { it.leader }?.userId
+    // 선택된 그룹원 정보
+    var selectedUser by remember { mutableStateOf<GroupUserInfo?>(null) }
     // 초대 코드
     var inviteCode by remember { mutableStateOf("") }
     // 코드 기반 조회 그룹 정보
@@ -165,10 +171,12 @@ fun GroupScreen(
                     if (groupInfo != null && userId != null) {
                         GroupJoinedContent(
                             groupInfo = groupInfo!!,
-                            currentUserId = userId!!,
                             onEditGroup = { showEditDialog = true },
                             onInvite = { onNavigateToInvite() },
-                            onLeaveGroup = {}
+                            onLeaveGroup = {},
+                            onUserClick = { user ->
+                                selectedUser = user
+                            }
                         )
                     } else {
                         GroupNotJoinedContent(
@@ -299,6 +307,18 @@ fun GroupScreen(
                 viewModel.editGroupInfo(groupId!!, groupName, imageUri)
                 showEditDialog = false
             }
+        )
+    }
+
+    // 그룹원 정보 다이얼로그
+    if (selectedUser != null && userId != null && groupLeaderId != null) {
+        GroupMemberDialog(
+            user = selectedUser!!,
+            currentUserId = userId!!,
+            groupLeaderId = groupLeaderId,
+            onDismiss = { selectedUser = null },
+            onTransferLeader = {  },
+            onExpel = {  }
         )
     }
 }

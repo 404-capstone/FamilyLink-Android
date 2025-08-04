@@ -32,8 +32,8 @@ import com.example.capstone_404.ui.component.CustomTopBar
 import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
 import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
 import com.example.capstone_404.feature.group.ui.dialog.GroupCancelDialog
-import com.example.capstone_404.feature.group.ui.dialog.GroupCreateDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupInfoDialog
+import com.example.capstone_404.feature.group.ui.dialog.GroupInputDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupJoinDialog
 import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
@@ -55,6 +55,7 @@ fun GroupScreen(
     // 그룹 정보 갱신
     val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
+    val groupId by viewModel.groupIdFlow.collectAsState(initial = null)
     // 초대 코드
     var inviteCode by remember { mutableStateOf("") }
     // 코드 기반 조회 그룹 정보
@@ -67,7 +68,9 @@ fun GroupScreen(
     var showSelectDialog by remember { mutableStateOf(false) }
     var showJoinDialog by remember { mutableStateOf(false) }
     var showGroupInfoDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var showDefaultImage by remember { mutableStateOf(false) }
     // Fab 확장 상태 관리
     var isFabExpanded by remember { mutableStateOf(false) }
 
@@ -161,7 +164,7 @@ fun GroupScreen(
                         GroupJoinedContent(
                             groupInfo = groupInfo!!,
                             currentUserId = userId!!,
-                            onEditGroup = {},
+                            onEditGroup = { showEditDialog = true },
                             onInvite = { onNavigateToInvite() },
                             onLeaveGroup = {}
                         )
@@ -186,16 +189,15 @@ fun GroupScreen(
     }
     // 그룹 생성 다이얼로그
     if (showCreateDialog) {
-        GroupCreateDialog(
+        GroupInputDialog(
+            selectedImageUri = selectedImageUri,
             onDismiss = { showCancelDialog = true },
-            onConfirm = { groupName, imageUri ->
-                showCreateDialog = false
-                val encodedUri = Uri.encode(imageUri?.toString() ?: "")
-                onCreate(groupName, encodedUri)
-
-            },
             onSelectPhoto = { showSelectDialog = true },
-            selectedImageUri = selectedImageUri
+            onConfirm = { groupName, imageUri ->
+                val encodedUri = Uri.encode(imageUri?.toString() ?: "")
+                showCreateDialog = false
+                onCreate(groupName, encodedUri)
+            }
         )
     }
 
@@ -223,6 +225,7 @@ fun GroupScreen(
             },
             onUseDefaultImage = {
                 selectedImageUri = null
+                showDefaultImage = true
                 showSelectDialog = false
             },
             onDismiss = { showSelectDialog = false }
@@ -269,6 +272,26 @@ fun GroupScreen(
                 showGroupInfoDialog = false
                 showJoinDialog = false
                 onJoin(inviteCode)
+            }
+        )
+    }
+
+    // 그룹 정보 수정 다이얼로그
+    if (showEditDialog && groupInfo != null) {
+        GroupInputDialog(
+            isEdit = true,
+            initialGroupName = groupInfo!!.groupName,
+            initialGroupImage = if(showDefaultImage) "" else groupInfo!!.groupImage,
+            selectedImageUri = selectedImageUri,
+            onDismiss = {
+                showEditDialog = false
+                showDefaultImage = false
+                },
+            onSelectPhoto = { showSelectDialog = true },
+            onConfirm = { groupName, imageUri ->
+                val encodedUri = Uri.encode(imageUri?.toString() ?: "")
+                showEditDialog = false
+//                viewModel.editGroupInfo(groupId, groupName, encodedUri)
             }
         )
     }

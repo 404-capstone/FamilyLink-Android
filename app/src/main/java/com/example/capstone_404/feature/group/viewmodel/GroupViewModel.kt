@@ -53,6 +53,8 @@ class GroupViewModel @Inject constructor(
     val groupInfoFlow: Flow<GroupInfo?> = groupInfoManager.groupInfoFlow
     // 유저 ID Flow
     val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
+    // 그룹 ID Flow
+    val groupIdFlow: Flow<Int?> = userInfoManager.groupIdFlow
     // 설문 결과 Flow
     val surveyResultFlow: Flow<SurveyResult?> = groupInfoManager.surveyResultFlow
 

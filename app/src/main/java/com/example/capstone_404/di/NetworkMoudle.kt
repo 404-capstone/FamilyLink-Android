@@ -107,6 +107,7 @@ object NetworkModule {
     // Todo : 기능 별 API 인터페이스 추가할 때 여기에 추가 해야 됨
     @Provides
     @Singleton
+    @Named("auth_with_token")   //name 어노테이션 추가
     fun provideAuthApi(retrofit: Retrofit): AuthApi =
         retrofit.create(AuthApi::class.java)
 

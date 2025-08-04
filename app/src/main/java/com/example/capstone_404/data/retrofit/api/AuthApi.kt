@@ -3,6 +3,7 @@ package com.example.capstone_404.data.retrofit.api
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
+import com.example.capstone_404.data.retrofit.model.response.UserInfoResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -22,4 +23,8 @@ interface AuthApi {
     suspend fun refreshAccessToken(
         @Header("Refresh-Token") refreshToken: String
     ): Response<BaseResponse<TokenData>>
+
+    // 사용자 정보 조회
+    @GET("/user/search")
+    suspend fun getUserInfo(): Response<BaseResponse<UserInfoResponse>>
 }

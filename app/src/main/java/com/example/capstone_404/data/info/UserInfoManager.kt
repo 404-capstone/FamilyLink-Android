@@ -26,6 +26,7 @@ class UserInfoManager @Inject constructor(
         private val NICKNAME_KEY = stringPreferencesKey("nickname")
         private val GENDER_KEY = stringPreferencesKey("gender")
         private val AGE_KEY = stringPreferencesKey("age")
+        private val SOCIAL_PROVIDER_KEY = stringPreferencesKey("social_provider")
     }
 
     private val dataStore = context.dataStore
@@ -36,6 +37,7 @@ class UserInfoManager @Inject constructor(
     suspend fun saveNickname(nickname: String) = dataStore.edit { it[NICKNAME_KEY] = nickname }
     suspend fun saveGender(gender: String) = dataStore.edit { it[GENDER_KEY] = gender }
     suspend fun saveAge(age: String) = dataStore.edit { it[AGE_KEY] = age }
+    suspend fun saveSocialProvider(socialProvider: String) = dataStore.edit { it[SOCIAL_PROVIDER_KEY] = socialProvider }
 
     // 삭제
     suspend fun deleteUserId() = dataStore.edit { it.remove(USER_ID_KEY) }
@@ -43,6 +45,7 @@ class UserInfoManager @Inject constructor(
     suspend fun deleteNickname() = dataStore.edit { it.remove(NICKNAME_KEY) }
     suspend fun deleteGender() = dataStore.edit { it.remove(GENDER_KEY) }
     suspend fun deleteAge() = dataStore.edit { it.remove(AGE_KEY) }
+    suspend fun deleteSocialProvider() = dataStore.edit { it.remove(SOCIAL_PROVIDER_KEY) }
 
     suspend fun clearAll() = dataStore.edit { it.clear() }
 
@@ -52,6 +55,7 @@ class UserInfoManager @Inject constructor(
     val nicknameFlow: Flow<String?> = dataStore.data.map { it[NICKNAME_KEY] }
     val genderFlow: Flow<String?> = dataStore.data.map { it[GENDER_KEY] }
     val ageFlow: Flow<String?> = dataStore.data.map { it[AGE_KEY] }
+    val socialProviderFlow: Flow<String?> = dataStore.data.map { it[SOCIAL_PROVIDER_KEY] }
 
     // 조회 (데이터로 사용할 때 사용)
     suspend fun getUserId(): Int? = dataStore.data.map { it[USER_ID_KEY] }.firstOrNull()
@@ -59,4 +63,5 @@ class UserInfoManager @Inject constructor(
     suspend fun getNickname(): String? = dataStore.data.map { it[NICKNAME_KEY] }.firstOrNull()
     suspend fun getGender(): String? = dataStore.data.map { it[GENDER_KEY] }.firstOrNull()
     suspend fun getAge(): String? = dataStore.data.map { it[AGE_KEY] }.firstOrNull()
+    suspend fun getSocialProvider(): String? = dataStore.data.map { it[SOCIAL_PROVIDER_KEY] }.firstOrNull()
 }

@@ -22,6 +22,8 @@ import com.example.capstone_404.feature.group.ui.SurveyResultScreen
 import com.example.capstone_404.feature.login.ui.LoginScreen
 import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 import com.example.capstone_404.feature.login.ui.SplashScreen
+import com.example.capstone_404.feature.mypage.ui.MyPageScreen
+import com.example.capstone_404.feature.mypage.ui.ProfileEditScreen
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -146,11 +148,45 @@ fun AppNavGraph(navController: NavHostController) {
                 )
             }
 
+            //내 정보
+            composable(Route.MYPAGE) {
+                MyPageScreen(
+                    onProfileEdit = {
+                        navController.navigate(Route.PROFILE_EDIT)
+                    },
+                    onInquiry = {
+                        // TODO: 문의하기 화면으로 이동 또는 외부 링크
+                    },
+                    onWithdraw = {
+                        navController.navigate(Route.LOGIN) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    onLogout = {
+                        navController.navigate(Route.LOGIN) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            // 프로필 편집
+            composable(Route.PROFILE_EDIT) {
+                ProfileEditScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onSave = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
             // 임시 정의
             composable(Route.CALENDAR) {  }
             composable(Route.DIARY) {  }
             composable(Route.ALBUM) {  }
-            composable(Route.MYPAGE) {  }
+
         }
     }
 }

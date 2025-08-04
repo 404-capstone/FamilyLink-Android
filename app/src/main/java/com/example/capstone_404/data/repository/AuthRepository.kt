@@ -2,6 +2,7 @@ package com.example.capstone_404.data.repository
 
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
+import com.example.capstone_404.data.retrofit.model.response.UserInfoResponse
 
 interface AuthRepository {
     // SessionId로 토큰 발급
@@ -9,4 +10,7 @@ interface AuthRepository {
 
     // 수동 토큰 재발급
     suspend fun tokenRefresh(providedRefreshToken: String): Result<TokenData>
+
+    // 유저 정보 조회
+    suspend fun getUserInfo(): Result<UserInfoResponse>
 }

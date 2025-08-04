@@ -69,6 +69,24 @@ class GroupRepositoryImpl @Inject constructor(
         }
     }
 
+    // 그룹 정보 수정
+    override suspend fun editGroupInfo(
+        groupId: Int,
+        groupName: String,
+        image: MultipartBody.Part
+    ): Result<Unit> {
+        return try {
+            val response = groupApi.editGroupInfo(groupId, groupName, image)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // 설문 결과 저장
     override suspend fun saveSurveyResult(
         groupId: Int,

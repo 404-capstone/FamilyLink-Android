@@ -24,6 +24,13 @@ interface GroupRepository {
         groupId: Int
     ): Result<GroupInfoData>
 
+    // 그룹 정보 수정
+    suspend fun editGroupInfo(
+        groupId: Int,
+        groupName: String,
+        image: MultipartBody.Part
+    ): Result<Unit>
+
     // 설문 결과 저장
     suspend fun saveSurveyResult(
         groupId: Int,

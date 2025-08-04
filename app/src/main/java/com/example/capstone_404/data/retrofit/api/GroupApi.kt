@@ -10,6 +10,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
@@ -36,6 +37,15 @@ interface GroupApi {
     suspend fun getGroupInfo(
         @Query("groupId") groupId: Int
     ): Response<BaseResponse<GroupInfoData>>
+
+    // 그룹 정보 수정
+    @Multipart
+    @PATCH("/group/edit")
+    suspend fun editGroupInfo(
+        @Query("groupId") groupId: Int,
+        @Query("name") name: String,
+        @Part image: MultipartBody.Part?
+    ): Response<Void>
 
     // 설문 결과 저장
     @POST("/group/servey/save")

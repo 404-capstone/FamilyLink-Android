@@ -2,6 +2,7 @@ package com.example.capstone_404.feature.group.viewmodel
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -239,6 +240,35 @@ class GroupViewModel @Inject constructor(
             Log.d("User_Info", "(G)그룹 정보 저장 완료 : $groupInfo")
         }.onFailure {
             Log.e("User_Info", "(G)그룹 정보 조회 실패: ${it.message}")
+        }
+    }
+
+
+    // -------------------- 그룹 & 그룹원 관리 함수 --------------------
+    // 그룹 정보 수정
+    fun editGroupInfo(groupId: Int, groupName: String, imageUri: Uri?) {
+        viewModelScope.launch {
+            isLoading = true
+            val imagePart = imageUri?.let { prepareImagePart(appContext, it) }
+                ?: MultipartBody.Part.createFormData(
+                    name = "image",
+                    filename = "",
+                    body = "".toRequestBody("application/octet-stream".toMediaTypeOrNull())
+                )
+            Log.d("GroupViewModel", "그룹 정보 수정 요청 : groupId : $groupId groupName : $groupName, image : $imagePart")
+
+            val result = groupRepository.editGroupInfo(groupId, groupName, imagePart)
+
+            result.onSuccess {
+                coroutineScope {
+                    val groupInfoDeferred = async { saveGroupInfo(groupId) }
+                    groupInfoDeferred.await()
+                }
+                Log.d("GroupViewModel", "그룹 정보 수정 완료")
+            }.onFailure {
+                Log.e("GroupViewModel", "그룹 정보 수정 실패 : ${it.message}")
+            }
+            isLoading = false
         }
     }
 

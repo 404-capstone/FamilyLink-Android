@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.capstone_404.R
 import com.example.capstone_404.feature.group.ui.component.SurveyFab
 import com.example.capstone_404.ui.component.CustomTopBar
 import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
@@ -39,6 +40,7 @@ import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.LoadingDialog
 import com.example.capstone_404.utils.createImageUri
+import androidx.core.net.toUri
 
 @Composable
 fun GroupScreen(
@@ -223,8 +225,13 @@ fun GroupScreen(
                 requestCameraPermission()
                 showSelectDialog = false
             },
-            onUseDefaultImage = {
+            onUseBeforeImage = {
                 selectedImageUri = null
+                showDefaultImage = false
+                showSelectDialog = false
+            },
+            onUseDefaultImage = {
+                selectedImageUri = "android.resource://${context.packageName}/${R.drawable.default_group}".toUri()
                 showDefaultImage = true
                 showSelectDialog = false
             },
@@ -289,9 +296,8 @@ fun GroupScreen(
                 },
             onSelectPhoto = { showSelectDialog = true },
             onConfirm = { groupName, imageUri ->
-                val encodedUri = Uri.encode(imageUri?.toString() ?: "")
+                viewModel.editGroupInfo(groupId!!, groupName, imageUri)
                 showEditDialog = false
-//                viewModel.editGroupInfo(groupId, groupName, encodedUri)
             }
         )
     }

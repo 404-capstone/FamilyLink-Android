@@ -187,6 +187,10 @@ fun ProfileEditScreen(
                 // TODO: 카메라로 사진 찍기 기능 구현
                 showImageSelectDialog = false
             },
+            onUseBeforeImage = {
+                // 기존 이미지 사용 추가 됨 - SY
+                showImageSelectDialog = false
+            },
             onUseDefaultImage = {
                 // TODO: 기본 이미지 사용 기능 구현
                 showImageSelectDialog = false

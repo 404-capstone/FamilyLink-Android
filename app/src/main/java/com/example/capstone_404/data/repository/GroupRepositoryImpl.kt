@@ -211,4 +211,21 @@ class GroupRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    // 그룹원 추방
+    override suspend fun deleteMember(
+        groupId: Int,
+        userId: Int
+    ): Result<Unit> {
+        return try {
+            val response = groupApi.deleteMember(groupId, userId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

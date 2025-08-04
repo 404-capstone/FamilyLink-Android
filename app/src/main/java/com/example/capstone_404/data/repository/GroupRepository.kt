@@ -70,4 +70,10 @@ interface GroupRepository {
         groupId: Int,
         userId: Int
     ): Result<String>
+
+    // 그룹원 추방
+    suspend fun deleteMember(
+        groupId: Int,
+        userId: Int
+    ): Result<Unit>
 }

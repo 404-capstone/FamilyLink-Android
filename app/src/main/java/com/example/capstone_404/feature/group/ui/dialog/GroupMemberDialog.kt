@@ -47,7 +47,7 @@ fun GroupMemberDialog(
     groupLeaderId: Int,
     onDismiss: () -> Unit,
     onChangeLeader: (targetId: Int) -> Unit,
-    onExpel: () -> Unit
+    onExpel: (targetId: Int) -> Unit
 ) {
     val splitRole = parseRoleAndOrder(user.role)
     val isSelectedUserLeader = user.leader
@@ -167,7 +167,7 @@ fun GroupMemberDialog(
                     ) {
                         ButtonColorRed(
                             text = "그룹에서 추방",
-                            onClick = onExpel,
+                            onClick = { onExpel(user.userId) },
                             modifier = Modifier.weight(1f)
                         )
                         ButtonDefault(

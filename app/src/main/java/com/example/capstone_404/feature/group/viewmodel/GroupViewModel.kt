@@ -282,9 +282,27 @@ class GroupViewModel @Inject constructor(
                     val groupInfoDeferred = async { saveGroupInfo(groupId) }
                     groupInfoDeferred.await()
                 }
-                Log.d("GroupViewModel", "그룹장 변경 완료")
+                Log.d("GroupViewModel", "그룹장 변경 완료 : $it")
             }.onFailure {
                 Log.e("GroupViewModel", "그룹장 변경 실패 : ${it.message}")
+            }
+            isLoading = false
+        }
+    }
+    // 그룹원 추방
+    fun deleteMember(groupId: Int, targetId: Int) {
+        viewModelScope.launch {
+            isLoading = true
+            val result = groupRepository.deleteMember(groupId, targetId)
+
+            result.onSuccess {
+                coroutineScope {
+                    val groupInfoDeferred = async { saveGroupInfo(groupId) }
+                    groupInfoDeferred.await()
+                }
+                Log.d("GroupViewModel", "그룹원 추방 완료")
+            }.onFailure {
+                Log.e("GroupViewModel", "그룹원 추방 실패 : ${it.message}")
             }
             isLoading = false
         }
@@ -312,9 +330,9 @@ class GroupViewModel @Inject constructor(
                 val result = groupId?.let {
                     groupRepository.saveSurveyResult(
                         groupId = it,
-                        level = surveyResult.level,
-                        score = surveyResult.score,
-                        percent = surveyResult.percent
+                        level = surveyResult.level!!,
+                        score = surveyResult.score!!,
+                        percent = surveyResult.percent!!
                     )
                 }
                 if (result != null) {

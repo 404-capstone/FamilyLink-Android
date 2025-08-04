@@ -23,7 +23,7 @@ data class GroupUserInfo(
 // 설문 결과 데이터
 @Serializable
 data class SurveyResult(
-    val level: String,
-    val score: Int,
-    val percent: Int
+    val level: String? = null,
+    val score: Int? = null,
+    val percent: Int? = null
 )

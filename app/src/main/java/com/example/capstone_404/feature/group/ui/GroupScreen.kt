@@ -322,7 +322,10 @@ fun GroupScreen(
                 viewModel.changeLeader(groupId!!, targetId)
                 selectedUser = null
             },
-            onExpel = {  }
+            onExpel = { targetId ->
+                viewModel.deleteMember(groupId!!, targetId)
+                selectedUser = null
+            }
         )
     }
 }

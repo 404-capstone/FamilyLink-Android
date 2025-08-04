@@ -8,6 +8,7 @@ import com.example.capstone_404.data.retrofit.model.response.SurveyResultData
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
@@ -91,4 +92,11 @@ interface GroupApi {
         @Query("groupId") groupId: Int,
         @Query("userId") userId: Int
     ): Response<BaseResponse<String>>
+
+    // 그룹원 추방
+    @DELETE("/group/user/delete")
+    suspend fun deleteMember(
+        @Query("groupId") groupId: Int,
+        @Query("userId") userId: Int
+    ): Response<Void>
 }

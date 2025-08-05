@@ -1,9 +1,6 @@
 package com.example.capstone_404.feature.group.ui
 
-import android.Manifest
 import android.net.Uri
-import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -38,12 +35,14 @@ import com.example.capstone_404.feature.group.ui.dialog.GroupJoinDialog
 import com.example.capstone_404.ui.component.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
-import com.example.capstone_404.utils.createImageUri
 import androidx.core.net.toUri
 import com.example.capstone_404.data.info.GroupUserInfo
 import com.example.capstone_404.feature.group.ui.dialog.GroupMemberDialog
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.DropdownField
+import com.example.capstone_404.utils.RequestCameraPermission
+import com.example.capstone_404.utils.RequestStoragePermission
+import com.example.capstone_404.utils.UriUtil
 
 @Composable
 fun GroupScreen(
@@ -97,36 +96,19 @@ fun GroupScreen(
     var showDefaultImage by remember { mutableStateOf(false) }
     // Fab 확장 상태 관리
     var isFabExpanded by remember { mutableStateOf(false) }
-
-    // 카메라 이미지 저장
+    // ========== ※카메라|갤러리 관련 변수※ ==========
+    // 갤러리 권한 실행 관리 변수
+    var requestGalleryPermission by remember { mutableStateOf(false) }
+    // 카메라 권한 실행 관리 변수
+    var requestCameraPermission by remember { mutableStateOf(false) }
+    // 카메라 촬영 이미지 저장
     val cameraImageUri = remember { mutableStateOf<Uri?>(null) }
-
     // 갤러리 실행
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { selectedImageUri = it }
     }
-    // 저장소(갤러리) 권한 런처
-    val storagePermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            galleryLauncher.launch("image/*")
-        } else {
-            Toast.makeText(context, "저장소 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-        }
-    }
-    // 저장소(갤러리) 권한 요청
-    val requestStoragePermission = {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_IMAGES
-        } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        }
-        storagePermissionLauncher.launch(permission)
-    }
-
     // 카메라 실행
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -135,23 +117,37 @@ fun GroupScreen(
             selectedImageUri = cameraImageUri.value
         }
     }
-    // 카메라 권한 런처
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            val uri = createImageUri(context)
-            cameraImageUri.value = uri
-            if (uri != null) {
-                cameraLauncher.launch(uri)
+    // 저장소 권한 요청 실행
+    if (requestGalleryPermission) {
+        RequestStoragePermission(
+            context = context,
+            onGranted = {
+                galleryLauncher.launch("image/*")
+                showSelectDialog = false
+                requestGalleryPermission = false
+            },
+            onDenied = {
+                showSelectDialog = false
+                requestGalleryPermission = false
             }
-        } else {
-            Toast.makeText(context, "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-        }
+        )
     }
-    // 카메라 권한 요청
-    val requestCameraPermission = {
-        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+    // 카메라 권한 요청 실행
+    if (requestCameraPermission) {
+        RequestCameraPermission(
+            context = context,
+            onGranted = {
+                val uri = UriUtil.createImageUri(context)
+                cameraImageUri.value = uri
+                uri?.let { cameraLauncher.launch(it) }
+                showSelectDialog = false
+                requestCameraPermission = false
+            },
+            onDenied = {
+                showSelectDialog = false
+                requestCameraPermission = false
+            }
+        )
     }
 
     Scaffold(
@@ -246,14 +242,8 @@ fun GroupScreen(
     // 이미지 선택 옵션 다이얼로그
     if (showSelectDialog) {
         ImageSelectDialog(
-            onSelectFromGallery = {
-                requestStoragePermission()
-                showSelectDialog = false
-            },
-            onTakePhoto = {
-                requestCameraPermission()
-                showSelectDialog = false
-            },
+            onSelectFromGallery = { requestGalleryPermission = true },
+            onTakePhoto = { requestCameraPermission = true },
             onUseBeforeImage = {
                 selectedImageUri = null
                 showDefaultImage = false

@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.component
+package com.example.capstone_404.ui.component.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.capstone_404.ui.component.ButtonColorRed
+import com.example.capstone_404.ui.component.ButtonOutline
 import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.TextBlack
 

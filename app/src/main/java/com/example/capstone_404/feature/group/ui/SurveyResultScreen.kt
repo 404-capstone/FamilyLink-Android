@@ -31,9 +31,9 @@ import com.example.capstone_404.feature.group.model.getSurveyDescription
 import com.example.capstone_404.feature.group.ui.component.ResultBox
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.ButtonDefault
-import com.example.capstone_404.ui.component.CustomTopBar
+import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
-import com.example.capstone_404.ui.component.NavigationType
+import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack

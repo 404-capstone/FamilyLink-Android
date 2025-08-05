@@ -29,20 +29,20 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.group.ui.component.SurveyFab
-import com.example.capstone_404.ui.component.CustomTopBar
+import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
 import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
 import com.example.capstone_404.feature.group.ui.dialog.GroupInfoDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupInputDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupJoinDialog
-import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
+import com.example.capstone_404.ui.component.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
-import com.example.capstone_404.ui.component.LoadingDialog
+import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.utils.createImageUri
 import androidx.core.net.toUri
 import com.example.capstone_404.data.info.GroupUserInfo
 import com.example.capstone_404.feature.group.ui.dialog.GroupMemberDialog
-import com.example.capstone_404.ui.component.ActionDialog
+import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.DropdownField
 
 @Composable
@@ -285,7 +285,7 @@ fun GroupScreen(
 
     // 초대 코드 기반 조회 중 로딩
     if (isLoading) {
-        LoadingDialog("정보를 가져오고 있어요\n잠시만 기다려주세요!")
+        LoadingDialog("정보를 갱신하고 있어요\n잠시만 기다려주세요!")
     }
 
     // 그룹 정보 다이얼로그 표시

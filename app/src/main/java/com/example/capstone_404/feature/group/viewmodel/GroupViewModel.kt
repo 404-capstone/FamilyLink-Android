@@ -173,6 +173,7 @@ class GroupViewModel @Inject constructor(
             role.toKorean()
         }
         viewModelScope.launch {
+            isLoading = true
             if (inviteCode.isNotBlank()) {
                 Log.d("GroupViewModel", "그룹 가입 요청 : code=$inviteCode, role=$roleLabel")
 
@@ -203,6 +204,7 @@ class GroupViewModel @Inject constructor(
                     Log.d("GroupViewModel", "그룹 생성 실패 : ${it.message}")
                 }
             }
+            isLoading = false
         }
     }
     // 그룹 생성|가입 성공 시 저장 함수

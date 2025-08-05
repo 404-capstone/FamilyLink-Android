@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.group.ui.dialog
+package com.example.capstone_404.ui.component.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

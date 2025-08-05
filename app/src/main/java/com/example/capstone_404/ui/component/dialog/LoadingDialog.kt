@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.component
+package com.example.capstone_404.ui.component.dialog
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

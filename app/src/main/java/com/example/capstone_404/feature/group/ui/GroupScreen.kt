@@ -405,7 +405,7 @@ fun GroupScreen(
                     }
 
                     else -> {
-                        // Todo : 그룹 탈퇴 API 연동 후 연결
+                        viewModel.exitGroup(groupId!!)
                     }
                 }
                 showExitDialog = false

@@ -228,4 +228,18 @@ class GroupRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    // 그룹 탈퇴
+    override suspend fun exitGroup(groupId: Int): Result<Unit> {
+        return try {
+            val response = groupApi.exitGroup(groupId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

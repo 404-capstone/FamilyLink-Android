@@ -76,4 +76,9 @@ interface GroupRepository {
         groupId: Int,
         userId: Int
     ): Result<Unit>
+
+    // 그룹 탈퇴
+    suspend fun exitGroup(
+        groupId: Int
+    ): Result<Unit>
 }

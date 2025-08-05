@@ -99,4 +99,10 @@ interface GroupApi {
         @Query("groupId") groupId: Int,
         @Query("userId") userId: Int
     ): Response<Void>
+
+    // 그룹 탈퇴
+    @DELETE("/group/quit")
+    suspend fun exitGroup(
+        @Query("groupId") groupId: Int
+    ): Response<Void>
 }

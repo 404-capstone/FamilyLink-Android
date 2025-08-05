@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GroupInfo(
     val groupName: String,
-    val groupImage:  String,
+    val groupImage:  String? = null,
     val userinfo: List<GroupUserInfo>
 )
 // 그룹원 데이터
@@ -15,8 +15,8 @@ data class GroupUserInfo(
     val userId: Int,
     val username: String,
     val role:  String,
-    val age:  String,
-    val image:  String,
+    val age:  String? = null,
+    val image:  String? = null,
     val leader: Boolean
 )
 

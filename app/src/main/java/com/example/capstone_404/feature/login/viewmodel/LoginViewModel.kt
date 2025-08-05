@@ -104,10 +104,14 @@ class LoginViewModel @Inject constructor(
                     }
                     _isSaved.value = true
                 }.onFailure { e ->
+                    userInfoManager.deleteGroupId()
+                    groupInfoManager.clearAll()
                     Log.d("User_Info", "(L)그룹 ID 조회 실패 : ${e.message}")
                     _isSaved.value = true
                 }
             } catch (e: Exception) {
+                userInfoManager.deleteGroupId()
+                groupInfoManager.clearAll()
                 Log.e("User_Info", "(L)그룹 ID 조회 실패 : ${e.message}")
                 _isSaved.value = true
             }
@@ -120,14 +124,14 @@ class LoginViewModel @Inject constructor(
         result.onSuccess { data ->
             val groupInfo = GroupInfo(
                 groupName = data.group_name,
-                groupImage = data.group_image ?: "",
+                groupImage = data.group_image,
                 userinfo = data.userinfo.map {
                     GroupUserInfo(
                         userId = it.userId,
                         username = it.username,
                         role = it.role,
-                        age = it.age ?: "연령대 미지정",
-                        image = it.image ?: "",
+                        age = it.age,
+                        image = it.image,
                         leader = it.leader
                     )
                 }

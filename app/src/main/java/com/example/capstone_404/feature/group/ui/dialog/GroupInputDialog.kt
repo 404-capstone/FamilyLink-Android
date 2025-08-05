@@ -49,7 +49,7 @@ import com.example.capstone_404.ui.theme.TextGray
 fun GroupInputDialog(
     isEdit: Boolean = false,
     initialGroupName: String = "",
-    initialGroupImage: String = "",
+    initialGroupImage: String? = null,
     selectedImageUri: Uri?,
     onDismiss: () -> Unit,
     onSelectPhoto: () -> Unit,
@@ -80,11 +80,11 @@ fun GroupInputDialog(
                         .size(96.dp)
                         .clip(CircleShape)
                         .clickable { onSelectPhoto() }
-                        .background(Color.White),
+                        .background(Stroke),
                     contentAlignment = Alignment.Center
                 ) {
                     if (selectedImageUri == null) {
-                        if (initialGroupImage != "") {
+                        if (initialGroupImage != null) {
                             AsyncImage(
                                 model = initialGroupImage,
                                 contentDescription = "기존 그룹 이미지",

@@ -93,7 +93,6 @@ fun GroupScreen(
     var showGroupInfoDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var showDefaultImage by remember { mutableStateOf(false) }
     // Fab 확장 상태 관리
     var isFabExpanded by remember { mutableStateOf(false) }
     // ========== ※카메라|갤러리 관련 변수※ ==========
@@ -246,12 +245,10 @@ fun GroupScreen(
             onTakePhoto = { requestCameraPermission = true },
             onUseBeforeImage = {
                 selectedImageUri = null
-                showDefaultImage = false
                 showSelectDialog = false
             },
             onUseDefaultImage = {
                 selectedImageUri = "android.resource://${context.packageName}/${R.drawable.default_group}".toUri()
-                showDefaultImage = true
                 showSelectDialog = false
             },
             onDismiss = { showSelectDialog = false }
@@ -288,7 +285,7 @@ fun GroupScreen(
     // 그룹 정보 다이얼로그
     if (showGroupInfoDialog) {
         GroupInfoDialog(
-            groupInfo = groupInfoByCode,
+            groupInfo = groupInfoByCode!!,
             onDismiss = {
                 viewModel.resetGroupInfoByCode()
                 showGroupInfoDialog = false
@@ -307,16 +304,17 @@ fun GroupScreen(
         GroupInputDialog(
             isEdit = true,
             initialGroupName = groupInfo!!.groupName,
-            initialGroupImage = if(showDefaultImage) "" else groupInfo!!.groupImage,
+            initialGroupImage = groupInfo!!.groupImage,
             selectedImageUri = selectedImageUri,
             onDismiss = {
                 showEditDialog = false
-                showDefaultImage = false
+                selectedImageUri = null
                 },
             onSelectPhoto = { showSelectDialog = true },
             onConfirm = { groupName, imageUri ->
                 viewModel.editGroupInfo(groupId!!, groupName, imageUri)
                 showEditDialog = false
+                selectedImageUri = null
             }
         )
     }

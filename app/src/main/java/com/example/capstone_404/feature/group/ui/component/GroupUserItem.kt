@@ -25,12 +25,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.utils.getColor
 import com.example.capstone_404.utils.parseRoleAndOrder
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
-import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
 fun GroupUserItem(
@@ -51,6 +51,7 @@ fun GroupUserItem(
             .padding(12.dp)
             .clickable { onClick() }
     ) {
+        // Todo : 프로필 이미지 없는 경우 처리 추가
         // 프로필 이미지
         AsyncImage(
             model = user.image,
@@ -75,13 +76,14 @@ fun GroupUserItem(
                         modifier = Modifier
                             .size(16.dp)
                             .clip(CircleShape)
-                            .background(Stroke),
+                            .background(Stroke)
+                            .border(1.dp, Main, RoundedCornerShape(100)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "나",
                             style = MaterialTheme.typography.labelSmall,
-                            color = TextWhite,
+                            color = TextBlack,
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -93,7 +95,7 @@ fun GroupUserItem(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = user.age,
+                    text = user.age ?: "연령대 미지정",
                     style = MaterialTheme.typography.labelSmall,
                     color = TextBlack
                 )

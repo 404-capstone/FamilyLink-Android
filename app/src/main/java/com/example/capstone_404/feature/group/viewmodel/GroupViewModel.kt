@@ -226,14 +226,14 @@ class GroupViewModel @Inject constructor(
         result.onSuccess { data ->
             val groupInfo = GroupInfo(
                 groupName = data.group_name,
-                groupImage = data.group_image ?: "",
+                groupImage = data.group_image,
                 userinfo = data.userinfo.map {
                     GroupUserInfo(
                         userId = it.userId,
                         username = it.username,
                         role = it.role,
-                        age = it.age ?: "연령대 미지정",
-                        image = it.image ?: "",
+                        age = it.age,
+                        image = it.image,
                         leader = it.leader
                     )
                 }

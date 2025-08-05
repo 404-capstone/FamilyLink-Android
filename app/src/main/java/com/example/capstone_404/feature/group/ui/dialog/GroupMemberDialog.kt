@@ -127,7 +127,7 @@ fun GroupMemberDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = user.age,
+                        text = user.age ?: "연령대 미지정",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextBlack
                     )

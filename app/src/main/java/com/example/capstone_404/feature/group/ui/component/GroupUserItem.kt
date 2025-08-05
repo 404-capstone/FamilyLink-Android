@@ -25,8 +25,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.capstone_404.data.info.GroupUserInfo
-import com.example.capstone_404.feature.group.model.getColor
-import com.example.capstone_404.feature.group.model.parseRoleAndOrder
+import com.example.capstone_404.utils.getColor
+import com.example.capstone_404.utils.parseRoleAndOrder
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray

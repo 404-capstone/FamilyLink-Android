@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.example.capstone_404.ui.component.DropdownField
 import com.example.capstone_404.feature.group.model.OrderType
 import com.example.capstone_404.feature.group.model.RoleType
-import com.example.capstone_404.feature.group.model.getColor
+import com.example.capstone_404.utils.getColor
 import com.example.capstone_404.feature.group.model.toKorean
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke

@@ -324,6 +324,23 @@ class GroupViewModel @Inject constructor(
             isLoading = false
         }
     }
+    // 그룹장 그룹 탈퇴
+    fun exitGroupFromLeader(groupId: Int, targetId: Int) {
+        viewModelScope.launch {
+            isLoading = true
+            val result = groupRepository.exitGroupFromLeader(groupId, targetId)
+            result.onSuccess {
+                coroutineScope {
+                    val groupInfoDeferred = async { deleteGroupInfo() }
+                    groupInfoDeferred.await()
+                }
+                Log.d("GroupViewModel", "그룹장 그룹 탈퇴 완료")
+            }.onFailure {
+                Log.e("GroupViewModel", "그룹장 그룹 탈퇴 실패 : ${it.message}")
+            }
+            isLoading = false
+        }
+    }
     // 그룹 관련 데이터 삭제
     private suspend fun deleteGroupInfo() {
         groupInfoManager.clearGroupInfo()

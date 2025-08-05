@@ -79,9 +79,11 @@ fun GroupScreen(
     // 그룹장 탈퇴 판단용 변수
     val isLeader = userId == groupLeaderId
     // 그룹장 탈퇴 시 드롭다운 관련 변수
-    val groupMembers = groupInfo?.userinfo?.filter { it.userId != userId } ?: emptyList()
-    val dropdownOptions = groupMembers.map { "${it.role} - ${it.username}" }
-    val selectedMember = groupMembers.find { it.userId == selectedLeaderId }
+    val dropdownPairs = groupInfo?.userinfo
+        ?.filter { it.userId != userId }
+        ?.map { it.userId to "${it.role} - ${it.username}" }
+        ?: emptyList()
+    val selectedDropdownItem = dropdownPairs.find { it.first == selectedLeaderId }?.second ?: ""
     // 그룹 삭제 판단용 변수
     val isSingleUser = groupInfo?.userinfo?.size == 1
     // ========== ※다이얼로그 상태 관리 변수※ ==========
@@ -384,11 +386,10 @@ fun GroupScreen(
                 {
                     DropdownField(
                         label = "대상 선택",
-                        value = selectedMember?.let { "${it.role} - ${it.username}" } ?: "",
-                        options = dropdownOptions,
-                        onSelect = { selected ->
-                            val selectedLeader = groupMembers.find { "${it.role} - ${it.username}" == selected }
-                            selectedLeaderId = selectedLeader?.userId
+                        value = selectedDropdownItem,
+                        options = dropdownPairs.map { it.second },
+                        onSelect = { selectedItem  ->
+                            selectedLeaderId = dropdownPairs.find { it.second == selectedItem }?.first
                         }
                     )
                 }
@@ -401,7 +402,7 @@ fun GroupScreen(
                     }
 
                     isLeader && !isSingleUser -> {
-                        // Todo : 그룹장 탈퇴 API 연동 후 연결
+                        viewModel.exitGroupFromLeader(groupId!!, selectedLeaderId!!)
                     }
 
                     else -> {

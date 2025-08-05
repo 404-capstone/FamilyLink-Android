@@ -81,4 +81,10 @@ interface GroupRepository {
     suspend fun exitGroup(
         groupId: Int
     ): Result<Unit>
+
+    // 그룹장 그룹 탈퇴
+    suspend fun exitGroupFromLeader(
+        groupId: Int,
+        targetId: Int
+    ): Result<String>
 }

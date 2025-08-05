@@ -105,4 +105,11 @@ interface GroupApi {
     suspend fun exitGroup(
         @Query("groupId") groupId: Int
     ): Response<Void>
+
+    // 그룹장 그룹 탈퇴
+    @DELETE("/group/leader/quit")
+    suspend fun exitGroupFromLeader(
+        @Query("groupId") groupId: Int,
+        @Query("userId") targetId: Int
+    ): Response<BaseResponse<String>>
 }

@@ -32,7 +32,6 @@ import com.example.capstone_404.feature.group.ui.component.SurveyFab
 import com.example.capstone_404.ui.component.CustomTopBar
 import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
 import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
-import com.example.capstone_404.feature.group.ui.dialog.GroupCancelDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupInfoDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupInputDialog
 import com.example.capstone_404.feature.group.ui.dialog.GroupJoinDialog
@@ -43,6 +42,8 @@ import com.example.capstone_404.utils.createImageUri
 import androidx.core.net.toUri
 import com.example.capstone_404.data.info.GroupUserInfo
 import com.example.capstone_404.feature.group.ui.dialog.GroupMemberDialog
+import com.example.capstone_404.ui.component.ActionDialog
+import com.example.capstone_404.ui.component.DropdownField
 
 @Composable
 fun GroupScreen(
@@ -64,13 +65,26 @@ fun GroupScreen(
     val groupLeaderId = groupInfo?.userinfo?.firstOrNull { it.leader }?.userId
     // 선택된 그룹원 정보
     var selectedUser by remember { mutableStateOf<GroupUserInfo?>(null) }
+    // ========== ※그룹 가입용 변수※ ==========
     // 초대 코드
     var inviteCode by remember { mutableStateOf("") }
     // 코드 기반 조회 그룹 정보
     val groupInfoByCode by viewModel.groupInfoByCode.collectAsState()
     val getError by viewModel.getError.collectAsState()
-
-    // 다이얼로그 상태 관리
+    // ========== ※탈퇴|삭제용 변수※ ==========
+    // 그룹 탈퇴|삭제 다이얼로그
+    var showExitDialog by remember { mutableStateOf(false) }
+    // 그룹장 이전 대상 Id(그룹장 탈퇴)
+    var selectedLeaderId by remember { mutableStateOf<Int?>(null) }
+    // 그룹장 탈퇴 판단용 변수
+    val isLeader = userId == groupLeaderId
+    // 그룹장 탈퇴 시 드롭다운 관련 변수
+    val groupMembers = groupInfo?.userinfo?.filter { it.userId != userId } ?: emptyList()
+    val dropdownOptions = groupMembers.map { "${it.role} - ${it.username}" }
+    val selectedMember = groupMembers.find { it.userId == selectedLeaderId }
+    // 그룹 삭제 판단용 변수
+    val isSingleUser = groupInfo?.userinfo?.size == 1
+    // ========== ※다이얼로그 상태 관리 변수※ ==========
     var showCreateDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
     var showSelectDialog by remember { mutableStateOf(false) }
@@ -174,7 +188,7 @@ fun GroupScreen(
                             currentUserId = userId!!,
                             onEditGroup = { showEditDialog = true },
                             onInvite = { onNavigateToInvite() },
-                            onLeaveGroup = {},
+                            onLeaveGroup = { showExitDialog = true },
                             onUserClick = { user ->
                                 selectedUser = user
                             }
@@ -214,7 +228,11 @@ fun GroupScreen(
 
     // 그룹 생성 취소 응답 다이얼로그
     if (showCancelDialog) {
-        GroupCancelDialog(
+        ActionDialog(
+            title = "그룹 생성을 취소하시겠습니까?",
+            description = "취소 시 입력한 내용이 삭제됩니다.",
+            confirmText = "예",
+            cancelText = "아니오",
             onConfirm = {
                 showCreateDialog = false
                 showCancelDialog = false
@@ -325,6 +343,76 @@ fun GroupScreen(
             onExpel = { targetId ->
                 viewModel.deleteMember(groupId!!, targetId)
                 selectedUser = null
+            }
+        )
+    }
+
+    // 그룹 탈퇴|삭제 다이얼로그
+    if (showExitDialog) {
+        val title: String
+        val description: String
+        val confirmText: String
+        val showDropdown: Boolean
+        // 탈퇴(그룹|그룹장), 삭제 분기
+        when {
+            isLeader && isSingleUser -> {
+                title = "그룹을 삭제하시겠습니까?"
+                description = "그룹 내에서 작성된 모든 내용은 삭제되며\n복구할 수 없습니다."
+                confirmText = "그룹 삭제"
+                showDropdown = false
+            }
+            isLeader && !isSingleUser -> {
+                title = "그룹을 탈퇴하시겠습니까?"
+                description = "그룹장이 그룹 탈퇴 시 그룹장을 이전해야 합니다.\n그룹장을 넘겨줄 대상을 선택해 주세요."
+                confirmText = "그룹 탈퇴"
+                showDropdown = true
+            }
+            else -> {
+                title = "그룹을 탈퇴하시겠습니까?"
+                description = "사용자가 그룹 내에서 작성한 모든 내용은\n삭제되며 복구할 수 없습니다."
+                confirmText = "그룹 탈퇴"
+                showDropdown = false
+            }
+        }
+
+        ActionDialog(
+            title = title,
+            description = description,
+            confirmText = confirmText,
+            showDropdown = showDropdown,
+            dropdownContent = if (showDropdown) {
+                {
+                    DropdownField(
+                        label = "대상 선택",
+                        value = selectedMember?.let { "${it.role} - ${it.username}" } ?: "",
+                        options = dropdownOptions,
+                        onSelect = { selected ->
+                            val selectedLeader = groupMembers.find { "${it.role} - ${it.username}" == selected }
+                            selectedLeaderId = selectedLeader?.userId
+                        }
+                    )
+                }
+            } else null,
+            confirmEnabled = !showDropdown || selectedLeaderId != null,
+            onConfirm = {
+                when {
+                    isLeader && isSingleUser -> {
+                        // Todo : 삭제 API 연동 후 연결
+                    }
+
+                    isLeader && !isSingleUser -> {
+                        // Todo : 그룹장 탈퇴 API 연동 후 연결
+                    }
+
+                    else -> {
+                        // Todo : 그룹 탈퇴 API 연동 후 연결
+                    }
+                }
+                showExitDialog = false
+            },
+            onDismiss = {
+                showExitDialog = false
+                selectedLeaderId = null
             }
         )
     }

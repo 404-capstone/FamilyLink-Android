@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.group.ui.dialog
+package com.example.capstone_404.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,16 +18,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.capstone_404.ui.component.ButtonColorRed
-import com.example.capstone_404.ui.component.ButtonOutline
 import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.TextBlack
 
-// 생성 취소 응답 다이얼로그
+// 취소, 삭제 등에 사용할 다이얼로그
 @Composable
-fun GroupCancelDialog(
+fun ActionDialog(
+    title: String,
+    description: String,
+    confirmText: String,
+    cancelText: String = "취소",
+    showDropdown: Boolean = false,
+    dropdownContent: @Composable (() -> Unit)? = null,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    confirmEnabled: Boolean = true
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -36,45 +41,53 @@ fun GroupCancelDialog(
         Surface(
             modifier = Modifier
                 .wrapContentHeight()
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             color = Background
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // 타이틀
                 Text(
-                    text = "그룹 생성을 취소하시겠습니까?",
+                    text = title,
                     style = MaterialTheme.typography.headlineSmall,
                     color = TextBlack
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-
+                // 본문 내용
                 Text(
-                    text = "취소 시 입력한 내용이 삭제됩니다.",
+                    text = description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextBlack
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                // 드롭다운(그룹장 탈퇴용)
+                if (showDropdown && dropdownContent != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    dropdownContent()
+                }
 
+                Spacer(modifier = Modifier.height(24.dp))
+                // 버튼 Row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     ButtonOutline(
-                        text = "아니오",
+                        text = cancelText,
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f)
                     )
-
                     ButtonColorRed(
-                        text = "예",
+                        text = confirmText,
                         onClick = onConfirm,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        enabled = confirmEnabled
                     )
                 }
             }

@@ -329,14 +329,31 @@ class GroupViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading = true
             val result = groupRepository.exitGroupFromLeader(groupId, targetId)
+            result.onSuccess { data ->
+                coroutineScope {
+                    val groupInfoDeferred = async { deleteGroupInfo() }
+                    groupInfoDeferred.await()
+                }
+                Log.d("GroupViewModel", "그룹장 그룹 탈퇴 완료 : $data")
+            }.onFailure {
+                Log.e("GroupViewModel", "그룹장 그룹 탈퇴 실패 : ${it.message}")
+            }
+            isLoading = false
+        }
+    }
+    // 그룹 삭제
+    fun deleteGroup(groupId: Int) {
+        viewModelScope.launch {
+            isLoading = true
+            val result = groupRepository.deleteGroup(groupId)
             result.onSuccess {
                 coroutineScope {
                     val groupInfoDeferred = async { deleteGroupInfo() }
                     groupInfoDeferred.await()
                 }
-                Log.d("GroupViewModel", "그룹장 그룹 탈퇴 완료")
+                Log.d("GroupViewModel", "그룹 삭제 완료")
             }.onFailure {
-                Log.e("GroupViewModel", "그룹장 그룹 탈퇴 실패 : ${it.message}")
+                Log.e("GroupViewModel", "그룹 삭제 실패 : ${it.message}")
             }
             isLoading = false
         }

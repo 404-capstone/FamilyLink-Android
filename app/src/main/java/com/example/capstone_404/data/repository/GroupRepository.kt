@@ -87,4 +87,9 @@ interface GroupRepository {
         groupId: Int,
         targetId: Int
     ): Result<String>
+
+    // 그룹 삭제
+    suspend fun deleteGroup(
+        groupId: Int
+    ): Result<Unit>
 }

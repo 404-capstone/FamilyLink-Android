@@ -398,7 +398,7 @@ fun GroupScreen(
             onConfirm = {
                 when {
                     isLeader && isSingleUser -> {
-                        // Todo : 삭제 API 연동 후 연결
+                        viewModel.deleteGroup(groupId!!)
                     }
 
                     isLeader && !isSingleUser -> {

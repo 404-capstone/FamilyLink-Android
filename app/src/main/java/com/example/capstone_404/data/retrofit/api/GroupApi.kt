@@ -112,4 +112,10 @@ interface GroupApi {
         @Query("groupId") groupId: Int,
         @Query("userId") targetId: Int
     ): Response<BaseResponse<String>>
+
+    // 그룹 삭제
+    @DELETE("/group/delete")
+    suspend fun deleteGroup(
+        @Query("groupId") groupId: Int
+    ): Response<Void>
 }

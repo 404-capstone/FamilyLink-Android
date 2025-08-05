@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.group.ui.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,9 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.feature.group.model.getDefaultImage
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.utils.getColor
 import com.example.capstone_404.utils.parseRoleAndOrder
@@ -51,17 +55,29 @@ fun GroupUserItem(
             .padding(12.dp)
             .clickable { onClick() }
     ) {
-        // Todo : 프로필 이미지 없는 경우 처리 추가
         // 프로필 이미지
-        AsyncImage(
-            model = user.image,
-            contentDescription = "프로필 이미지",
-            contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(Stroke)
-        )
+                .background(Stroke),
+            contentAlignment = Alignment.Center
+        ) {
+            if (user.image == null) {
+                Image(
+                    painter = painterResource(id = getDefaultImage(user.role)),
+                    contentDescription = "기본 그룹 이미지",
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                AsyncImage(
+                    model = user.image,
+                    contentDescription = "프로필 이미지",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
         // 정보 Column

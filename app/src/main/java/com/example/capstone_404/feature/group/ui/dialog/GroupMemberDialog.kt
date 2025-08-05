@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.group.ui.dialog
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -30,6 +33,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import com.example.capstone_404.R
 import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.feature.group.model.getDefaultImage
 import com.example.capstone_404.utils.getColor
 import com.example.capstone_404.utils.parseRoleAndOrder
 import com.example.capstone_404.ui.component.ButtonColorRed
@@ -92,14 +96,28 @@ fun GroupMemberDialog(
                     )
                 }
                 // 프로필 이미지
-                AsyncImage(
-                    model = user.image,
-                    contentDescription = "그룹원 이미지",
+                Box(
                     modifier = Modifier
                         .size(96.dp)
                         .clip(CircleShape)
-                        .background(Stroke)
-                )
+                        .background(Stroke),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (user.image == null) {
+                        Image(
+                            painter = painterResource(id = getDefaultImage(user.role)),
+                            contentDescription = "기본 그룹 이미지",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        AsyncImage(
+                            model = user.image,
+                            contentDescription = "프로필 이미지",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 // 이름 + 연령 Row

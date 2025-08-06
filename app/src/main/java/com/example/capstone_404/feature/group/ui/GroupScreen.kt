@@ -36,7 +36,7 @@ import com.example.capstone_404.ui.component.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import androidx.core.net.toUri
-import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.data.retrofit.model.response.GroupUserInfoData
 import com.example.capstone_404.feature.group.ui.dialog.GroupMemberDialog
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.DropdownField
@@ -63,7 +63,7 @@ fun GroupScreen(
     // 그룹 리더 Id 저장
     val groupLeaderId = groupInfo?.userinfo?.firstOrNull { it.leader }?.userId
     // 선택된 그룹원 정보
-    var selectedUser by remember { mutableStateOf<GroupUserInfo?>(null) }
+    var selectedUser by remember { mutableStateOf<GroupUserInfoData?>(null) }
     // ========== ※그룹 가입용 변수※ ==========
     // 초대 코드
     var inviteCode by remember { mutableStateOf("") }
@@ -303,8 +303,8 @@ fun GroupScreen(
     if (showEditDialog && groupInfo != null) {
         GroupInputDialog(
             isEdit = true,
-            initialGroupName = groupInfo!!.groupName,
-            initialGroupImage = groupInfo!!.groupImage,
+            initialGroupName = groupInfo!!.group_name,
+            initialGroupImage = groupInfo!!.group_image,
             selectedImageUri = selectedImageUri,
             onDismiss = {
                 showEditDialog = false

@@ -1,6 +1,5 @@
 package com.example.capstone_404.feature.login.ui
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -55,22 +54,19 @@ fun LoginScreen(
             viewModel.tokenManager.getSessionId()
         }
         if (sessionId.isNotBlank()) {
-            Log.d("LoginScreen", "저장된 sessionId: $sessionId")
             viewModel.loginWithSessionId(sessionId)
         }
     }
 
     // 로그인 상태에 따른 처리
     LaunchedEffect(loginState) {
-        Log.d("LoginScreen", "LaunchedEffect 시작")
         when (loginState) {
             is LoginState.Success -> {
                 val isNewUser = (loginState as LoginState.Success).isNewUser
-                Log.d("LoginScreen", "신규 여부 : $isNewUser")
                 if (isNewUser) {
                     onNavigateToProfileInput()
                 } else {
-                    viewModel.saveGroupId()
+                    viewModel.saveUserInfo()
                 }
             }
             is LoginState.Error -> {

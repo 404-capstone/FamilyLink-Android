@@ -32,7 +32,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import com.example.capstone_404.R
-import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.data.retrofit.model.response.GroupUserInfoData
 import com.example.capstone_404.feature.group.model.getDefaultImage
 import com.example.capstone_404.utils.getColor
 import com.example.capstone_404.utils.parseRoleAndOrder
@@ -46,7 +46,7 @@ import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
 fun GroupMemberDialog(
-    user: GroupUserInfo,
+    user: GroupUserInfoData,
     currentUserId: Int,
     groupLeaderId: Int,
     onDismiss: () -> Unit,

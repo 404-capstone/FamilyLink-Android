@@ -45,8 +45,7 @@ fun SurveyResultScreen(
 ) {
     val surveyResult by viewModel.surveyResultFlow.collectAsState(initial = null)
     val description = getSurveyDescription(surveyResult?.level ?: "")
-    // Todo : 회원 정보 조회 API 연동 후 수정
-    val name = "홍길동"
+    val userName by viewModel.nicknameFlow.collectAsState(initial = null)
 
     Scaffold(
         topBar = {
@@ -88,7 +87,7 @@ fun SurveyResultScreen(
                         horizontalAlignment = AbsoluteAlignment.Left
                     ) {
                         Text(
-                            text = "$name 님의",
+                            text = "${userName}님의",
                             style = MaterialTheme.typography.headlineMedium,
                         )
 
@@ -173,7 +172,7 @@ fun SurveyResultScreen(
 
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(
-                                text = "${name}님은 $description",
+                                text = "${userName}님은 $description",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = TextBlack
                             )

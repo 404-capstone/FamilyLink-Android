@@ -27,7 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.example.capstone_404.data.info.GroupUserInfo
+import com.example.capstone_404.data.retrofit.model.response.GroupUserInfoData
 import com.example.capstone_404.feature.group.model.getDefaultImage
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.utils.getColor
@@ -38,7 +38,7 @@ import com.example.capstone_404.ui.theme.TextGray
 
 @Composable
 fun GroupUserItem(
-    user: GroupUserInfo,
+    user: GroupUserInfoData,
     isCurrentUser: Boolean,
     onClick: () -> Unit
 ) {

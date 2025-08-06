@@ -25,11 +25,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
-import com.example.capstone_404.data.info.GroupInfo
 import com.example.capstone_404.data.info.GroupInfoManager
-import com.example.capstone_404.data.info.GroupUserInfo
-import com.example.capstone_404.data.info.SurveyResult
 import com.example.capstone_404.data.info.UserInfoManager
+import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
+import com.example.capstone_404.data.retrofit.model.response.SurveyResultData
 import com.example.capstone_404.feature.group.model.InviteCodeStatus
 import com.example.capstone_404.feature.group.model.calculateSurveyResult
 import com.example.capstone_404.feature.group.model.inviteMessage
@@ -51,13 +50,15 @@ class GroupViewModel @Inject constructor(
 ) : ViewModel() {
     // -------------------- 상태 변수 --------------------
     // 그룹 정보 Flow
-    val groupInfoFlow: Flow<GroupInfo?> = groupInfoManager.groupInfoFlow
+    val groupInfoFlow: Flow<GroupInfoData?> = groupInfoManager.groupInfoFlow
     // 유저 ID Flow
     val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
     // 그룹 ID Flow
     val groupIdFlow: Flow<Int?> = userInfoManager.groupIdFlow
+    // 사용자 닉네임 Flow
+    val nicknameFlow: Flow<String?> = userInfoManager.nicknameFlow
     // 설문 결과 Flow
-    val surveyResultFlow: Flow<SurveyResult?> = groupInfoManager.surveyResultFlow
+    val surveyResultFlow: Flow<SurveyResultData?> = groupInfoManager.surveyResultFlow
 
     // 역할 선택 상태
     var selectedRoleState by mutableStateOf(SelectedRoleState())
@@ -88,8 +89,8 @@ class GroupViewModel @Inject constructor(
     val inviteCodeValue: StateFlow<String?> = _inviteCodeValue.asStateFlow()
 
     // 코드 기반 조회 그룹 정보
-    private val _groupInfoByCode = MutableStateFlow<GroupInfo?>(null)
-    val groupInfoByCode: StateFlow<GroupInfo?> = _groupInfoByCode
+    private val _groupInfoByCode = MutableStateFlow<GroupInfoData?>(null)
+    val groupInfoByCode: StateFlow<GroupInfoData?> = _groupInfoByCode
 
     // 코드 기반 조회 결과
     private val _getError = MutableStateFlow(false)
@@ -130,20 +131,7 @@ class GroupViewModel @Inject constructor(
                 val groupInfoResult = groupRepository.getGroupInfo(groupId)
                 groupInfoResult.onSuccess { data ->
                     Log.d("GroupViewModel", "코드 기반 그룹 정보 조회 완료 : $data")
-                    _groupInfoByCode.value = GroupInfo(
-                        groupName = data.group_name,
-                        groupImage = data.group_image ?: "",
-                        userinfo = data.userinfo.map {
-                            GroupUserInfo(
-                                userId = it.userId,
-                                username = it.username,
-                                role = it.role,
-                                age = it.age ?: "연령대 미지정",
-                                image = it.image ?: "",
-                                leader = it.leader
-                            )
-                        }
-                    )
+                    _groupInfoByCode.value = data
                 }.onFailure {
                     Log.d("GroupViewModel", "코드 기반 그룹 정보 조회 실패 : ${it.message}")
                     _getError.value = true
@@ -224,22 +212,8 @@ class GroupViewModel @Inject constructor(
     private suspend fun saveGroupInfo(groupId: Int) {
         val result = groupRepository.getGroupInfo(groupId)
         result.onSuccess { data ->
-            val groupInfo = GroupInfo(
-                groupName = data.group_name,
-                groupImage = data.group_image,
-                userinfo = data.userinfo.map {
-                    GroupUserInfo(
-                        userId = it.userId,
-                        username = it.username,
-                        role = it.role,
-                        age = it.age,
-                        image = it.image,
-                        leader = it.leader
-                    )
-                }
-            )
-            groupInfoManager.saveGroupInfo(groupInfo)
-            Log.d("User_Info", "(G)그룹 정보 저장 완료 : $groupInfo")
+            groupInfoManager.saveGroupInfo(data)
+            Log.d("User_Info", "(G)그룹 정보 저장 완료 : $data")
         }.onFailure {
             Log.e("User_Info", "(G)그룹 정보 조회 실패: ${it.message}")
         }
@@ -362,9 +336,8 @@ class GroupViewModel @Inject constructor(
     }
     // 그룹 관련 데이터 삭제
     private suspend fun deleteGroupInfo() {
-        groupInfoManager.clearGroupInfo()
+        groupInfoManager.clearAll()
         Log.d("User_Info", "(G)그룹 정보 삭제 완료")
-        groupInfoManager.clearSurveyResult()
         Log.d("User_Info", "(G)설문 정보 삭제 완료")
         userInfoManager.deleteGroupId()
         Log.d("User_Info", "(G)그룹 ID 삭제 완료")
@@ -389,26 +362,22 @@ class GroupViewModel @Inject constructor(
             val groupId = userInfoManager.getGroupId()
             Log.d("GroupViewModel","설문 결과 : $surveyResult")
             try {
-                val result = groupId?.let {
-                    groupRepository.saveSurveyResult(
-                        groupId = it,
-                        level = surveyResult.level!!,
-                        score = surveyResult.score!!,
-                        percent = surveyResult.percent!!
-                    )
-                }
-                if (result != null) {
-                    result.onSuccess { data ->
-                        groupInfoManager.saveSurveyResult(surveyResult)
-                        Log.d("User_Info", "(G)설문 결과 저장 완료 : $surveyResult")
-                        Log.d("GroupViewModel", "설문 결과 저장 완료 : $data")
-                        _isSaved.value = true
-                        isLoading = false
-                    }.onFailure { e ->
-                        Log.d("GroupViewModel", "설문 결과 저장 실패 : ${e.message}")
-                        _isSaved.value = false
-                        isLoading = false
-                    }
+                val result = groupRepository.saveSurveyResult(
+                    groupId = groupId!!,
+                    level = surveyResult.level!!,
+                    score = surveyResult.score!!,
+                    percent = surveyResult.percent!!
+                )
+                result.onSuccess { data ->
+                    groupInfoManager.saveSurveyResult(surveyResult)
+                    Log.d("User_Info", "(G)설문 결과 저장 완료 : $surveyResult")
+                    Log.d("GroupViewModel", "설문 결과 저장 완료 : $data")
+                    _isSaved.value = true
+                    isLoading = false
+                }.onFailure { e ->
+                    Log.d("GroupViewModel", "설문 결과 저장 실패 : ${e.message}")
+                    _isSaved.value = false
+                    isLoading = false
                 }
             } catch (e: Exception) {
                 Log.d("GroupViewModel", "설문 결과 저장 실패 : ${e.message}")

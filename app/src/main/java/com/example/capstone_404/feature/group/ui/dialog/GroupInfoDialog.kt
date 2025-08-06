@@ -28,7 +28,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import com.example.capstone_404.R
-import com.example.capstone_404.data.info.GroupInfo
+import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.ButtonOutline
 import com.example.capstone_404.ui.theme.Background
@@ -36,7 +36,7 @@ import com.example.capstone_404.ui.theme.Stroke
 
 @Composable
 fun GroupInfoDialog(
-    groupInfo: GroupInfo,
+    groupInfo: GroupInfoData,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -63,7 +63,7 @@ fun GroupInfoDialog(
                         .background(Stroke),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (groupInfo.groupImage.isNullOrBlank()) {
+                    if (groupInfo.group_image.isNullOrBlank()) {
                         Image(
                             painter = painterResource(id = R.drawable.default_group),
                             contentDescription = "기본 그룹 이미지",
@@ -71,7 +71,7 @@ fun GroupInfoDialog(
                         )
                     } else {
                         AsyncImage(
-                            model = groupInfo.groupImage,
+                            model = groupInfo.group_image,
                             contentDescription = "그룹 이미지",
                             modifier = Modifier.fillMaxSize()
                         )
@@ -81,7 +81,7 @@ fun GroupInfoDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 // 그룹 이름
                 Text(
-                    text = groupInfo.groupName,
+                    text = groupInfo.group_name,
                     style = MaterialTheme.typography.headlineSmall
                 )
 

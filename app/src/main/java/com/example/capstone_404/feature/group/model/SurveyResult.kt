@@ -1,6 +1,6 @@
 package com.example.capstone_404.feature.group.model
 
-import com.example.capstone_404.data.info.SurveyResult
+import com.example.capstone_404.data.retrofit.model.response.SurveyResultData
 
 // 원점수에 따른 퍼센트 매핑
 val scoreToPercentageMap = mapOf(
@@ -13,15 +13,15 @@ val scoreToPercentageMap = mapOf(
 )
 
 // 결과 계산 함수
-fun calculateSurveyResult(totalScore: Int): SurveyResult {
+fun calculateSurveyResult(totalScore: Int): SurveyResultData {
     val percent = scoreToPercentageMap[totalScore] ?: 10
 
     return when (totalScore) {
-        in 44..50 -> SurveyResult("매우 높음\n86~99%", totalScore, percent)
-        in 40..43 -> SurveyResult("높음\n70~83%", totalScore, percent)
-        in 36..39 -> SurveyResult("중간\n50~65%", totalScore, percent)
-        in 30..35 -> SurveyResult("낮음\n24~44%", totalScore, percent)
-        else -> SurveyResult("매우 낮음\n10~20%", totalScore, percent)
+        in 44..50 -> SurveyResultData("매우 높음\n86~99%", totalScore, percent)
+        in 40..43 -> SurveyResultData("높음\n70~83%", totalScore, percent)
+        in 36..39 -> SurveyResultData("중간\n50~65%", totalScore, percent)
+        in 30..35 -> SurveyResultData("낮음\n24~44%", totalScore, percent)
+        else -> SurveyResultData("매우 낮음\n10~20%", totalScore, percent)
     }
 }
 

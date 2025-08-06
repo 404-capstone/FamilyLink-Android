@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
+import com.example.capstone_404.data.retrofit.model.response.SurveyResultData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -29,11 +31,11 @@ class GroupInfoManager @Inject constructor(
     private val json = Json { ignoreUnknownKeys = true }
 
     // 저장
-    suspend fun saveGroupInfo(groupInfo: GroupInfo) {
+    suspend fun saveGroupInfo(groupInfo: GroupInfoData) {
         val jsonString = json.encodeToString(groupInfo)
         dataStore.edit { prefs -> prefs[GROUP_INFO_KEY] = jsonString }
     }
-    suspend fun saveSurveyResult(survey: SurveyResult) {
+    suspend fun saveSurveyResult(survey: SurveyResultData) {
         val jsonString = json.encodeToString(survey)
         dataStore.edit { prefs -> prefs[GROUP_SURVEY_KEY] = jsonString }
     }
@@ -45,20 +47,20 @@ class GroupInfoManager @Inject constructor(
     suspend fun clearAll() { dataStore.edit { it.clear() } }
 
     // 조회(Flow 방식 - UI에 표시할 때 사용)
-    val groupInfoFlow: Flow<GroupInfo?> = dataStore.data
+    val groupInfoFlow: Flow<GroupInfoData?> = dataStore.data
         .map { it[GROUP_INFO_KEY] }
-        .map { it?.let { json.decodeFromString<GroupInfo>(it) } }
-    val surveyResultFlow: Flow<SurveyResult?> = dataStore.data
+        .map { it?.let { json.decodeFromString<GroupInfoData>(it) } }
+    val surveyResultFlow: Flow<SurveyResultData?> = dataStore.data
         .map { it[GROUP_SURVEY_KEY] }
-        .map { it?.let { json.decodeFromString<SurveyResult>(it) } }
+        .map { it?.let { json.decodeFromString<SurveyResultData>(it) } }
 
     // 조회(데이터로 사용할 때 사용)
-    suspend fun getGroupInfo(): GroupInfo? {
+    suspend fun getGroupInfo(): GroupInfoData? {
         val jsonString = dataStore.data.map { it[GROUP_INFO_KEY] }.firstOrNull()
-        return jsonString?.let { runCatching { json.decodeFromString<GroupInfo>(it) }.getOrNull() }
+        return jsonString?.let { runCatching { json.decodeFromString<GroupInfoData>(it) }.getOrNull() }
     }
-    suspend fun getSurveyResult(): SurveyResult? {
+    suspend fun getSurveyResult(): SurveyResultData? {
         val jsonString = dataStore.data.map { it[GROUP_SURVEY_KEY] }.firstOrNull()
-        return jsonString?.let { runCatching { json.decodeFromString<SurveyResult>(it) }.getOrNull() }
+        return jsonString?.let { runCatching { json.decodeFromString<SurveyResultData>(it) }.getOrNull() }
     }
 }

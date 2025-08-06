@@ -27,12 +27,22 @@ class UserRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
+                    // 토큰 저장
+                    tokenManager.saveTokens(data.accessToken, data.refreshToken)
+                    // userId 저장
+                    userInfoManager.saveUserId(data.userId)
+                    Log.d("User_Info", "(L)userId 저장 완료 : ${data.userId}")
+                    // sessionId 삭제
+                    tokenManager.clearSessionId()
+                    Log.d("User_Info", "(L)SessionId 삭제 완료")
                     Result.success(data)
                 } ?: Result.failure(Exception("응답 본문이 비어 있음"))
             } else {
+                tokenManager.clearSessionId()
                 Result.failure(Exception("로그인 실패: ${response.code()}"))
             }
         } catch (e: Exception) {
+            tokenManager.clearSessionId()
             Result.failure(e)
         }
     }
@@ -45,10 +55,8 @@ class UserRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
                     tokenManager.saveTokens(data.accessToken, data.refreshToken)
-                    Log.d("TokenTest", "AccessToken: ${data.accessToken}")
-                    Log.d("TokenTest", "RefreshToken: ${data.refreshToken}")
                     Result.success(data)
-                } ?: Result.failure(Exception("토큰이 비어있습니다."))
+                } ?: Result.failure(Exception("토큰이 비어 있음"))
             } else {
                 Result.failure(Exception("토큰 재발급 실패: ${response.code()}"))
             }

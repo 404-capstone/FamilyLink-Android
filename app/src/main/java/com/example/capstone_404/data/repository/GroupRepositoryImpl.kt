@@ -23,8 +23,8 @@ class GroupRepositoryImpl @Inject constructor(
         return try {
             val response = groupApi.createGroup(groupName, role, image)
             if (response.isSuccessful) {
-                response.body()?.data?.let {
-                    Result.success(it)
+                response.body()?.data?.let { data ->
+                    Result.success(data)
                 } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 Result.failure(Exception("오류 코드: ${response.code()}"))
@@ -39,12 +39,9 @@ class GroupRepositoryImpl @Inject constructor(
         return try {
             val response = groupApi.getGroupId()
             if (response.isSuccessful) {
-                val groupId = response.body()?.data
-                if (groupId != null) {
+                response.body()?.data?.let { groupId ->
                     Result.success(groupId)
-                } else {
-                    Result.failure(Exception("응답 데이터 없음"))
-                }
+                } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 Result.failure(Exception("오류 코드: ${response.code()}"))
             }
@@ -58,8 +55,8 @@ class GroupRepositoryImpl @Inject constructor(
         return try {
             val response = groupApi.getGroupInfo(groupId)
             if (response.isSuccessful) {
-                response.body()?.data?.let {
-                    Result.success(it)
+                response.body()?.data?.let { groupInfo ->
+                    Result.success(groupInfo)
                 } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 Result.failure(Exception("오류 코드: ${response.code()}"))
@@ -95,7 +92,7 @@ class GroupRepositoryImpl @Inject constructor(
         percent: Int
     ): Result<String> {
         return try {
-            val body = SaveSurveyResultRequest(level = level, score = score, percent = percent)
+            val body = SaveSurveyResultRequest(level, score, percent)
             val response = groupApi.saveSurveyResult(groupId, body)
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->

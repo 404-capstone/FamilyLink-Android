@@ -13,9 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.example.capstone_404.data.info.GroupInfo
-import com.example.capstone_404.data.info.GroupUserInfo
-import com.example.capstone_404.data.info.SurveyResult
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -51,26 +48,19 @@ class LoginViewModel @Inject constructor(
     fun loginWithSessionId(sessionId: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
+            try {
+                val result = userRepository.loginWithSession(sessionId)
 
-            val result = userRepository.loginWithSession(sessionId)
-
-            val data = result.getOrNull()
-            val exception = result.exceptionOrNull()
-
-            if (data != null) {
-                // 토큰 저장
-                tokenManager.saveTokens(data.accessToken, data.refreshToken)
-                // userId 저장
-                userInfoManager.saveUserId(data.userId)
-                Log.d("User_Info", "(L)userId 저장 완료 : ${data.userId}")
-                // sessionId 삭제
-                tokenManager.clearSessionId()
-                Log.d("User_Info", "(L)SessionId 삭제 완료")
-
-                _loginState.value = LoginState.Success(data.flag)
-            } else {
-                val message = exception?.message ?: "알 수 없는 오류 발생"
-                _loginState.value = LoginState.Error(message)
+                result.onSuccess { data ->
+                    Log.d("LoginViewModel", "소셜 로그인 성공 : $data")
+                    _loginState.value = LoginState.Success(data.flag)
+                }.onFailure { e ->
+                    Log.d("LoginViewModel", "소셜 로그인 실패 : ${e.message}")
+                    _loginState.value = LoginState.Error(e.message.toString())
+                }
+            } catch (e: Exception) {
+                Log.d("LoginViewModel", "소셜 로그인 실패 : ${e.message}")
+                _loginState.value = LoginState.Error(e.message.toString())
             }
         }
     }
@@ -84,8 +74,31 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    // DataStore에 [UserInfo] 저장
+    fun saveUserInfo() {
+        viewModelScope.launch {
+            try {
+                val result = userRepository.getUserInfo()
+
+                result.onSuccess {
+                    coroutineScope {
+                        val groupIdDeferred = async { saveGroupId() }
+                        groupIdDeferred.await()
+                    }
+                    _isSaved.value = true
+                }.onFailure { e ->
+                    Log.d("User_Info", "(L)사용자 Info 조회 실패 : ${e.message}")
+                    _isSaved.value = true
+                }
+            } catch (e: Exception) {
+                Log.e("User_Info", "(L)사용자 Info 조회 실패 : ${e.message}")
+                _isSaved.value = true
+            }
+        }
+    }
+
     // DataStore에 [groupID] 저장
-    fun saveGroupId() {
+    private fun saveGroupId() {
         viewModelScope.launch {
             try {
                 val result = groupRepository.getGroupIdFromServer()
@@ -102,18 +115,15 @@ class LoginViewModel @Inject constructor(
                         groupInfoDeferred.await()
                         surveyResultDeferred.await()
                     }
-                    _isSaved.value = true
                 }.onFailure { e ->
                     userInfoManager.deleteGroupId()
                     groupInfoManager.clearAll()
                     Log.d("User_Info", "(L)그룹 ID 조회 실패 : ${e.message}")
-                    _isSaved.value = true
                 }
             } catch (e: Exception) {
                 userInfoManager.deleteGroupId()
                 groupInfoManager.clearAll()
                 Log.e("User_Info", "(L)그룹 ID 조회 실패 : ${e.message}")
-                _isSaved.value = true
             }
         }
     }
@@ -122,23 +132,10 @@ class LoginViewModel @Inject constructor(
     private suspend fun saveGroupInfo(groupId: Int) {
         val result = groupRepository.getGroupInfo(groupId)
         result.onSuccess { data ->
-            val groupInfo = GroupInfo(
-                groupName = data.group_name,
-                groupImage = data.group_image,
-                userinfo = data.userinfo.map {
-                    GroupUserInfo(
-                        userId = it.userId,
-                        username = it.username,
-                        role = it.role,
-                        age = it.age,
-                        image = it.image,
-                        leader = it.leader
-                    )
-                }
-            )
-            groupInfoManager.saveGroupInfo(groupInfo)
-            Log.d("User_Info", "(L)그룹 정보 저장 완료 : $groupInfo")
+            groupInfoManager.saveGroupInfo(data)
+            Log.d("User_Info", "(L)그룹 정보 저장 완료 : $data")
         }.onFailure {
+            groupInfoManager.clearGroupInfo()
             Log.e("User_Info", "(L)그룹 정보 조회 실패: ${it.message}")
         }
     }
@@ -147,14 +144,10 @@ class LoginViewModel @Inject constructor(
     private suspend fun saveSurveyResult(groupId: Int) {
         val result = groupRepository.getSurveyResult(groupId)
         result.onSuccess { data ->
-            val surveyResult = SurveyResult(
-                level = data.level,
-                score = data.score,
-                percent = data.percent
-            )
-            groupInfoManager.saveSurveyResult(surveyResult)
-            Log.d("User_Info", "(L)설문 결과 저장 완료 : $surveyResult")
+            groupInfoManager.saveSurveyResult(data)
+            Log.d("User_Info", "(L)설문 결과 저장 완료 : $data")
         }.onFailure {
+            groupInfoManager.clearSurveyResult()
             Log.e("User_Info", "(L)설문 결과 저장 실패 : ${it.message}")
         }
     }

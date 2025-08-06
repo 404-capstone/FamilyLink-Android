@@ -1,5 +1,8 @@
 package com.example.capstone_404.feature.mypage.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,9 +24,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.ui.component.dialog.ImageSelectDialog
@@ -38,6 +43,9 @@ import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextGray
+import com.example.capstone_404.utils.RequestCameraPermission
+import com.example.capstone_404.utils.RequestStoragePermission
+import com.example.capstone_404.utils.UriUtil
 
 @Composable
 fun ProfileEditScreen(
@@ -50,9 +58,70 @@ fun ProfileEditScreen(
     val selectedGender by viewModel.selectedGender.collectAsState()
     val selectedAge by viewModel.selectedAge.collectAsState()
     val saveState by viewModel.saveState.collectAsState()
+    val selectedImageUri by viewModel.selectedImageUri.collectAsState()
+    val profileImage by viewModel.profileImageFlow.collectAsState(initial = null)
+
+    val context = LocalContext.current
 
     // 이미지 선택 다이얼로그 상태
     var showImageSelectDialog by remember { mutableStateOf(false) }
+
+    // 갤러리 권한 실행 관리 변수
+    var requestGalleryPermission by remember { mutableStateOf(false) }
+    // 카메라 권한 실행 관리 변수
+    var requestCameraPermission by remember { mutableStateOf(false) }
+    // 카메라 촬영 이미지 저장
+    val cameraImageUri = remember { mutableStateOf<Uri?>(null) }
+    val updatedCameraImageUri = rememberUpdatedState(cameraImageUri.value)
+
+    // 갤러리 실행
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.selectImage(it) }
+    }
+
+    // 카메라 실행
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            viewModel.selectImage(updatedCameraImageUri.value)
+        }
+    }
+
+    // 저장소 권한 요청 실행
+    if (requestGalleryPermission) {
+        RequestStoragePermission(
+            context = context,
+            onGranted = {
+                galleryLauncher.launch("image/*")
+                showImageSelectDialog = false
+                requestGalleryPermission = false
+            },
+            onDenied = {
+                showImageSelectDialog = false
+                requestGalleryPermission = false
+            }
+        )
+    }
+    // 카메라 권한 요청 실행
+    if (requestCameraPermission) {
+        RequestCameraPermission(
+            context = context,
+            onGranted = {
+                val uri = UriUtil.createImageUri(context)
+                cameraImageUri.value = uri
+                uri?.let { cameraLauncher.launch(it) }
+                showImageSelectDialog = false
+                requestCameraPermission = false
+            },
+            onDenied = {
+                showImageSelectDialog = false
+                requestCameraPermission = false
+            }
+        )
+    }
 
     // 저장 성공 시 뒤로가기
     LaunchedEffect(saveState) {
@@ -106,6 +175,7 @@ fun ProfileEditScreen(
 
                 // 프로필 이미지 컴포넌트
                 ProfileImage(
+                    imageUrl = selectedImageUri?.toString() ?: profileImage,
                     imageSize = profileImageSize,
                     onImageClick = {
                         showImageSelectDialog = true
@@ -161,8 +231,7 @@ fun ProfileEditScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 저장하기 버튼(임시구현)
-                // TODO: API 연동 후 로직 재구현
+                // 저장하기 버튼
                 ButtonDefault(
                     text = if (saveState is SaveState.Loading) "저장 중..." else "저장하기",
                     onClick = {
@@ -179,20 +248,16 @@ fun ProfileEditScreen(
     // 이미지 선택 다이얼로그
     if (showImageSelectDialog) {
         ImageSelectDialog(
-            onSelectFromGallery = {
-                // TODO: 갤러리에서 이미지 선택 기능 구현
-                showImageSelectDialog = false
-            },
-            onTakePhoto = {
-                // TODO: 카메라로 사진 찍기 기능 구현
-                showImageSelectDialog = false
-            },
+            onSelectFromGallery = { requestGalleryPermission = true },
+            onTakePhoto = { requestCameraPermission = true },
             onUseBeforeImage = {
-                // 기존 이미지 사용 추가 됨 - SY
+                // 기존 이미지 사용
+                viewModel.selectImage(null)
                 showImageSelectDialog = false
             },
             onUseDefaultImage = {
-                // TODO: 기본 이미지 사용 기능 구현
+                // 기본 이미지 사용
+                viewModel.useDefaultImage()
                 showImageSelectDialog = false
             },
             onDismiss = {

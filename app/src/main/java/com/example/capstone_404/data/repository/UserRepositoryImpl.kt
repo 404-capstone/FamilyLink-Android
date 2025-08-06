@@ -1,11 +1,14 @@
 package com.example.capstone_404.data.repository
 
 import android.util.Log
+import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.retrofit.api.UserApi
+import com.example.capstone_404.data.retrofit.model.request.UserInfoEditRequest
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoData
+import com.example.capstone_404.data.retrofit.model.response.UserInfoEditData
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import com.example.capstone_404.utils.AgeConverter
 import javax.inject.Inject
@@ -18,6 +21,7 @@ class UserRepositoryImpl @Inject constructor(
     private val userApi: UserApi,
     private val tokenManager: TokenManager,
     private val userInfoManager: UserInfoManager,
+    private val groupInfoManager: GroupInfoManager,
 ) : UserRepository {
 
     // SessionId로 토큰 발급
@@ -76,10 +80,8 @@ class UserRepositoryImpl @Inject constructor(
                     // 사용자 정보 로컬 저장
                     val userInfo = baseResponse.data
                     userInfoManager.saveNickname(userInfo.username)
-
                     // 성별 저장
                     userInfoManager.saveGender(userInfo.gender)
-
                     // 나이 - 연령대 변환 저장
                     val ageRange = AgeConverter.convertAgeToRange(userInfo.age)
                     if (ageRange != null) {
@@ -94,7 +96,10 @@ class UserRepositoryImpl @Inject constructor(
                         Log.w("AuthRepository", "소셜 로그인 제공자가 비어있음")
                     }
 
+                    //정보 조회 확인 log
                     Log.d("AuthRepository", "사용자 정보 조회 성공: ${userInfo.username}")
+                    Log.d("AuthRepository", "사용자 정보 조회 성공: ${userInfo.gender}")
+                    Log.d("AuthRepository", "사용자 정보 조회 성공: $ageRange")
                     Result.success(userInfo)
                 } else {
                     val errorMsg = baseResponse?.message ?: "사용자 정보 조회 실패"
@@ -108,6 +113,86 @@ class UserRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("AuthRepository", "사용자 정보 조회 실패: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    // 로그아웃
+    override suspend fun logout(): Result<Unit> {
+        return try {
+            val response = userApi.logout()
+
+            if (response.isSuccessful) {
+                // 모든 로컬 데이터 삭제
+                tokenManager.clearToken()
+                userInfoManager.clearAll()
+                groupInfoManager.clearAll()
+                Log.d("AuthRepository", "로그아웃 성공")
+                Result.success(Unit)
+            } else {
+                val errorMsg = "로그아웃 실패: ${response.code()}"
+                Log.e("AuthRepository", errorMsg)
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "로그아웃 실패: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    // 회원 탈퇴
+    override suspend fun deleteUser(): Result<Unit> {
+        return try {
+            val response = userApi.deleteUser()
+
+            if (response.isSuccessful) {
+                // 모든 로컬 데이터 삭제
+                tokenManager.clearToken()
+                userInfoManager.clearAll()
+                groupInfoManager.clearAll()
+                Log.d("AuthRepository", "회원 탈퇴 성공")
+                Result.success(Unit)
+            } else {
+                val errorMsg = "회원 탈퇴 실패: ${response.code()}"
+                Log.e("AuthRepository", errorMsg)
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "회원 탈퇴 실패: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    // 프로필 변경
+    override suspend fun editUserInfo(request: UserInfoEditRequest): Result<UserInfoEditData> {
+        return try {
+            val response = userApi.editUserInfo(request)
+
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    // 로컬에 변경된 정보 저장
+                    userInfoManager.saveNickname(data.username)
+                    userInfoManager.saveGender(data.gender)
+
+                    // 나이 - 연령대 변환 저장
+                    val ageRange = AgeConverter.convertAgeToRange(data.age)
+                    if (ageRange != null) {
+                        userInfoManager.saveAge(ageRange)
+                    }
+
+                    //프로필 변경 확인 log
+                    Log.d("AuthRepository", "프로필 변경 성공: ${data.username}")
+                    Log.d("AuthRepository", "프로필 변경 성공: ${data.gender}")
+                    Log.d("AuthRepository", "프로필 변경 성공: $ageRange")
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 본문이 비어 있음"))
+            } else {
+                val errorMsg = "프로필 변경 실패: ${response.code()}"
+                Log.e("AuthRepository", errorMsg)
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "프로필 변경 실패: ${e.message}")
             Result.failure(e)
         }
     }

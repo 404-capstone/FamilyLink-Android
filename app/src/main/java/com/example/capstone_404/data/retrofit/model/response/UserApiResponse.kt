@@ -25,3 +25,12 @@ data class UserInfoData(
     val image: String?,
     val social: String
 )
+
+// 프로필 변경 Response
+@Serializable
+data class UserInfoEditData(
+    val username: String,
+    val age: Int,
+    val gender: String,
+    val image: String?
+)

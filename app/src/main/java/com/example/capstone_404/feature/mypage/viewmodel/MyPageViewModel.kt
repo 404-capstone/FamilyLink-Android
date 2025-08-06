@@ -28,6 +28,9 @@ class MyPageViewModel @Inject constructor(
     // 소셜 로그인 제공자 Flow
     val socialProviderFlow: Flow<String?> = userInfoManager.socialProviderFlow
 
+    // 프로필 이미지 Flow
+    val profileImageFlow: Flow<String?> = userInfoManager.profileImageFlow
+
     // 알림 설정 상태 (TODO: Firebase FCM 구현 후 추가)
 
     // 로그아웃 상태
@@ -42,20 +45,21 @@ class MyPageViewModel @Inject constructor(
     //알림 설정 토글: TODO: Firebase FCM 구현 후 알림 설정 기능 추가
 
 
-    //로그아웃 처리(임시구현)
+    //로그아웃 처리
     fun logout() {
         viewModelScope.launch {
             _logoutState.value = LogoutState.Loading
             try {
-                // TODO: 실제 로그아웃 API 호출
-                // authRepository.logout()
-
-                // 로컬 데이터 정리
-                userInfoManager.clearAll()
-                groupInfoManager.clearAll()
-                tokenManager.clearToken()
-
-                _logoutState.value = LogoutState.Success
+                // 로그아웃 API 호출
+                userRepository.logout()
+                    .onSuccess {
+                        Log.d("MyPageViewModel", "로그아웃 성공")
+                        _logoutState.value = LogoutState.Success
+                    }
+                    .onFailure { exception ->
+                        Log.e("MyPageViewModel", "로그아웃 실패: ${exception.message}")
+                        _logoutState.value = LogoutState.Error(exception.message ?: "로그아웃 중 오류가 발생했습니다.")
+                    }
             } catch (e: Exception) {
                 Log.e("MyPageViewModel", "로그아웃 실패: ${e.message}")
                 _logoutState.value = LogoutState.Error(e.message ?: "로그아웃 중 오류가 발생했습니다.")
@@ -64,18 +68,21 @@ class MyPageViewModel @Inject constructor(
     }
 
 
-    //회원 탈퇴 처리(임시구현)
+    //회원 탈퇴 처리
     fun withdraw() {
         viewModelScope.launch {
             _withdrawState.value = WithdrawState.Loading
             try {
-                // TODO: 실제 회원탈퇴 API 호출
-                // authRepository.withdraw()
-
-                // 로컬 데이터 정리
-                userInfoManager.clearAll()
-
-                _withdrawState.value = WithdrawState.Success
+                // 회원 탈퇴 API 호출
+                userRepository.deleteUser()
+                    .onSuccess {
+                        Log.d("MyPageViewModel", "회원 탈퇴 성공")
+                        _withdrawState.value = WithdrawState.Success
+                    }
+                    .onFailure { exception ->
+                        Log.e("MyPageViewModel", "회원탈퇴 실패: ${exception.message}")
+                        _withdrawState.value = WithdrawState.Error(exception.message ?: "회원탈퇴 중 오류가 발생했습니다.")
+                    }
             } catch (e: Exception) {
                 Log.e("MyPageViewModel", "회원탈퇴 실패: ${e.message}")
                 _withdrawState.value = WithdrawState.Error(e.message ?: "회원탈퇴 중 오류가 발생했습니다.")

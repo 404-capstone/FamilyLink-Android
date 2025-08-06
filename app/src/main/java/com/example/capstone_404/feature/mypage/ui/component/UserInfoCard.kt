@@ -34,6 +34,7 @@ import com.example.capstone_404.ui.theme.TextGray
 fun UserInfoCard(
     nickname: String,
     socialProvider: String,
+    profileImageUrl: String? = null,
     onProfileEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -50,7 +51,7 @@ fun UserInfoCard(
         ) {
             // 프로필 이미지
             AsyncImage(
-                model = R.drawable.default_profile,
+                model = profileImageUrl ?: R.drawable.default_profile,
                 contentDescription = "프로필 이미지",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

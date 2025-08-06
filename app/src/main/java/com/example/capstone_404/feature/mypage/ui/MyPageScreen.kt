@@ -42,6 +42,7 @@ fun MyPageScreen(
     // 상태 관찰
     val nickname by viewModel.nicknameFlow.collectAsState(initial = "사용자")
     val socialProvider by viewModel.socialProviderFlow.collectAsState(initial = null)
+    val profileImage by viewModel.profileImageFlow.collectAsState(initial = null)
     val logoutState by viewModel.logoutState.collectAsState()
     val withdrawState by viewModel.withdrawState.collectAsState()
 
@@ -53,8 +54,7 @@ fun MyPageScreen(
         viewModel.loadUserInfo()
     }
 
-    // 로그아웃 성공 시 콜백 (임시구현)
-    // TODO: API연동
+    // 로그아웃 성공 시 콜백
     LaunchedEffect(logoutState) {
         if (logoutState is LogoutState.Success) {
             onLogout()
@@ -62,8 +62,7 @@ fun MyPageScreen(
         }
     }
 
-    // 회원 탈퇴 성공 시 콜백(임시구현)
-    // TODO: API연동
+    // 회원 탈퇴 성공 시 콜백
     LaunchedEffect(withdrawState) {
         if (withdrawState is WithdrawState.Success) {
             onWithdraw()
@@ -109,6 +108,7 @@ fun MyPageScreen(
                 UserInfoCard(
                     nickname = nickname ?: "사용자",
                     socialProvider = socialProvider?.uppercase() ?: "",
+                    profileImageUrl = profileImage,
                     onProfileEdit = onProfileEdit,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )

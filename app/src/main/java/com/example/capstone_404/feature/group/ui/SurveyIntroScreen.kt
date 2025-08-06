@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.capstone_404.feature.group.model.GuideImageList
 import com.example.capstone_404.feature.group.ui.component.OnboardingGuide
 import com.example.capstone_404.ui.component.ButtonDefault
-import com.example.capstone_404.ui.component.CustomTopBar
+import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
 
 // 설문 안내 페이지

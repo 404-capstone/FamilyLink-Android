@@ -24,6 +24,13 @@ interface GroupRepository {
         groupId: Int
     ): Result<GroupInfoData>
 
+    // 그룹 정보 수정
+    suspend fun editGroupInfo(
+        groupId: Int,
+        groupName: String,
+        image: MultipartBody.Part
+    ): Result<Unit>
+
     // 설문 결과 저장
     suspend fun saveSurveyResult(
         groupId: Int,
@@ -57,4 +64,32 @@ interface GroupRepository {
         inviteCode: String,
         role: String
     ): Result<GroupData>
+
+    // 그룹장 변경
+    suspend fun changeLeader(
+        groupId: Int,
+        userId: Int
+    ): Result<String>
+
+    // 그룹원 추방
+    suspend fun deleteMember(
+        groupId: Int,
+        userId: Int
+    ): Result<Unit>
+
+    // 그룹 탈퇴
+    suspend fun exitGroup(
+        groupId: Int
+    ): Result<Unit>
+
+    // 그룹장 그룹 탈퇴
+    suspend fun exitGroupFromLeader(
+        groupId: Int,
+        targetId: Int
+    ): Result<String>
+
+    // 그룹 삭제
+    suspend fun deleteGroup(
+        groupId: Int
+    ): Result<Unit>
 }

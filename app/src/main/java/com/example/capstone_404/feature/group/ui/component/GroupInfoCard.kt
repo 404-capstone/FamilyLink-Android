@@ -1,11 +1,13 @@
 package com.example.capstone_404.feature.group.ui.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,9 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.capstone_404.R
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.ButtonOutline
 import com.example.capstone_404.ui.theme.Error
@@ -33,7 +36,7 @@ import com.example.capstone_404.ui.theme.TextBlack
 @Composable
 fun GroupInfoCard(
     groupName: String,
-    groupImageUrl: String,
+    groupImageUrl: String? = null,
     isSingleUser: Boolean,
     onEditGroup: () -> Unit,
     onInvite: () -> Unit,
@@ -64,15 +67,27 @@ fun GroupInfoCard(
                 )
             }
             // 대표 사진
-            AsyncImage(
-                model = groupImageUrl,
-                contentDescription = "그룹 이미지",
-                contentScale = ContentScale.Crop,
+            Box(
                 modifier = Modifier
                     .size(96.dp)
                     .clip(CircleShape)
-                    .background(Stroke)
-            )
+                    .background(Stroke),
+                contentAlignment = Alignment.Center
+            ) {
+                if (groupImageUrl == null) {
+                    Image(
+                        painter = painterResource(id = R.drawable.default_group),
+                        contentDescription = "기본 그룹 이미지",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    AsyncImage(
+                        model = groupImageUrl,
+                        contentDescription = "그룹 이미지",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
             // 그룹 이름

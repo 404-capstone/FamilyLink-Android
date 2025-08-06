@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
 import com.example.capstone_404.ui.component.ButtonDefault
-import com.example.capstone_404.ui.component.CustomTopBar
+import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.DropdownField
 import com.example.capstone_404.feature.login.viewmodel.ProfileInputViewModel
 import com.example.capstone_404.ui.theme.TextWhite

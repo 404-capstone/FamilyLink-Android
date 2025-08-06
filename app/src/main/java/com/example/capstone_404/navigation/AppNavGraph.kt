@@ -11,8 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.capstone_404.ui.component.BottomNavigationBar
-import com.example.capstone_404.ui.component.bottomTabs
+import com.example.capstone_404.ui.component.bar.BottomNavigationBar
+import com.example.capstone_404.ui.component.bar.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
 import com.example.capstone_404.feature.group.ui.InviteCodeScreen
 import com.example.capstone_404.feature.group.ui.RoleSelectScreen

@@ -8,8 +8,10 @@ import com.example.capstone_404.data.retrofit.model.response.SurveyResultData
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
@@ -36,6 +38,15 @@ interface GroupApi {
     suspend fun getGroupInfo(
         @Query("groupId") groupId: Int
     ): Response<BaseResponse<GroupInfoData>>
+
+    // 그룹 정보 수정
+    @Multipart
+    @PATCH("/group/edit")
+    suspend fun editGroupInfo(
+        @Query("groupId") groupId: Int,
+        @Query("name") name: String,
+        @Part image: MultipartBody.Part?
+    ): Response<Void>
 
     // 설문 결과 저장
     @POST("/group/servey/save")
@@ -74,4 +85,37 @@ interface GroupApi {
         @Query("code") code: String,
         @Query("role") role: String
     ): Response<BaseResponse<GroupData>>
+
+    // 그룹장 변경
+    @PATCH("/group/leader/change")
+    suspend fun changeLeader(
+        @Query("groupId") groupId: Int,
+        @Query("userId") userId: Int
+    ): Response<BaseResponse<String>>
+
+    // 그룹원 추방
+    @DELETE("/group/user/delete")
+    suspend fun deleteMember(
+        @Query("groupId") groupId: Int,
+        @Query("userId") userId: Int
+    ): Response<Void>
+
+    // 그룹 탈퇴
+    @DELETE("/group/quit")
+    suspend fun exitGroup(
+        @Query("groupId") groupId: Int
+    ): Response<Void>
+
+    // 그룹장 그룹 탈퇴
+    @DELETE("/group/leader/quit")
+    suspend fun exitGroupFromLeader(
+        @Query("groupId") groupId: Int,
+        @Query("userId") targetId: Int
+    ): Response<BaseResponse<String>>
+
+    // 그룹 삭제
+    @DELETE("/group/delete")
+    suspend fun deleteGroup(
+        @Query("groupId") groupId: Int
+    ): Response<Void>
 }

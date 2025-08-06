@@ -1,4 +1,4 @@
-package com.example.capstone_404.ui.component
+package com.example.capstone_404.ui.component.bar
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer

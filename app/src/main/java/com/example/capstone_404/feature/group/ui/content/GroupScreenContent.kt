@@ -20,7 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.capstone_404.data.info.GroupInfo
+import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
+import com.example.capstone_404.data.retrofit.model.response.GroupUserInfoData
 import com.example.capstone_404.feature.group.model.GuideImageList
 import com.example.capstone_404.feature.group.ui.component.GroupInfoCard
 import com.example.capstone_404.feature.group.ui.component.GroupUserItem
@@ -83,20 +84,20 @@ fun GroupNotJoinedContent(
 }
 
 // 그룹 가입(O)
-// Todo: API 연결하고 추가 수정
 @Composable
 fun GroupJoinedContent(
-    groupInfo: GroupInfo,
+    groupInfo: GroupInfoData,
     currentUserId: Int,
     onEditGroup: () -> Unit,
     onInvite: () -> Unit,
-    onLeaveGroup: () -> Unit
+    onLeaveGroup: () -> Unit,
+    onUserClick: (GroupUserInfoData) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // 그룹 정보 Card
         GroupInfoCard(
-            groupName = groupInfo.groupName,
-            groupImageUrl = groupInfo.groupImage,
+            groupName = groupInfo.group_name,
+            groupImageUrl = groupInfo.group_image,
             isSingleUser = groupInfo.userinfo.size == 1,
             onEditGroup = onEditGroup,
             onInvite = onInvite,
@@ -125,7 +126,8 @@ fun GroupJoinedContent(
                     groupInfo.userinfo.forEach { user ->
                         GroupUserItem(
                             user = user,
-                            isCurrentUser = user.userId == currentUserId
+                            isCurrentUser = user.userId == currentUserId,
+                            onClick = { onUserClick(user) }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }

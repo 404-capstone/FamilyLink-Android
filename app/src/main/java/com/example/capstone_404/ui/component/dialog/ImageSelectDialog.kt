@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.group.ui.dialog
+package com.example.capstone_404.ui.component.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -31,6 +31,7 @@ import com.example.capstone_404.ui.theme.TextBlack
 fun ImageSelectDialog(
     onSelectFromGallery: () -> Unit,
     onTakePhoto: () -> Unit,
+    onUseBeforeImage: () -> Unit,
     onUseDefaultImage: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -68,6 +69,12 @@ fun ImageSelectDialog(
                     icon = R.drawable.ic_camera,
                     text = "사진 찍기",
                     onClick = onTakePhoto
+                )
+
+                OptionItem(
+                    icon = R.drawable.ic_before,
+                    text = "이전 이미지 사용",
+                    onClick = onUseBeforeImage
                 )
 
                 OptionItem(

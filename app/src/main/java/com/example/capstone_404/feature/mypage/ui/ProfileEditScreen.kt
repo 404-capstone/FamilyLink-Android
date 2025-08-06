@@ -26,14 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.capstone_404.feature.group.ui.dialog.ImageSelectDialog
+import com.example.capstone_404.ui.component.dialog.ImageSelectDialog
 import com.example.capstone_404.feature.mypage.ui.component.ProfileImage
 import com.example.capstone_404.feature.mypage.viewmodel.ProfileEditViewModel
 import com.example.capstone_404.feature.mypage.viewmodel.SaveState
 import com.example.capstone_404.ui.component.ButtonDefault
-import com.example.capstone_404.ui.component.CustomTopBar
+import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.DropdownField
-import com.example.capstone_404.ui.component.NavigationType
+import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
@@ -185,6 +185,10 @@ fun ProfileEditScreen(
             },
             onTakePhoto = {
                 // TODO: 카메라로 사진 찍기 기능 구현
+                showImageSelectDialog = false
+            },
+            onUseBeforeImage = {
+                // 기존 이미지 사용 추가 됨 - SY
                 showImageSelectDialog = false
             },
             onUseDefaultImage = {

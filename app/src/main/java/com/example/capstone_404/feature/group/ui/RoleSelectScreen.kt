@@ -24,10 +24,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.ui.component.ButtonDefault
-import com.example.capstone_404.ui.component.CustomTopBar
+import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.feature.group.ui.component.RoleItem
 import com.example.capstone_404.feature.group.model.RoleType
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
+import com.example.capstone_404.ui.component.dialog.LoadingDialog
 
 @Composable
 fun RoleSelectScreen(
@@ -35,6 +36,8 @@ fun RoleSelectScreen(
     onSubmit: () -> Unit
 ) {
     val context = LocalContext.current
+    //로딩 여부
+    val isLoading = viewModel.isLoading
     // 전체 역할 선택 상태
     val selectedRoleState = viewModel.selectedRoleState
     // 역할만
@@ -52,6 +55,10 @@ fun RoleSelectScreen(
                 Toast.makeText(context, "그룹 생성|가입에 실패했어요. 처음부터 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    if (isLoading) {
+        LoadingDialog("그룹 정보를 저장하고 있어요\n잠시만 기다려주세요!")
     }
 
     Scaffold(

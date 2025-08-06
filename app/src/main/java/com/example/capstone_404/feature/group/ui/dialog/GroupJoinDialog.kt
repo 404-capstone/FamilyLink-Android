@@ -102,7 +102,7 @@ fun GroupJoinDialog(
                 TextField(
                     value = inviteCode,
                     onValueChange = {
-                        if (it.length <= codeLength && it.all { char -> char.isLetterOrDigit() || char == '_' })
+                        if (it.length <= codeLength && it.all { char -> char.isLetterOrDigit() || char == '_' || char == '-' })
                             inviteCode = it
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),

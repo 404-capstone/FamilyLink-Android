@@ -1,6 +1,8 @@
-package com.example.capstone_404.feature.group.model
+package com.example.capstone_404.utils
 
 import androidx.compose.ui.graphics.Color
+import com.example.capstone_404.feature.group.model.OrderType
+import com.example.capstone_404.feature.group.model.RoleType
 import com.example.capstone_404.ui.theme.*
 
 // 역할 별 색상 반환

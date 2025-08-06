@@ -35,7 +35,7 @@ fun SplashScreen(
     // 자동 로그인 성공 후 그룹 ID 저장
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn == true) {
-            viewModel.saveGroupId()
+            viewModel.saveUserInfo()
         } else if (isLoggedIn == false) {
             onNotLoggedIn()
         }

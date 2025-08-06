@@ -26,9 +26,9 @@ import com.example.capstone_404.feature.group.model.surveyQuestions
 import com.example.capstone_404.feature.group.ui.component.SurveyItem
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.ButtonDefault
-import com.example.capstone_404.ui.component.CustomTopBar
-import com.example.capstone_404.ui.component.LoadingDialog
-import com.example.capstone_404.ui.component.NavigationType
+import com.example.capstone_404.ui.component.bar.CustomTopBar
+import com.example.capstone_404.ui.component.dialog.LoadingDialog
+import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable

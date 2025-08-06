@@ -1,6 +1,7 @@
 package com.example.capstone_404.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -11,9 +12,9 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,26 +45,31 @@ fun DropdownField(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
-        OutlinedTextField(
+        TextField(
             value = value,
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
             textStyle = MaterialTheme.typography.bodyMedium,
             shape = RoundedCornerShape(10.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = if (expanded) Main else Stroke,
-                unfocusedBorderColor = Stroke,
-                focusedTrailingIconColor = if (expanded) Main else Stroke,
+            colors = TextFieldDefaults.colors(
+                unfocusedPlaceholderColor = Stroke,
+                focusedPlaceholderColor = if (expanded) Main else Stroke,
+                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color.White,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
                 unfocusedTrailingIconColor = Stroke,
-                focusedLabelColor = if (expanded) Main else TextGray,
-                unfocusedLabelColor = TextGray
+                focusedTrailingIconColor = if (expanded) Main else Stroke,
+                unfocusedLabelColor = TextGray,
+                focusedLabelColor = if (expanded) Main else TextGray
             ),
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             modifier = modifier
                 .fillMaxWidth()
+                .border(1.dp, if (expanded) Main else Stroke, RoundedCornerShape(10.dp))
                 .menuAnchor()
         )
 

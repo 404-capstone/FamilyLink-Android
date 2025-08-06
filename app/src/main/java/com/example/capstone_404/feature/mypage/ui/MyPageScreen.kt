@@ -27,8 +27,8 @@ import com.example.capstone_404.feature.mypage.ui.dialog.WithdrawDialog
 import com.example.capstone_404.feature.mypage.viewmodel.LogoutState
 import com.example.capstone_404.feature.mypage.viewmodel.MyPageViewModel
 import com.example.capstone_404.feature.mypage.viewmodel.WithdrawState
-import com.example.capstone_404.ui.component.CustomTopBar
-import com.example.capstone_404.ui.component.NavigationType
+import com.example.capstone_404.ui.component.bar.CustomTopBar
+import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.theme.Background
 
 @Composable

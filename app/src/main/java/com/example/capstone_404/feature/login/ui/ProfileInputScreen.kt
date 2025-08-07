@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.login.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,10 +16,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -26,21 +31,37 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
+import com.example.capstone_404.feature.login.model.InfoList
+import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.DropdownField
-import com.example.capstone_404.feature.login.viewmodel.ProfileInputViewModel
 import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
 fun ProfileInputScreen(
-    viewModel: ProfileInputViewModel = hiltViewModel(),
-    userName: String = "홍길동",
-    onStartClicked: () -> Unit,
+    viewModel: LoginViewModel = hiltViewModel(),
+    onNavigateToHome: () -> Unit,
 ) {
+    val context = LocalContext.current
+
+    val userName by viewModel.nicknameFlow.collectAsState(initial = null)
     val selectedGender = viewModel.selectedGender
     val selectedAge = viewModel.selectedAge
+
     val isButtonEnabled = viewModel.isProfileComplete()
+
+    val isSaved by viewModel.isSaved.collectAsState()
+    // 제출 완료 시 이동
+    LaunchedEffect(isSaved) {
+        if (isSaved == true) {
+            viewModel.resetSaved()
+            onNavigateToHome()
+        } else if (isSaved == false) {
+            viewModel.resetSaved()
+            Toast.makeText(context, "오류가 발생했습니다\n 앱을 다시 실행해 주세요.", Toast.LENGTH_LONG).show()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -115,7 +136,7 @@ fun ProfileInputScreen(
                     DropdownField(
                         label = "성별",
                         value = selectedGender,
-                        options = viewModel.genders,
+                        options = InfoList.genders,
                         onSelect = { viewModel.selectGender(it) }
                     )
 
@@ -124,14 +145,14 @@ fun ProfileInputScreen(
                     DropdownField(
                         label = "연령대",
                         value = selectedAge,
-                        options = viewModel.ageRanges,
+                        options = InfoList.ageRanges,
                         onSelect = { viewModel.selectAge(it) }
                     )
                 }
 
                 ButtonDefault(
                     text = "정보 제출",
-                    onClick = onStartClicked,
+                    onClick = { viewModel.submitInfo() },
                     enabled = isButtonEnabled
                 )
             }

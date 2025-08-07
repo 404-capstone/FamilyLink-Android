@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
+import com.example.capstone_404.feature.login.model.LoginState
 import com.example.capstone_404.feature.login.ui.componet.KakaoLoginButton
 import com.example.capstone_404.feature.login.ui.componet.NaverLoginButton
-import com.example.capstone_404.feature.login.viewmodel.LoginState
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.TextWhite
@@ -47,6 +47,9 @@ fun LoginScreen(
     // 로그인 상태 변수
     val loginState by viewModel.loginState.collectAsState()
     val isSaved by viewModel.isSaved.collectAsState()
+    // 추가 정보 입력 분기용
+    val userGender by viewModel.userGenderFlow.collectAsState(initial = null)
+    val userAge by viewModel.userAgeFlow.collectAsState(initial = null)
 
     // SessionId 감지 시 로그인 처리
     LaunchedEffect(Unit) {
@@ -62,12 +65,7 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is LoginState.Success -> {
-                val isNewUser = (loginState as LoginState.Success).isNewUser
-                if (isNewUser) {
-                    onNavigateToProfileInput()
-                } else {
-                    viewModel.saveUserInfo()
-                }
+                viewModel.saveUserInfo()
             }
             is LoginState.Error -> {
                 val errorMsg = (loginState as LoginState.Error).message
@@ -77,9 +75,13 @@ fun LoginScreen(
         }
     }
 
-    // 그룹 ID 저장 완료 시 이동
+    // 유저 정보 저장 완료 시 이동
     LaunchedEffect(isSaved) {
-        if (isSaved) {
+        if (isSaved == true && (userGender == null || userAge == null)) {
+            viewModel.resetSaved()
+            onNavigateToProfileInput()
+        } else if (isSaved == true) {
+            viewModel.resetSaved()
             onNavigateToHome()
         }
     }

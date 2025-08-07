@@ -58,7 +58,8 @@ fun AppNavGraph(navController: NavHostController) {
             // 스플래시(자동 로그인)
             composable(Route.SPLASH) {
                 SplashScreen(
-                    onLoggedIn = { navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } } },
+                    onNavigateToHome = { navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } } },
+                    onNavigateToProfileInput = { navController.navigate(Route.PROFILE_INPUT) { popUpTo(0) { inclusive = true } } },
                     onNotLoggedIn = { navController.navigate(Route.LOGIN) { popUpTo(0) { inclusive = true } } }
                 )
             }
@@ -72,7 +73,7 @@ fun AppNavGraph(navController: NavHostController) {
             // 추가 정보 입력
             composable(Route.PROFILE_INPUT) {
                 ProfileInputScreen(
-                    onStartClicked = {
+                    onNavigateToHome = {
                         navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                     }
                 )

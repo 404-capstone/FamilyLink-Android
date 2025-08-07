@@ -1,13 +1,19 @@
 package com.example.capstone_404.feature.login.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.UserRepository
 import com.example.capstone_404.data.repository.GroupRepository
+import com.example.capstone_404.data.retrofit.model.request.UserInfoEditRequest
 import com.example.capstone_404.data.retrofit.token.TokenManager
+import com.example.capstone_404.feature.login.model.LoginState
+import com.example.capstone_404.utils.AgeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +21,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -24,6 +31,10 @@ class LoginViewModel @Inject constructor(
     private val userInfoManager: UserInfoManager,
     private val groupInfoManager: GroupInfoManager
 ) : ViewModel() {
+    // 사용자 정보 Flow
+    val nicknameFlow: Flow<String?> = userInfoManager.nicknameFlow
+    val userGenderFlow: Flow<String?> = userInfoManager.genderFlow
+    val userAgeFlow: Flow<String?> = userInfoManager.ageFlow
 
     // 소셜 로그인 상태 관리
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
@@ -34,8 +45,14 @@ class LoginViewModel @Inject constructor(
     val isLoggedIn: StateFlow<Boolean?> = _isLoggedIn
 
     // 그룹 ID 저장 상태 관리
-    private val _isSaved = MutableStateFlow(false)
-    val isSaved: StateFlow<Boolean> = _isSaved
+    private val _isSaved = MutableStateFlow<Boolean?>(null)
+    val isSaved: StateFlow<Boolean?> = _isSaved
+
+    // 선택된 추가 정보 변수
+    var selectedGender by mutableStateOf("")
+        private set
+    var selectedAge by mutableStateOf("")
+        private set
 
     // 자동 로그인 체크 함수
     fun checkAutoLogin() {
@@ -80,7 +97,8 @@ class LoginViewModel @Inject constructor(
             try {
                 val result = userRepository.getUserInfo()
 
-                result.onSuccess {
+                result.onSuccess { data ->
+                    Log.d("User_Info", "(L)사용자 Info 조회 성공 : $data")
                     coroutineScope {
                         val groupIdDeferred = async { saveGroupId() }
                         groupIdDeferred.await()
@@ -151,12 +169,48 @@ class LoginViewModel @Inject constructor(
             Log.e("User_Info", "(L)설문 결과 저장 실패 : ${it.message}")
         }
     }
-}
 
-// 로그인 상태 정의
-sealed class LoginState {
-    data object Idle : LoginState()
-    data object Loading : LoginState()
-    data class Success(val isNewUser: Boolean) : LoginState()
-    data class Error(val message: String) : LoginState()
+    // saved 초기화
+    fun resetSaved() {
+        _isSaved.value = null
+    }
+
+    // 추가 정보 변수값 변경 함수
+    fun selectGender(gender: String) {
+        selectedGender = gender
+    }
+    fun selectAge(age: String) {
+        selectedAge = age
+    }
+    // 버튼 활성화 함수
+    fun isProfileComplete(): Boolean {
+        return selectedGender.isNotBlank() && selectedAge.isNotBlank()
+    }
+    // 정보 제출 함수
+    fun submitInfo() {
+        viewModelScope.launch {
+            try {
+                val userName = userInfoManager.getNickname()
+                val ageNumber = AgeConverter.convertRangeToAge(selectedAge)
+                val requestBody = UserInfoEditRequest(
+                    userName!!,
+                    ageNumber!!,
+                    selectedGender,
+                    null)
+
+                val result = userRepository.editUserInfo(requestBody)
+
+                result.onSuccess { data ->
+                    Log.d("User_Info", "(L)사용자 정보 저장 완료 : $data")
+                    _isSaved.value = true
+                }.onFailure { e ->
+                    Log.d("User_Info", "(L)사용자 정보 저장 실패 : ${e.message}")
+                    _isSaved.value = false
+                }
+            } catch (e: Exception) {
+                Log.d("User_Info", "(L)사용자 정보 저장 실패 : ${e.message}")
+                _isSaved.value = false
+            }
+        }
+    }
 }

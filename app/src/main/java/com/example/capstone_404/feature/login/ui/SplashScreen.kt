@@ -21,11 +21,15 @@ import com.example.capstone_404.ui.theme.Main
 @Composable
 fun SplashScreen(
     viewModel: LoginViewModel = hiltViewModel(),
-    onLoggedIn: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToProfileInput: () -> Unit,
     onNotLoggedIn: () -> Unit
     ) {
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     val isSaved by viewModel.isSaved.collectAsState()
+    // 추가 정보 입력 분기용
+    val userGender by viewModel.userGenderFlow.collectAsState(initial = null)
+    val userAge by viewModel.userAgeFlow.collectAsState(initial = null)
 
     // 로그인 상태 확인
     LaunchedEffect(Unit) {
@@ -41,10 +45,14 @@ fun SplashScreen(
         }
     }
 
-    // 그룹 ID & 그룹 정보 저장 완료 시 이동
+    // 유저 정보 저장 완료 시 이동
     LaunchedEffect(isSaved) {
-        if (isSaved) {
-            onLoggedIn()
+        if (isSaved == true && (userGender == null || userAge == null)) {
+            viewModel.resetSaved()
+            onNavigateToProfileInput()
+        } else if (isSaved == true) {
+            viewModel.resetSaved()
+            onNavigateToHome()
         }
     }
 

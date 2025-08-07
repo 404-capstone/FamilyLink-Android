@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.group.ui.component
+package com.example.capstone_404.ui.component.fab
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
@@ -26,13 +25,13 @@ import com.example.capstone_404.R
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 
-// 그룹 화면 내에 설문 Fab
+// 확장 가능한 FAB
 @Composable
-fun SurveyFab(
+fun ExpandableFab(
     expanded: Boolean,
     onToggle: () -> Unit,
-    onSurveyWriteClick: () -> Unit,
-    onSurveyResultClick: () -> Unit
+    mainIcon: Int,
+    actions: List<ExpandableFabItem>
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -47,21 +46,21 @@ fun SurveyFab(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(end = 16.dp)
                 ) {
-                    CustomExtendFab(text = "결과 조회", icon = R.drawable.ic_surveyresult, onClick = onSurveyResultClick)
-                    CustomExtendFab(text = "설문 작성", icon = R.drawable.ic_surveywrite, onClick = onSurveyWriteClick)
+                    actions.forEach { item ->
+                        CustomExtendFab(text = item.text, icon = item.iconResId, onClick = item.onClick)
+                    }
                 }
             }
-
             FloatingActionButton(
                 onClick = onToggle,
                 containerColor = Main,
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 16.dp ,start = 16.dp, end = 16.dp)
                     .size(56.dp),
-                shape = CircleShape
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Icon(
-                    painter = painterResource(id = if (expanded) R.drawable.ic_delete else R.drawable.ic_survey),
+                    painter = painterResource(id = if (expanded) R.drawable.ic_delete else mainIcon),
                     contentDescription = null,
                     tint = Color.White
                 )
@@ -70,7 +69,7 @@ fun SurveyFab(
     }
 }
 
-// 확장 Fab
+// 확장 FAB
 @Composable
 fun CustomExtendFab(
     text: String,

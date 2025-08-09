@@ -2,6 +2,7 @@ package com.example.capstone_404.feature.group.ui.dialog
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +43,6 @@ import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
-import com.example.capstone_404.ui.theme.TextWhite
 
 @Composable
 fun GroupMemberDialog(
@@ -127,13 +127,14 @@ fun GroupMemberDialog(
                             modifier = Modifier
                                 .size(16.dp)
                                 .clip(CircleShape)
-                                .background(Stroke),
+                                .background(Stroke)
+                                .border(1.dp, Main, RoundedCornerShape(100)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "나",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = TextWhite,
+                                color = TextBlack,
                             )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
@@ -145,7 +146,7 @@ fun GroupMemberDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = user.age ?: "연령대 미지정",
+                        text = "${user.age}대",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextBlack
                     )

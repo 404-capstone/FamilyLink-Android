@@ -39,7 +39,7 @@ fun AppNavGraph(navController: NavHostController) {
                     currentRoute = currentRoute,
                     onTabSelected = { route ->
                         navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId) {
+                            popUpTo("group") {
                                 saveState = true
                             }
                             launchSingleTop = true

@@ -25,7 +25,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
-import com.example.capstone_404.feature.group.ui.component.SurveyFab
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.feature.group.ui.content.GroupJoinedContent
 import com.example.capstone_404.feature.group.ui.content.GroupNotJoinedContent
@@ -40,6 +39,8 @@ import com.example.capstone_404.data.retrofit.model.response.GroupUserInfoData
 import com.example.capstone_404.feature.group.ui.dialog.GroupMemberDialog
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.DropdownField
+import com.example.capstone_404.ui.component.fab.ExpandableFab
+import com.example.capstone_404.ui.component.fab.ExpandableFabItem
 import com.example.capstone_404.utils.RequestCameraPermission
 import com.example.capstone_404.utils.RequestStoragePermission
 import com.example.capstone_404.utils.UriUtil
@@ -199,11 +200,14 @@ fun GroupScreen(
                 }
                 // 가입된 상태에만 Fab 출력
                 if (groupInfo != null && userId != null) {
-                    SurveyFab(
+                    ExpandableFab(
                         expanded = isFabExpanded,
                         onToggle = { isFabExpanded = !isFabExpanded },
-                        onSurveyWriteClick = { onNavigateToWrite() },
-                        onSurveyResultClick = { onNavigateToResult() }
+                        mainIcon = R.drawable.ic_survey,
+                        actions = listOf(
+                            ExpandableFabItem("설문 조회", R.drawable.ic_surveyresult, onNavigateToResult),
+                            ExpandableFabItem("설문 작성", R.drawable.ic_surveywrite, onNavigateToWrite)
+                        )
                     )
                 }
             }

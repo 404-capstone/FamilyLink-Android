@@ -1,5 +1,7 @@
 package com.example.capstone_404.di
 
+import com.example.capstone_404.data.repository.CalendarRepository
+import com.example.capstone_404.data.repository.CalendarRepositoryImpl
 import com.example.capstone_404.data.repository.UserRepository
 import com.example.capstone_404.data.repository.UserRepositoryImpl
 import com.example.capstone_404.data.repository.GroupRepository
@@ -21,5 +23,9 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindGroupRepository(impl: GroupRepositoryImpl): GroupRepository
+   abstract fun bindGroupRepository(impl: GroupRepositoryImpl): GroupRepository
+
+   @Binds
+   @Singleton
+   abstract fun bindCalendarRepository(impl: CalendarRepositoryImpl): CalendarRepository
 }

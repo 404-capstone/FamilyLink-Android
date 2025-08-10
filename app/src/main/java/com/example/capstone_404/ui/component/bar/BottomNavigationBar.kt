@@ -5,9 +5,13 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.capstone_404.navigation.Route
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
@@ -18,7 +22,17 @@ fun BottomNavigationBar(
     currentRoute: String?,
     onTabSelected: (String) -> Unit
 ) {
-    NavigationBar(containerColor = Color.White) {
+    NavigationBar(
+        containerColor = Color.White,
+        modifier = Modifier.drawBehind {
+            drawLine(
+                color = Stroke,
+                start = Offset(0f, 0f + 0.5f),
+                end = Offset(size.width, 0f + 0.5f),
+                strokeWidth = 1.dp.toPx()
+            )
+        }
+    ) {
         bottomTabs.forEach { tab ->
             val selected = tab.route == currentRoute
             NavigationBarItem(

@@ -1,6 +1,7 @@
 package com.example.capstone_404.di
 
 import com.example.capstone_404.BuildConfig
+import com.example.capstone_404.data.retrofit.api.CalendarApi
 import com.example.capstone_404.data.retrofit.api.UserApi
 import com.example.capstone_404.data.retrofit.api.GroupApi
 import com.example.capstone_404.data.retrofit.token.TokenAutoRefresh
@@ -115,5 +116,11 @@ object NetworkModule {
     @Singleton
     fun provideGroupApi(retrofit: Retrofit): GroupApi {
         return retrofit.create(GroupApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCalendarApi(retrofit: Retrofit): CalendarApi {
+        return retrofit.create(CalendarApi::class.java)
     }
 }

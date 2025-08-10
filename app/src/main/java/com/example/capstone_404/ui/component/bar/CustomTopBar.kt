@@ -18,8 +18,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 
 // 커스텀 탑바 (뒤로가기 or 취소 / 타이틀 / 삭제 or 더보기)
@@ -88,7 +91,15 @@ fun CustomTopBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.White
         ),
-        expandedHeight = 56.dp
+        expandedHeight = 56.dp,
+        modifier = Modifier.drawBehind {
+            drawLine(
+                color = Stroke,
+                start = Offset(0f, size.height - 0.5f),
+                end   = Offset(size.width, size.height - 0.5f),
+                strokeWidth = 1.dp.toPx()
+            )
+        }
     )
 }
 

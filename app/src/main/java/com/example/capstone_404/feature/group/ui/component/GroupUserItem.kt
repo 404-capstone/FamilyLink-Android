@@ -3,7 +3,6 @@ package com.example.capstone_404.feature.group.ui.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,100 +45,107 @@ fun GroupUserItem(
     // 역할 텍스트 나누기
     val splitRole = parseRoleAndOrder(user.role)
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        color = Color.White,
+        tonalElevation = 0.dp,
+        shadowElevation = 2.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Stroke, RoundedCornerShape(8.dp))
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White)
-            .padding(12.dp)
-            .clickable { onClick() }
+            .border(0.5.dp, Stroke, RoundedCornerShape(8.dp))
     ) {
-        // 프로필 이미지
-        Box(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Stroke),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
-            if (user.image == null) {
-                Image(
-                    painter = painterResource(id = getDefaultImage(user.role)),
-                    contentDescription = "기본 그룹 이미지",
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                AsyncImage(
-                    model = user.image,
-                    contentDescription = "프로필 이미지",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+            // 프로필 이미지
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Stroke),
+                contentAlignment = Alignment.Center
+            ) {
+                if (user.image == null) {
+                    Image(
+                        painter = painterResource(id = getDefaultImage(user.role)),
+                        contentDescription = "기본 그룹 이미지",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    AsyncImage(
+                        model = user.image,
+                        contentDescription = "프로필 이미지",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.width(12.dp))
-        // 정보 Column
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // 이름 + 연령 Row
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (isCurrentUser) {
+            Spacer(modifier = Modifier.width(12.dp))
+            // 정보 Column
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // 이름 + 연령 Row
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isCurrentUser) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(Stroke)
+                                .border(1.dp, Main, RoundedCornerShape(100)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "나",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TextBlack,
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    Text(
+                        text = user.username,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextBlack
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "${user.age}대",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextBlack
+                    )
+                }
+                // 색상 + 역할 Row
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(16.dp)
+                            .size(12.dp)
                             .clip(CircleShape)
-                            .background(Stroke)
-                            .border(1.dp, Main, RoundedCornerShape(100)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "나",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TextBlack,
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
+                            .background(splitRole.first.getColor(splitRole.second))
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = user.role,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextBlack
+                    )
                 }
-                Text(
-                    text = user.username,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextBlack
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = user.age ?: "연령대 미지정",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TextBlack
-                )
             }
-            // 색상 + 역할 Row
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .clip(CircleShape)
-                        .background(splitRole.first.getColor(splitRole.second))
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+            // 그룹장 텍스트
+            if (user.leader) {
                 Text(
-                    text = user.role,
+                    text = "그룹장",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextBlack
+                    color = TextGray
                 )
             }
-        }
-        // 그룹장 텍스트
-        if (user.leader) {
-            Text(
-                text = "그룹장",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextGray
-            )
         }
     }
 }

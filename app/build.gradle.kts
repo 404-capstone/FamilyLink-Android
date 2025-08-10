@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     // JSON 인코딩 & 디코딩
     implementation(libs.kotlinx.serialization.json)
+    // kizitonwose 캘린더 라이브러리
+    implementation(libs.compose)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

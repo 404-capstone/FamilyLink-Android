@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.capstone_404.feature.calendar.ui.CalendarScreen
 import com.example.capstone_404.ui.component.bar.BottomNavigationBar
 import com.example.capstone_404.ui.component.bar.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
@@ -38,7 +39,7 @@ fun AppNavGraph(navController: NavHostController) {
                     currentRoute = currentRoute,
                     onTabSelected = { route ->
                         navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId) {
+                            popUpTo("group") {
                                 saveState = true
                             }
                             launchSingleTop = true
@@ -149,6 +150,18 @@ fun AppNavGraph(navController: NavHostController) {
                 )
             }
 
+            // 캘린더 메인
+            composable(Route.CALENDAR) {
+                CalendarScreen(
+                    onNavigateToGroup = {
+                        navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
+                        },
+                    onNavigateToGroupActivity = {},
+                    onNavigateToGroupScheduleAdd = {},
+                    onNavigateToPersonalScheduleAdd = {},
+                )
+            }
+
             //내 정보
             composable(Route.MYPAGE) {
                 MyPageScreen(
@@ -184,7 +197,6 @@ fun AppNavGraph(navController: NavHostController) {
             }
 
             // 임시 정의
-            composable(Route.CALENDAR) {  }
             composable(Route.DIARY) {  }
             composable(Route.ALBUM) {  }
 

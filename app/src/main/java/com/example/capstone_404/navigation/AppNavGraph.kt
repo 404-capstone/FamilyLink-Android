@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.capstone_404.feature.calendar.ui.CalendarScreen
+import com.example.capstone_404.feature.diary.ui.DiaryScreen
 import com.example.capstone_404.ui.component.bar.BottomNavigationBar
 import com.example.capstone_404.ui.component.bar.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
@@ -196,8 +197,12 @@ fun AppNavGraph(navController: NavHostController) {
                 )
             }
 
+            // 다이어리
+            composable(Route.DIARY) {
+                DiaryScreen()
+            }
+
             // 임시 정의
-            composable(Route.DIARY) {  }
             composable(Route.ALBUM) {  }
 
         }

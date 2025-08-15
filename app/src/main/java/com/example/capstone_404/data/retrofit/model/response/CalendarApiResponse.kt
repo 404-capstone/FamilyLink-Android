@@ -12,13 +12,13 @@ data class ScheduleData(
 @Serializable
 data class PersonalUserScheduleData(
     val userid: Int,
-    val personalSchedule: List<PersonalScheduleItemDto>
+    val personalSchedule: List<PersonalScheduleItemData>
 )
 @Serializable
-data class PersonalScheduleItemDto(
+data class PersonalScheduleItemData(
     val scheduleid: Int,
     val permission: Boolean,
-    val isTimeFlexible: Boolean,
+    val timeflex: Boolean,
     val title: String,
     val start_time: String,
     val end_time: String
@@ -26,9 +26,21 @@ data class PersonalScheduleItemDto(
 @Serializable
 data class GroupScheduleData(
     val scheduleId: Int,
-    val isTimeFlexible: Boolean,
+    val timeflex: Boolean,
     val title: String,
     val startTime: String,
     val endTime: String,
-    val groupUserId: List<Int>
+    val participants: List<Int>
+)
+
+// 개인 일정 추가 Response
+@Serializable
+data class AddPersonalData(
+    val id: Int,
+    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val content: String? = null,
+    val permission: Boolean,
+    val timeflex: Boolean
 )

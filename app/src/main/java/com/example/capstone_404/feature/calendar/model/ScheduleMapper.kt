@@ -7,10 +7,11 @@ import java.time.format.DateTimeFormatter
 
 fun scheduleMapper(
     scheduleData: ScheduleData,
-    userIdToRole: Map<Int, String>
+    userIdToRole: Map<Int, String>,
+    currentUserId: Int?
 ): Map<LocalDate, List<Schedule>> {
     val result = mutableMapOf<LocalDate, MutableList<Schedule>>()
-    val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
 
     // 하루 이상 일정 해당 모든 날짜에 등록
     fun putSpanning(schedule: Schedule) {
@@ -27,10 +28,14 @@ fun scheduleMapper(
     // 개인 일정
     scheduleData.personalUserSchedule.forEach { user ->
         user.personalSchedule.forEach { data ->
-            val title = if (data.permission) {
-                data.title
+            val isPrivate = data.permission
+            val writerId = user.userid
+            val writerRole = userIdToRole[writerId] ?: "알 수 없음"
+
+            val title = if (isPrivate && currentUserId != null && currentUserId != writerId) {
+                "${writerRole}의 일정"
             } else {
-                "${userIdToRole[user.userid] ?: "알 수 없음"}의 일정"
+                data.title
             }
 
             val schedule = Schedule(
@@ -40,7 +45,7 @@ fun scheduleMapper(
                 endTime = LocalDateTime.parse(data.end_time, dateFormat),
                 writerId = user.userid,
                 isGroup = false,
-                isTimeFlexible = data.isTimeFlexible,
+                isTimeFlexible = data.timeflex,
                 participantUserIds = listOf(user.userid)
             )
             putSpanning(schedule)
@@ -56,8 +61,8 @@ fun scheduleMapper(
             endTime = LocalDateTime.parse(data.endTime, dateFormat),
             writerId = null,
             isGroup = true,
-            isTimeFlexible = data.isTimeFlexible,
-            participantUserIds = data.groupUserId
+            isTimeFlexible = data.timeflex,
+            participantUserIds = data.participants
         )
         putSpanning(schedule)
     }

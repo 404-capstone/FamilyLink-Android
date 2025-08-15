@@ -1,6 +1,7 @@
 package com.example.capstone_404.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.R
+import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextGray
 
 // 안내 문구 카드
@@ -27,6 +29,7 @@ fun GuideWarningCard(text: String) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
+            .border(0.5.dp, Stroke, RoundedCornerShape(8.dp))
             .background(Color.White)
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically

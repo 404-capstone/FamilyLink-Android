@@ -7,6 +7,7 @@ import com.example.capstone_404.ui.theme.Sub
 import com.example.capstone_404.utils.getColor
 import com.example.capstone_404.utils.parseRoleAndOrder
 
+// 캘린더 메인용
 fun getGradientColors(
     schedule: Schedule,
     userIdToRole: Map<Int, String>
@@ -36,4 +37,11 @@ fun getGradientColors(
         distinct.size == 1 -> listOf(distinct.first(), distinct.first())
         else -> listOf(Main, Sub, Error)
     }
+}
+
+// 개인 일정 추가용
+fun colorForUserId(userId: Int, userIdToRole: Map<Int, String>): Color {
+    val roleLabel = userIdToRole[userId] ?: return Error
+    val splitRole = parseRoleAndOrder(roleLabel)
+    return splitRole.first.getColor(splitRole.second)
 }

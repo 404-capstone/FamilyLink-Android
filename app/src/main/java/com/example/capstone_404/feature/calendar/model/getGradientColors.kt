@@ -45,3 +45,19 @@ fun colorForUserId(userId: Int, userIdToRole: Map<Int, String>): Color {
     val splitRole = parseRoleAndOrder(roleLabel)
     return splitRole.first.getColor(splitRole.second)
 }
+
+// 최적화 결과 비교용
+fun gradientForPersonal(userId: Int?, userIdToRole: Map<Int, String>): List<Color> {
+    val color = userId?.let { colorForUserId(it, userIdToRole) } ?: Error
+    return listOf(color, color)
+}
+fun gradientForGroup(memberIds: Collection<Int>, userIdToRole: Map<Int, String>): List<Color> {
+    val colors = memberIds.mapNotNull { id ->
+        runCatching { colorForUserId(id, userIdToRole) }.getOrNull()
+    }.distinct()
+    return when {
+        colors.size >= 2 -> colors
+        colors.size == 1 -> listOf(colors.first(), colors.first())
+        else -> listOf(Main, Sub, Error)
+    }
+}

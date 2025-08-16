@@ -7,4 +7,5 @@ val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd(E
 val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREA)
 
 // 서버 맞춤 시간 포맷
-val serverFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+val serverDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+val serverDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")

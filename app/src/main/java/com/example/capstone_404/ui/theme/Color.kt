@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 // Main Color
 val Main = Color(0xFFA7D9A1)
 val Sub = Color(0xFFFFFFFF)
+val Sub2 = Color(0xFFFFE7A0)
 val Error = Color(0xFFE05744)
 
 // Stroke

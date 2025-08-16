@@ -21,3 +21,15 @@ data class OptimizeRequest(
     val memberIds: List<Int>,
     val date: String
 )
+
+// 가족 일정 추가 Request Body
+data class AddGroupScheduleRequest(
+    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val content: String? = null,
+    val groupId: Int,
+    val location: String? = null,
+    val timeflex: Boolean,
+    val participants: List<Int>
+)

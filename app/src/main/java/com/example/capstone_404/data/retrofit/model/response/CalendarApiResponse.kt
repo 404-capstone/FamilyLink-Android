@@ -75,3 +75,17 @@ data class OptimizeGroupItem(
     val startTime: String,
     val endTime: String
 )
+
+// 가족 일정 추가 Response
+@Serializable
+data class AddGroupData(
+    val scheduleId: Int,
+    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val content: String? = null,
+    val location: String? = null,
+    val timeflex: Boolean,
+    val participants: List<Int>,
+    val calendarId: Int
+)

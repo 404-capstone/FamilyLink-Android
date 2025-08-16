@@ -77,9 +77,14 @@ fun FamilyScheduleScreen(
 
     val optimizeResult by viewModel.optimizeResult.collectAsState()
     val isLoading = viewModel.isLoading
+    val isSaveLoading = viewModel.isSaveLoading
 
     if (isLoading) {
         LoadingDialog("일정을 최적화 중이에요\n잠시만 기다려주세요!")
+    }
+
+    if (isSaveLoading) {
+        LoadingDialog("일정을 저장하고 있어요\n잠시만 기다려주세요!")
     }
 
     Scaffold(
@@ -91,7 +96,6 @@ fun FamilyScheduleScreen(
                 rightButton = {
                     IconButton(
                         onClick = {
-                            // Todo : 가일추 API 연동 후 수정
                             if (family.selectedMemberIds.isEmpty()) {
                                 Toast.makeText(context, "참여자를 선택해 주세요.", Toast.LENGTH_SHORT).show()
                                 return@IconButton
@@ -105,7 +109,12 @@ fun FamilyScheduleScreen(
                                 Toast.makeText(context, "제목을 입력해 주세요.", Toast.LENGTH_SHORT).show()
                                 return@IconButton
                             }
-                            onSubmit()
+                            viewModel.addFamilySchedule(
+                                onSuccess = { onSubmit() },
+                                onError = { e ->
+                                    Toast.makeText(context, e, Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         }
                     ) {
                         Icon(

@@ -1,7 +1,9 @@
 package com.example.capstone_404.data.retrofit.api
 
+import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
+import com.example.capstone_404.data.retrofit.model.response.AddGroupData
 import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
@@ -32,4 +34,10 @@ interface CalendarApi {
     suspend fun optimize(
         @Body body: OptimizeRequest
     ): Response<BaseResponse<OptimizeData>>
+
+    // 가족 일정 추가
+    @POST("/schedule/group/add")
+    suspend fun addGroupSchedule(
+        @Body body: AddGroupScheduleRequest
+    ): Response<BaseResponse<AddGroupData>>
 }

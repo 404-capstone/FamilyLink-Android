@@ -40,6 +40,7 @@ import com.example.capstone_404.feature.calendar.ui.dialog.ScheduleTimeDialog
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
+import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
 import java.time.Instant
@@ -67,6 +68,12 @@ fun PersonalScheduleScreen(
     var timeTarget by remember { mutableStateOf(TimeTarget.START) }
     var showDateDialog by remember { mutableStateOf(false) }
     var showTimeDialog by remember { mutableStateOf(false) }
+
+    val isSaveLoading = viewModel.isSaveLoading
+
+    if (isSaveLoading) {
+        LoadingDialog("일정을 저장하고 있어요\n잠시만 기다려주세요!")
+    }
 
     Scaffold(
         topBar = {

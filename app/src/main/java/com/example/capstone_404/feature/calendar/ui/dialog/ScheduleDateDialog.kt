@@ -38,6 +38,7 @@ import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.OutDateStyle
 import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.YearMonth
@@ -52,7 +53,8 @@ fun ScheduleDateDialog(
     endMillis: Long,
     zoneId: ZoneId = ZoneId.systemDefault(),
     onDismiss: () -> Unit,
-    onConfirm: (newStartMillis: Long, newEndMillis: Long) -> Unit
+    onConfirm: (newStartMillis: Long, newEndMillis: Long) -> Unit,
+    onFamily: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -85,6 +87,17 @@ fun ScheduleDateDialog(
             LocalDateTime.of(pickedDate, if (allDay) LocalTime.MAX.minusSeconds(1) else endInit.toLocalTime())
         else endInit
     }
+    // 가족 - 며칠일 때 2일 이상 검증
+    val gapDay = remember(target, onFamily) {
+        if (onFamily && target == TimeTarget.END) 1 else 0
+    }
+    val endDate = remember(startInit, gapDay) {
+        startInit.toLocalDate().plusDays(gapDay.toLong())
+    }
+    val isPickEnabled: (LocalDate) -> Boolean = remember(target, endDate) {
+        if (target == TimeTarget.END && gapDay > 0) { date: LocalDate -> !date.isBefore(endDate) }
+        else { _: LocalDate -> true }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -115,6 +128,11 @@ fun ScheduleDateDialog(
             ButtonDefault(
                 text = "선택",
                 onClick = {
+                    if (!isPickEnabled(pickedDate)) {
+                        Toast.makeText(context, "\"며칠\" 일정은 시작과 종료가 최소 1일 이상 차이나야 합니다.", Toast.LENGTH_SHORT).show()
+                        return@ButtonDefault
+                    }
+
                     val newStart = previewStart
                     var newEnd   = previewEnd
 

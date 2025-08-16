@@ -42,6 +42,7 @@ import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
+import java.time.Instant
 import java.time.ZoneId
 
 @Composable
@@ -54,6 +55,14 @@ fun PersonalScheduleScreen(
     val uiState by viewModel.personalScheduleState.collectAsState()
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
     val userIdToRole by viewModel.userIdToRole.collectAsState()
+    val zoneId = remember { ZoneId.systemDefault() }
+
+    // 시간 변동 체크 박스 활성화 유무
+    val canFlex = remember(uiState.editor.isAllDay, uiState.editor.startMillis, uiState.editor.endMillis) {
+        val startDate = Instant.ofEpochMilli(uiState.editor.startMillis).atZone(zoneId).toLocalDate()
+        val endDate = Instant.ofEpochMilli(uiState.editor.endMillis).atZone(zoneId).toLocalDate()
+        !uiState.editor.isAllDay && (startDate == endDate)
+    }
 
     var timeTarget by remember { mutableStateOf(TimeTarget.START) }
     var showDateDialog by remember { mutableStateOf(false) }
@@ -141,7 +150,8 @@ fun PersonalScheduleScreen(
                     label = "시간 변동 가능",
                     checked = uiState.isFlexible,
                     onCheckedChange = { viewModel.setPersonalFlexible(it) },
-                    description = "선택 시 일정 최적화가 진행될 때 10시~20시 사이로 변동될 수 있습니다"
+                    description = if (canFlex) "선택 시 일정 최적화가 진행될 때 10시~20시 사이로 변동될 수 있습니다" else "종일 또는 여러 날 일정에는 적용되지 않습니다",
+                    enabled = canFlex
                 )
                 // 종일 스위치
                 AllDaySwitch(

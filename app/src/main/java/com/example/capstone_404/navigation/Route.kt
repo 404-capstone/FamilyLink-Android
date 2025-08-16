@@ -20,6 +20,7 @@ object Route {
 
     // 다이어리 관련
     const val DIARY = "diary"
+    const val DIARY_WRITE = "diary_write"
 
     // 앨범 관련
     const val ALBUM = "album"

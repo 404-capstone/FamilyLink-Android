@@ -29,7 +29,9 @@ import com.example.capstone_404.ui.theme.Background
 fun DiaryScreen(
     viewModel: DiaryViewModel = hiltViewModel(),
     onNavigateToWrite: () -> Unit = {},
-    onNavigateToGroup: () -> Unit = {}
+    onNavigateToGroup: () -> Unit = {},
+    onNavigateToDiarySelect: (String) -> Unit = {},
+    onNavigateToQuestionSelect: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState(initial = DiaryState.Success(emptyList(), emptyList()))
     val selectedTab by viewModel.selectedTab.collectAsState()
@@ -90,8 +92,8 @@ fun DiaryScreen(
                                 selectedTab = selectedTab,
                                 diaryEntries = if (currentState is DiaryState.Success) currentState.diaryEntries else emptyList(),
                                 questions = if (currentState is DiaryState.Success) currentState.questions else emptyList(),
-                                onDiaryClick = { diary -> /* TODO: 다이어리 상세 화면 */ },
-                                onQuestionClick = { question -> /* TODO: 공통 질문 상세 화면 */ }
+                                onDiaryClick = { diary -> onNavigateToDiarySelect(diary.id) },
+                                onQuestionClick = { question -> onNavigateToQuestionSelect(question.id) }
                             )
                         }
                         SingleFab(

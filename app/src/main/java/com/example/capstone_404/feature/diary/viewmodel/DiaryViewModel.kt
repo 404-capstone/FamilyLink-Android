@@ -115,8 +115,8 @@ class DiaryViewModel @Inject constructor() : ViewModel() {
             val isJoined = true    // 임시 테스트용 false로 바꾸면 미가입 상태
 
             if (isJoined) {
-                setEmptySuccessState()
-                //setTestDataState()    //테스트할 때 주석 풀고 위 코드에 주석 처리
+                //setEmptySuccessState()
+                setTestDataState()    //테스트할 때 주석 풀고 위 코드에 주석 처리
             } else {
                 setNotJoinedState()
             }

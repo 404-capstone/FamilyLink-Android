@@ -1,5 +1,7 @@
 package com.example.capstone_404.feature.calendar.model
 
+import com.example.capstone_404.data.retrofit.model.response.OptimizeGroupItem
+import com.example.capstone_404.data.retrofit.model.response.OptimizePersonalItem
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -70,3 +72,31 @@ fun scheduleMapper(
         list.sortedBy { it.startTime }
     }
 }
+
+// 최적화 결과 매퍼(개인 일정)
+fun OptimizePersonalItem.toSchedule(): Schedule =
+    Schedule(
+        id = scheduleId,
+        title = "${memberPosition}의 일정",
+        startTime = LocalDateTime.parse(startTime, serverDateTimeFormatter),
+        endTime = LocalDateTime.parse(endTime, serverDateTimeFormatter),
+        writerId = memberId,
+        isGroup = false,
+        isTimeFlexible = false,
+        participantUserIds = listOf(memberId)
+    )
+// 최적화 결과 매퍼(가족 일정)
+fun OptimizeGroupItem.toSchedule(
+    selectedMemberIds: Set<Int>,
+    title: String
+): Schedule =
+    Schedule(
+        id = 0,
+        title = title,
+        startTime = LocalDateTime.parse(startTime, serverDateTimeFormatter),
+        endTime = LocalDateTime.parse(endTime, serverDateTimeFormatter),
+        writerId = null,
+        isGroup = true,
+        isTimeFlexible = false,
+        participantUserIds = selectedMemberIds.toList()
+    )

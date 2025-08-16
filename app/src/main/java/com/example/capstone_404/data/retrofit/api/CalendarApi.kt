@@ -1,8 +1,10 @@
 package com.example.capstone_404.data.retrofit.api
 
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
 import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
+import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
 import retrofit2.Response
 import retrofit2.http.Body
@@ -24,4 +26,10 @@ interface CalendarApi {
     suspend fun addPersonalSchedule(
         @Body body: AddPersonalScheduleRequest
     ): Response<BaseResponse<AddPersonalData>>
+
+    // 일정 최적화
+    @POST("/schedule/optimal")
+    suspend fun optimize(
+        @Body body: OptimizeRequest
+    ): Response<BaseResponse<OptimizeData>>
 }

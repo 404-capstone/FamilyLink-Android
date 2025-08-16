@@ -1,6 +1,6 @@
 package com.example.capstone_404.data.retrofit.model.request
 
-// 개인 일정 추가 Requset Body
+// 개인 일정 추가 Request Body
 data class AddPersonalScheduleRequest(
     val title: String,
     val permission: Boolean,
@@ -10,4 +10,14 @@ data class AddPersonalScheduleRequest(
     val location: String? = null,
     val content: String? = null,
     val groupId: Int
+)
+
+// 일정 최적화 Request Body
+data class OptimizeRequest(
+    val groupId: Int,
+    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val memberIds: List<Int>,
+    val date: String
 )

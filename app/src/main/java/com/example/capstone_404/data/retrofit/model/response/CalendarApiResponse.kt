@@ -44,3 +44,34 @@ data class AddPersonalData(
     val permission: Boolean,
     val timeflex: Boolean
 )
+
+// 일정 최적화 Response
+@Serializable
+data class OptimizeData(
+    val groupId: Int,
+    val beforeSchedule: OptimizeBefore,
+    val afterSchedule: OptimizeAfter
+)
+@Serializable
+data class OptimizeBefore(
+    val personalSchedule: List<OptimizePersonalItem>
+)
+@Serializable
+data class OptimizeAfter(
+    val personalSchedule: List<OptimizePersonalItem>,
+    val groupSchedule: OptimizeGroupItem? = null
+)
+@Serializable
+data class OptimizePersonalItem(
+    val title: String,
+    val memberId: Int,
+    val memberPosition: String,
+    val scheduleId: Int,
+    val startTime: String,
+    val endTime: String
+)
+@Serializable
+data class OptimizeGroupItem(
+    val startTime: String,
+    val endTime: String
+)

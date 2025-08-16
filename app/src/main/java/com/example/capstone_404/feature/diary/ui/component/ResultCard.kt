@@ -40,7 +40,7 @@ fun ResultSectionCard(
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(0.5.dp, Stroke),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(

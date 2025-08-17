@@ -14,6 +14,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.capstone_404.feature.calendar.ui.CalendarScreen
+import com.example.capstone_404.feature.diary.ui.DiaryScreen
+import com.example.capstone_404.feature.diary.ui.DiarySelectScreen
+import com.example.capstone_404.feature.diary.ui.DiaryWriteScreen
+import com.example.capstone_404.feature.diary.ui.QuestionSelectScreen
 import com.example.capstone_404.feature.calendar.ui.FamilyScheduleScreen
 import com.example.capstone_404.feature.calendar.ui.PersonalScheduleScreen
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
@@ -241,8 +245,59 @@ fun AppNavGraph(navController: NavHostController) {
                 )
             }
 
+            // 다이어리
+            composable(Route.DIARY) {
+                DiaryScreen(
+                    onNavigateToWrite = {
+                        navController.navigate(Route.DIARY_WRITE)
+                    },
+                    onNavigateToGroup = {
+                        navController.navigate(Route.GROUP) {
+                            popUpTo(Route.DIARY) { inclusive = true }
+                        }
+                    },
+                    onNavigateToDiarySelect = { diaryId ->
+                        navController.navigate(Route.DIARY_SELECT.replace("{diaryId}", diaryId))
+                    },
+                    onNavigateToQuestionSelect = { questionId ->
+                        navController.navigate(Route.QUESTION_SELECT.replace("{questionId}", questionId))
+                    }
+                )
+            }
+
+            composable(Route.DIARY_WRITE) {
+                DiaryWriteScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            // 다이어리 상세 조회
+            composable(
+                route = Route.DIARY_SELECT,
+                arguments = listOf(navArgument("diaryId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val diaryId = backStackEntry.arguments?.getString("diaryId") ?: ""
+                DiarySelectScreen(
+                    navController = navController,
+                    diaryId = diaryId
+                )
+            }
+
+            // 공통 질문 상세 조회
+            composable(
+                route = Route.QUESTION_SELECT,
+                arguments = listOf(navArgument("questionId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val questionId = backStackEntry.arguments?.getString("questionId") ?: ""
+                QuestionSelectScreen(
+                    navController = navController,
+                    questionId = questionId
+                )
+            }
+
             // 임시 정의
-            composable(Route.DIARY) {  }
             composable(Route.ALBUM) {  }
 
         }

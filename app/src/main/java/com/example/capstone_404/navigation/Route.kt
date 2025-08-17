@@ -22,6 +22,9 @@ object Route {
 
     // 다이어리 관련
     const val DIARY = "diary"
+    const val DIARY_WRITE = "diary_write"
+    const val DIARY_SELECT = "diary_detail/{diaryId}"
+    const val QUESTION_SELECT = "question_detail/{questionId}"
 
     // 앨범 관련
     const val ALBUM = "album"

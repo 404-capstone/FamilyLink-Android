@@ -1,11 +1,13 @@
-package com.example.capstone_404.ui.component
+package com.example.capstone_404.feature.calendar.ui.component.scheduleadd
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -17,35 +19,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.R
 import com.example.capstone_404.ui.theme.Stroke
-import com.example.capstone_404.ui.theme.TextGray
+import com.example.capstone_404.ui.theme.TextBlack
 
-// 안내 문구 카드
 @Composable
-fun GuideWarningCard(text: String) {
+fun AvailableDateRow(
+    label: String = "가능한 날짜 확인",
+    onClick: () -> Unit
+) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
             .clip(RoundedCornerShape(8.dp))
-            .border(0.5.dp, Stroke, RoundedCornerShape(8.dp))
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .border(1.dp, Stroke, RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp)
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_info),
+            painter = painterResource(R.drawable.ic_calendar),
             contentDescription = null,
-            tint = TextGray,
-            modifier = Modifier.size(26.dp)
+            tint = TextBlack
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(Modifier.width(16.dp))
         Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall,
-            color = TextGray,
-            textAlign = TextAlign.Left
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextBlack
         )
     }
 }

@@ -37,11 +37,17 @@ fun ScheduleItem(
     schedule: Schedule,
     userIdToRole: Map<Int, String>,
     gradientColors: List<Color>,
+    onlyTime: Boolean = false,
     onClick: () -> Unit = {}
 ) {
-    val timeFormatter = remember { DateTimeFormatter.ofPattern("MM.dd(E) HH:mm", Locale.KOREAN) }
+    val dateTimeFormatter = remember { DateTimeFormatter.ofPattern("MM.dd(E) HH:mm", Locale.KOREAN) }
+    val time24Formatter = remember { DateTimeFormatter.ofPattern("HH:mm", Locale.KOREAN) }
     val timeText = remember(schedule.startTime, schedule.endTime) {
-        "${schedule.startTime.format(timeFormatter)} - ${schedule.endTime.format(timeFormatter)}"
+        if (onlyTime) {
+            "${schedule.startTime.format(time24Formatter)} ~ ${schedule.endTime.format(time24Formatter)}"
+        } else {
+            "${schedule.startTime.format(dateTimeFormatter)} - ${schedule.endTime.format(dateTimeFormatter)}"
+        }
     }
 
     // 등록자 역할 추출

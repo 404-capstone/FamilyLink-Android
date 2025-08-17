@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,6 +18,9 @@ import com.example.capstone_404.feature.diary.ui.DiaryScreen
 import com.example.capstone_404.feature.diary.ui.DiarySelectScreen
 import com.example.capstone_404.feature.diary.ui.DiaryWriteScreen
 import com.example.capstone_404.feature.diary.ui.QuestionSelectScreen
+import com.example.capstone_404.feature.calendar.ui.FamilyScheduleScreen
+import com.example.capstone_404.feature.calendar.ui.PersonalScheduleScreen
+import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.BottomNavigationBar
 import com.example.capstone_404.ui.component.bar.bottomTabs
 import com.example.capstone_404.feature.group.ui.GroupScreen
@@ -155,14 +160,54 @@ fun AppNavGraph(navController: NavHostController) {
             }
 
             // 캘린더 메인
-            composable(Route.CALENDAR) {
+            composable(Route.CALENDAR) { backStackEntry ->
+                val viewModel: CalendarViewModel = hiltViewModel(backStackEntry)
                 CalendarScreen(
                     onNavigateToGroup = {
                         navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                         },
                     onNavigateToGroupActivity = {},
-                    onNavigateToGroupScheduleAdd = {},
-                    onNavigateToPersonalScheduleAdd = {},
+                    onNavigateToGroupScheduleAdd = {
+                        viewModel.presetFamilyFromSelectedDate()
+                        navController.navigate(Route.ADD_FAMILY) { popUpTo("calendar") { inclusive = false } }
+                    },
+                    onNavigateToPersonalScheduleAdd = {
+                        viewModel.presetPersonalFromSelectedDate()
+                        navController.navigate(Route.ADD_PERSONAL) { popUpTo("calendar") { inclusive = false } }
+                    },
+                )
+            }
+            // 개인 일정 추가
+            composable(Route.ADD_PERSONAL) {backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                PersonalScheduleScreen(
+                    viewModel = viewModel,
+                    onClose = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onSubmit = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    }
+                )
+            }
+            // 가족 일정 추가
+            composable(Route.ADD_FAMILY) {
+                    backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                FamilyScheduleScreen(
+                    viewModel = viewModel,
+                    onClose = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onSubmit = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    }
                 )
             }
 

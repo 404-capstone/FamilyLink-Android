@@ -76,7 +76,7 @@ fun scheduleMapper(
 // 최적화 결과 매퍼(개인 일정)
 fun OptimizePersonalItem.toSchedule(): Schedule =
     Schedule(
-        id = scheduleId,
+        id = schduleId,
         title = "${memberPosition}의 일정",
         startTime = LocalDateTime.parse(startTime, serverDateTimeFormatter),
         endTime = LocalDateTime.parse(endTime, serverDateTimeFormatter),

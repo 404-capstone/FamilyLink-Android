@@ -2,13 +2,18 @@ package com.example.capstone_404.feature.calendar.ui.component.scheduleadd
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -80,52 +85,68 @@ fun OptimizeResultSheet(
         dragHandle = { BottomSheetDefaults.DragHandle(color = Stroke) },
         containerColor = Color.White
     ) {
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .navigationBarsPadding()
         ) {
-            pickedDate?.let { date ->
-                Text(
-                    text = date.format(dateFormatter),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = TextBlack
-                )
-            }
-            // 기존 일정
-            OptimizeResultCard(
-                title = "기존 일정",
-                schedules = beforeSchedules,
-                userIdToRole = participantDefined
-            )
-            // 최적화된 일정
-            OptimizeResultCard(
-                title = "최적화된 일정",
-                schedules = afterPersonalSchedules,
-                groupSchedule = afterGroupSchedule,
-                userIdToRole = participantDefined
-            )
+            val buttonHeight = 72.dp
+            val bodyMaxHeight = (maxHeight - buttonHeight).coerceAtLeast(120.dp)
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth().
+                    padding(horizontal = 16.dp)
             ) {
-                ButtonOutline(
-                    text = "취소",
-                    modifier = Modifier.weight(1f),
-                    onClick = onCancel
-                )
-                ButtonDefault(
-                    text = "최적화 적용",
-                    modifier = Modifier.weight(1f),
-                    enabled = canApply,
-                    onClick = {
-                        pickedDate?.let { onApply(it, data) }
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = bodyMaxHeight)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    pickedDate?.let { date ->
+                        Text(
+                            text = date.format(dateFormatter),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = TextBlack
+                        )
                     }
-                )
+                    // 기존 일정
+                    OptimizeResultCard(
+                        title = "기존 일정",
+                        schedules = beforeSchedules,
+                        userIdToRole = participantDefined
+                    )
+                    // 최적화된 일정
+                    OptimizeResultCard(
+                        title = "최적화된 일정",
+                        schedules = afterPersonalSchedules,
+                        groupSchedule = afterGroupSchedule,
+                        userIdToRole = participantDefined
+                    )
+                    Spacer(Modifier.height(0.dp))
+                }
+
+                // 하단 고정 버튼
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    ButtonOutline(
+                        text = "취소",
+                        modifier = Modifier.weight(1f),
+                        onClick = onCancel
+                    )
+                    ButtonDefault(
+                        text = "최적화 적용",
+                        modifier = Modifier.weight(1f),
+                        enabled = canApply,
+                        onClick = { pickedDate?.let { onApply(it, data) } }
+                    )
+                }
             }
-            Spacer(Modifier.height(16.dp))
         }
     }
 }

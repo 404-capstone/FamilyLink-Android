@@ -147,7 +147,7 @@ fun CustomCalendar(
                             contentAlignment = Alignment.Center,
                             modifier = if (isToday) {
                                 Modifier
-                                    .size(16.dp)
+                                    .size(18.dp)
                                     .clip(CircleShape)
                                     .background(Main)
                             } else Modifier
@@ -160,7 +160,7 @@ fun CustomCalendar(
                         }
                         // 일정 있을 시 등록자 색상 줄로 표시
                         if (lineBrushes.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement = Arrangement.spacedBy(2.dp)

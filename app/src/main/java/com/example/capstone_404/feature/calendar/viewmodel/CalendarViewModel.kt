@@ -11,6 +11,7 @@ import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.CalendarRepository
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
@@ -48,13 +49,11 @@ class CalendarViewModel @Inject constructor(
 
     // 그룹 정보 Flow
     val groupInfoFlow: Flow<GroupInfoData?> = groupInfoManager.groupInfoFlow
-
     // 유저 ID Flow
     val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
 
     var isLoading by mutableStateOf(false)
         private set
-
     var isSaveLoading by mutableStateOf(false)
         private set
 
@@ -427,13 +426,33 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             isSaveLoading = true
             try {
+                // 최적화로 변동된 일정이 있을 때만
+                val opt = schedule.optResult
+                if (opt != null) {
+                    val edits = extractChangedInfo(opt)
+                    for (edit in edits) {
+                        val result = calendarRepository.editSchedule(edit)
+                        result.onSuccess { data ->
+                            Log.d("CalendarViewModel", "일정 정보 수정 성공 : $data")
+                        }.onFailure { e ->
+                            Log.e("CalendarViewModel", "일정 정보 수정 실패 : ${e.message}")
+                            onError(e.message ?: "기존 일정 수정을 실패했습니다.")
+                            isSaveLoading = false
+                            return@launch
+                        }
+                    }
+                }
+
                 val groupId = userInfoManager.getGroupId()
                 val zone = ZoneId.systemDefault()
-                val startTime = Instant.ofEpochMilli(schedule.editor.startMillis)
-                    .atZone(zone).toLocalDateTime().format(serverDateTimeFormatter)
-                val endTime = Instant.ofEpochMilli(schedule.editor.endMillis)
-                    .atZone(zone).toLocalDateTime().format(serverDateTimeFormatter)
-
+                val (startTime, endTime) = if (opt?.afterSchedule?.groupSchedule != null) {
+                    val item = opt.afterSchedule.groupSchedule
+                    item.startTime to item.endTime
+                } else {
+                    val start = Instant.ofEpochMilli(schedule.editor.startMillis).atZone(zone).toLocalDateTime()
+                    val end = Instant.ofEpochMilli(schedule.editor.endMillis).atZone(zone).toLocalDateTime()
+                    start.format(serverDateTimeFormatter) to end.format(serverDateTimeFormatter)
+                }
                 val body = AddGroupScheduleRequest(
                     title = schedule.title,
                     startTime = startTime,
@@ -521,5 +540,30 @@ class CalendarViewModel @Inject constructor(
     // 저장 결과 초기화
     private fun clearFamilyOptimization() {
         _family.update { it.copy(optSelectedDate = null, optResult = null) }
+    }
+
+    // 최적화 결과 중 변경된 일정 정보 추출
+    private fun extractChangedInfo(opt: OptimizeData): List<EditScheduleRequest> {
+        val beforeMap = opt.beforeSchedule.personalSchedule.associateBy { it.schduleId }
+        val edits = mutableListOf<EditScheduleRequest>()
+
+        opt.afterSchedule.personalSchedule.forEach { after ->
+            val before = beforeMap[after.schduleId] ?: return@forEach
+            val startChanged = before.startTime != after.startTime
+            val endChanged = before.endTime != after.endTime
+            if (startChanged || endChanged) {
+                edits += EditScheduleRequest(
+                    id = after.schduleId,
+                    title = null,
+                    startTime = after.startTime,
+                    endTime = after.endTime,
+                    content = null,
+                    location = null,
+                    timeflex = null
+                )
+            }
+        }
+        Log.d("CalendarViewModel", "변경된 기존 일정 정보 : $edits")
+        return edits
     }
 }

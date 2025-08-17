@@ -33,3 +33,14 @@ data class AddGroupScheduleRequest(
     val timeflex: Boolean,
     val participants: List<Int>
 )
+
+// 일정 수정 Request Body
+data class EditScheduleRequest(
+    val id: Int,
+    val title: String? = null,
+    val startTime: String? = null,
+    val endTime: String? = null,
+    val content: String? = null,
+    val location: String? = null,
+    val timeflex: Boolean? = null
+)

@@ -66,7 +66,7 @@ data class OptimizePersonalItem(
     val title: String,
     val memberId: Int,
     val memberPosition: String,
-    val scheduleId: Int,
+    val schduleId: Int,
     val startTime: String,
     val endTime: String
 )
@@ -88,4 +88,16 @@ data class AddGroupData(
     val timeflex: Boolean,
     val participants: List<Int>,
     val calendarId: Int
+)
+
+// 일정 수정 Response
+@Serializable
+data class EditScheduleData(
+    val id: Int,
+    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val content: String?,
+    val location: String?,
+    val timeflex: Boolean
 )

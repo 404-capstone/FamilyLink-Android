@@ -42,5 +42,7 @@ data class EditScheduleRequest(
     val endTime: String? = null,
     val content: String? = null,
     val location: String? = null,
-    val timeflex: Boolean? = null
+    val timeflex: Boolean? = null,
+    val participantIds: List<Int>? = null,
+    val groupId: Int
 )

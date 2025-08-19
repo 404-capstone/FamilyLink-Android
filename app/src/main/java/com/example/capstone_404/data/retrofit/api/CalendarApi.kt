@@ -10,6 +10,7 @@ import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
+import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -49,4 +50,10 @@ interface CalendarApi {
     suspend fun editSchedule(
         @Body body: EditScheduleRequest
     ): Response<BaseResponse<EditScheduleData>>
+
+    // 일정 상세 조회
+    @GET("/schedule/comment")
+    suspend fun getScheduleDetail(
+        @Query("scheduleId") scheduleId: Int
+    ): Response<BaseResponse<ScheduleDetailData>>
 }

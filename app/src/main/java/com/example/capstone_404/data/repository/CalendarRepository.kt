@@ -9,6 +9,7 @@ import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
+import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 
 // 캘린더 관련 API Repository 인터페이스
 interface CalendarRepository {
@@ -37,4 +38,9 @@ interface CalendarRepository {
     suspend fun editSchedule(
         body: EditScheduleRequest
     ): Result<EditScheduleData>
+
+    // 일정 상세 조회
+    suspend fun getScheduleDetail(
+        scheduleId: Int
+    ): Result<ScheduleDetailData>
 }

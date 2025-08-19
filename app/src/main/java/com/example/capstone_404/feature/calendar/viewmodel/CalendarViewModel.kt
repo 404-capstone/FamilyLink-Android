@@ -17,6 +17,7 @@ import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.feature.calendar.model.scheduleadd.PersonalScheduleUiState
 import com.example.capstone_404.feature.calendar.model.Schedule
+import com.example.capstone_404.feature.calendar.model.scheduledetail.ScheduleDetailUiState
 import com.example.capstone_404.feature.calendar.model.scheduleMapper
 import com.example.capstone_404.feature.calendar.model.scheduleadd.FamilyMode
 import com.example.capstone_404.feature.calendar.model.scheduleadd.FamilyScheduleUiState
@@ -81,6 +82,10 @@ class CalendarViewModel @Inject constructor(
     private val _optimizeResult = MutableStateFlow<OptimizeData?>(null)
     val optimizeResult: StateFlow<OptimizeData?> = _optimizeResult.asStateFlow()
 
+    // 일정 상세 조회 상태
+    private val _scheduleDetail = MutableStateFlow(ScheduleDetailUiState())
+    val scheduleDetail: StateFlow<ScheduleDetailUiState> = _scheduleDetail.asStateFlow()
+
     // 시작 시 그룹 내 역할 추출
     init {
         viewModelScope.launch {
@@ -111,11 +116,63 @@ class CalendarViewModel @Inject constructor(
                 Log.d("CalendarViewModel", "일정 전체 조회 성공 : $data")
                 val roleMap = _userIdToRole.value
                 _schedulesByDate.value = scheduleMapper(data, roleMap, userId)
-            }
-                .onFailure { e ->
+            }.onFailure { e ->
                     Log.d("CalendarViewModel", "일정 전체 조회 실패 : ${e.message}")
                 }
             isLoading = false
+        }
+    }
+
+    // 일정 상세 조회
+    fun getScheduleDetail(scheduleId: Int) {
+        viewModelScope.launch {
+            _scheduleDetail.value = ScheduleDetailUiState(isLoading = true)
+            val result = calendarRepository.getScheduleDetail(scheduleId)
+            result.onSuccess { data ->
+                Log.d("CalendarViewModel", "일정 상세 조회 성공 : $data")
+                _scheduleDetail.value = ScheduleDetailUiState(data = data)
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "일정 상세 조회 실패 : ${e.message}")
+                _scheduleDetail.value = ScheduleDetailUiState(error = "일정 정보 불러오기를 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요.")
+            }
+        }
+    }
+
+    // 일정 상세 조회에서 참가
+    fun toggleScheduleParticipation(
+        scheduleId: Int,
+        userId: Int,
+        join: Boolean,
+        onError: (String) -> Unit
+    ) {
+        val current = scheduleDetail.value.data ?: return
+        val currentList = current.participantIds.toMutableSet()
+        if (join) currentList.add(userId) else currentList.remove(userId)
+
+        viewModelScope.launch {
+            isSaveLoading = true
+            val groupId = userInfoManager.getGroupId()
+            val body = EditScheduleRequest(
+                id = scheduleId,
+                title = null,
+                startTime = null,
+                endTime = null,
+                content = null,
+                location = null,
+                timeflex = null,
+                participantIds = currentList.toList(),
+                groupId = groupId!!
+            )
+            val result = calendarRepository.editSchedule(body)
+            result.onSuccess { data ->
+                Log.d("CalendarViewModel", "참여 정보 수정 성공 : $data")
+                val updated = current.copy(participantIds = currentList.toList())
+                _scheduleDetail.value = scheduleDetail.value.copy(data = updated, error = null)
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "참여 정보 수정 실패 : ${e.message}")
+                onError("참여 정보 수정을 실패했습니다.")
+            }
+            isSaveLoading = false
         }
     }
 
@@ -543,9 +600,10 @@ class CalendarViewModel @Inject constructor(
     }
 
     // 최적화 결과 중 변경된 일정 정보 추출
-    private fun extractChangedInfo(opt: OptimizeData): List<EditScheduleRequest> {
+    private suspend fun extractChangedInfo(opt: OptimizeData): List<EditScheduleRequest> {
         val beforeMap = opt.beforeSchedule.personalSchedule.associateBy { it.schduleId }
         val edits = mutableListOf<EditScheduleRequest>()
+        val groupId = userInfoManager.getGroupId()
 
         opt.afterSchedule.personalSchedule.forEach { after ->
             val before = beforeMap[after.schduleId] ?: return@forEach
@@ -559,7 +617,9 @@ class CalendarViewModel @Inject constructor(
                     endTime = after.endTime,
                     content = null,
                     location = null,
-                    timeflex = null
+                    timeflex = null,
+                    participantIds = null,
+                    groupId = groupId!!
                 )
             }
         }

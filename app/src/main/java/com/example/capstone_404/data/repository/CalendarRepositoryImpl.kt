@@ -10,6 +10,7 @@ import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
+import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -86,6 +87,22 @@ class CalendarRepositoryImpl @Inject constructor(
     override suspend fun editSchedule(body: EditScheduleRequest): Result<EditScheduleData> {
         return try {
             val response = calendarApi.editSchedule(body)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드 : ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 일정 상세 조회
+    override suspend fun getScheduleDetail(scheduleId: Int): Result<ScheduleDetailData> {
+        return try {
+            val response = calendarApi.getScheduleDetail(scheduleId)
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
                     Result.success(data)

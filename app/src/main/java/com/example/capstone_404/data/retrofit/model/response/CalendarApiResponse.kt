@@ -99,5 +99,28 @@ data class EditScheduleData(
     val endTime: String,
     val content: String?,
     val location: String?,
-    val timeflex: Boolean
+    val timeflex: Boolean,
+    val participantIds: List<Int> = emptyList()
+)
+
+// 일정 상세 조회
+@Serializable
+data class ScheduleDetailData(
+    val scheduleId: Int,
+    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val timeflex: Boolean,
+    val location: String? = null,
+    val content: String? = null,
+    val participantIds: List<Int> = emptyList(),
+    val permission: Boolean,
+    val comments: List<ScheduleComment> = emptyList()
+)
+@Serializable
+data class ScheduleComment(
+    val commentId: Int,
+    val body: String,
+    val dateAt: String,
+    val userId: Int
 )

@@ -15,6 +15,7 @@ import com.example.capstone_404.data.retrofit.model.response.ScheduleData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -64,4 +65,10 @@ interface CalendarApi {
     suspend fun addScheduleComment(
         @Body body: AddScheduleCommentRequest
     ): Response<BaseResponse<AddScheduleCommentData>>
+
+    // 일정 삭제
+    @DELETE("/schedule/delete")
+    suspend fun deleteSchedule(
+        @Query("scheduleId") scheduleId: Int
+    ): Response<BaseResponse<Int>>
 }

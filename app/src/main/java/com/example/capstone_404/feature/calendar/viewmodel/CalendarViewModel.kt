@@ -213,6 +213,26 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
+    // 일정 삭제
+    fun deleteSchedule(
+        scheduleId: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            isLoading = true
+            val result = calendarRepository.deleteSchedule(scheduleId)
+            result.onSuccess { data ->
+                Log.d("CalendarViewModel", "일정 삭제 성공 : $data")
+                onSuccess()
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "일정 삭제 실패 : ${e.message}")
+                onError("일정 삭제를 실패했습니다.")
+            }
+            isLoading = false
+        }
+    }
+
 
     // -------------------- 개인 일정 추가 --------------------
     // 하루 일정 검증

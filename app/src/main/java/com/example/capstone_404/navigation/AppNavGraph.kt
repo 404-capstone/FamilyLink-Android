@@ -206,8 +206,7 @@ fun AppNavGraph(navController: NavHostController) {
                     onBack = {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
                     },
-                    onEdit = {  },
-                    onDelete = {  }
+                    onEdit = {  }
                 )
             }
             // 개인 일정 추가

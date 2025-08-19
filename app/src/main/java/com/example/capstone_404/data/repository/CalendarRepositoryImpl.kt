@@ -132,4 +132,20 @@ class CalendarRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    // 일정 삭제
+    override suspend fun deleteSchedule(scheduleId: Int): Result<Int> {
+        return try {
+            val response = calendarApi.deleteSchedule(scheduleId)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드 : ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

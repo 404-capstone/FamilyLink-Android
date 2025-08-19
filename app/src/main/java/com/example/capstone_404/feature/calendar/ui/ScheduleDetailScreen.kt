@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +42,7 @@ import com.example.capstone_404.feature.calendar.ui.content.ScheduleDetailConten
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
+import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.theme.Error
 import com.example.capstone_404.ui.theme.TextBlack
@@ -49,14 +54,14 @@ fun ScheduleDetailScreen(
     scheduleTitle: String,
     writerId: Int?,
     onBack: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onEdit: () -> Unit
 ) {
     val context = LocalContext.current
     val uiState by viewModel.scheduleDetail.collectAsState()
     val userIdToRole by viewModel.userIdToRole.collectAsState()
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
     val isSaveLoading = viewModel.isSaveLoading
+    val isLoading = viewModel.isLoading
     val isSending = viewModel.isCommentSending
 
     // 더보기 출력 조건
@@ -80,6 +85,10 @@ fun ScheduleDetailScreen(
         LoadingDialog("참여 정보를 변경하고 있어요\n잠시만 기다려주세요!")
     }
 
+    if (isLoading) {
+        LoadingDialog("일정을 삭제하고 있어요\n잠시만 기다려주세요!")
+    }
+
     Scaffold(
         topBar = {
             CustomTopBar(
@@ -96,6 +105,69 @@ fun ScheduleDetailScreen(
                                     tint = TextBlack
                                 )
                             }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                                containerColor = Color.White,
+                                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 0.dp, bottomStart = 12.dp, bottomEnd = 12.dp),
+                                tonalElevation = 0.dp,
+                                shadowElevation = 8.dp
+                            ) {
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_edit),
+                                            contentDescription = null,
+                                            tint = TextBlack
+                                        )
+                                    },
+                                    text = {
+                                        Text(
+                                            text = "수정",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = TextBlack)
+                                        },
+                                    onClick = {
+                                        showMenu = false
+                                        onEdit()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_withdraw),
+                                            contentDescription = null,
+                                            tint = Error
+                                        )
+                                    },
+                                    text = { Text("삭제", color = Error) },
+                                    onClick = {
+                                        showMenu = false
+                                        showDeleteDialog = true
+                                    }
+                                )
+                            }
+                        }
+                        if (showDeleteDialog) {
+                            ActionDialog(
+                                title = "해당 일정을 삭제하시겠습니까?",
+                                description = "일정 정보 및 댓글은 삭제되며 복구할 수 없습니다.",
+                                confirmText = "삭제",
+                                cancelText = "취소",
+                                onConfirm = {
+                                    showDeleteDialog = false
+                                    viewModel.deleteSchedule(
+                                        scheduleId = scheduleId,
+                                        onSuccess = {
+                                            onBack()
+                                        },
+                                        onError = { e ->
+                                            Toast.makeText(context, e, Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                },
+                                onDismiss = { showDeleteDialog = false }
+                            )
                         }
                     }
                 } else null

@@ -50,4 +50,9 @@ interface CalendarRepository {
     suspend fun addScheduleComment(
         body: AddScheduleCommentRequest
     ): Result<AddScheduleCommentData>
+
+    // 일정 삭제
+    suspend fun deleteSchedule(
+        scheduleId: Int
+    ): Result<Int>
 }

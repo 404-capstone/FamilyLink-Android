@@ -46,3 +46,10 @@ data class EditScheduleRequest(
     val participantIds: List<Int>? = null,
     val groupId: Int
 )
+
+// 일정 댓글 작성 Request Body
+data class AddScheduleCommentRequest(
+    val scheduleId: Int,
+    val content: String,
+    val userId: Int
+)

@@ -2,10 +2,12 @@ package com.example.capstone_404.data.retrofit.api
 
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
 import com.example.capstone_404.data.retrofit.model.response.AddGroupData
 import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
+import com.example.capstone_404.data.retrofit.model.response.AddScheduleCommentData
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
@@ -56,4 +58,10 @@ interface CalendarApi {
     suspend fun getScheduleDetail(
         @Query("scheduleId") scheduleId: Int
     ): Response<BaseResponse<ScheduleDetailData>>
+
+    // 일정 댓글 작성
+    @POST("/schedule/comment/add")
+    suspend fun addScheduleComment(
+        @Body body: AddScheduleCommentRequest
+    ): Response<BaseResponse<AddScheduleCommentData>>
 }

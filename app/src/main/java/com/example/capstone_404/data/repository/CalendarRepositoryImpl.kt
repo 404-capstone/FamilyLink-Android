@@ -3,10 +3,12 @@ package com.example.capstone_404.data.repository
 import com.example.capstone_404.data.retrofit.api.CalendarApi
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
 import com.example.capstone_404.data.retrofit.model.response.AddGroupData
 import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
+import com.example.capstone_404.data.retrofit.model.response.AddScheduleCommentData
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
@@ -103,6 +105,22 @@ class CalendarRepositoryImpl @Inject constructor(
     override suspend fun getScheduleDetail(scheduleId: Int): Result<ScheduleDetailData> {
         return try {
             val response = calendarApi.getScheduleDetail(scheduleId)
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                Result.failure(Exception("오류 코드 : ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 일정 댓글 작성
+    override suspend fun addScheduleComment(body: AddScheduleCommentRequest): Result<AddScheduleCommentData> {
+        return try {
+            val response = calendarApi.addScheduleComment(body)
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
                     Result.success(data)

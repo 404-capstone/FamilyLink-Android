@@ -2,10 +2,12 @@ package com.example.capstone_404.data.repository
 
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
 import com.example.capstone_404.data.retrofit.model.response.AddGroupData
 import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
+import com.example.capstone_404.data.retrofit.model.response.AddScheduleCommentData
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
@@ -43,4 +45,9 @@ interface CalendarRepository {
     suspend fun getScheduleDetail(
         scheduleId: Int
     ): Result<ScheduleDetailData>
+
+    // 일정 댓글 작성
+    suspend fun addScheduleComment(
+        body: AddScheduleCommentRequest
+    ): Result<AddScheduleCommentData>
 }

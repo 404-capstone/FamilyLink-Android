@@ -11,6 +11,7 @@ import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.CalendarRepository
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
@@ -56,6 +57,8 @@ class CalendarViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
         private set
     var isSaveLoading by mutableStateOf(false)
+        private set
+    var isCommentSending by mutableStateOf(false)
         private set
 
     // 선택된 날짜
@@ -173,6 +176,40 @@ class CalendarViewModel @Inject constructor(
                 onError("참여 정보 수정을 실패했습니다.")
             }
             isSaveLoading = false
+        }
+    }
+
+    // 일정 댓글 작성
+    fun addScheduleComment(
+        scheduleId: Int,
+        content: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            isCommentSending = true
+            try {
+                val userId = userInfoManager.getUserId()
+                val body = AddScheduleCommentRequest(
+                    scheduleId = scheduleId,
+                    content = content,
+                    userId = userId!!
+                )
+                val result = calendarRepository.addScheduleComment(body)
+
+                result.onSuccess { data ->
+                    Log.d("CalendarViewModel", "댓글 작성 성공 : $data")
+                    getScheduleDetail(scheduleId)
+                    onSuccess()
+                }.onFailure { e ->
+                    Log.e("CalendarViewModel", "댓글 작성 실패 : ${e.message}")
+                    onError("댓글 등록을 실패했어요.")
+                }
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "댓글 작성 실패 : ${e.message}")
+                onError("댓글 등록을 실패했어요.")
+            }
+            isCommentSending = false
         }
     }
 

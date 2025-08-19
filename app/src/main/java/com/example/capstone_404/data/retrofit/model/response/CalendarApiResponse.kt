@@ -103,7 +103,7 @@ data class EditScheduleData(
     val participantIds: List<Int> = emptyList()
 )
 
-// 일정 상세 조회
+// 일정 상세 조회 Response
 @Serializable
 data class ScheduleDetailData(
     val scheduleId: Int,
@@ -123,4 +123,13 @@ data class ScheduleComment(
     val body: String,
     val dateAt: String,
     val userId: Int
+)
+
+// 일정 댓글 작성 Response
+@Serializable
+data class AddScheduleCommentData(
+    val id: Int,
+    val body: String,
+    val dateAt: String,
+    val scheduleId: Int
 )

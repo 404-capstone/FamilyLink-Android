@@ -57,6 +57,7 @@ fun ScheduleDetailScreen(
     val userIdToRole by viewModel.userIdToRole.collectAsState()
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
     val isSaveLoading = viewModel.isSaveLoading
+    val isSending = viewModel.isCommentSending
 
     // 더보기 출력 조건
     val canShowMore = remember(uiState.data, writerId, userId) {
@@ -71,10 +72,8 @@ fun ScheduleDetailScreen(
 
     // 댓글 입력 상태
     var commentText by rememberSaveable { mutableStateOf("") }
-    var isSending by remember { mutableStateOf(false) }
 
-
-
+    // 진입 시 정보 조회
     LaunchedEffect(scheduleId) { viewModel.getScheduleDetail(scheduleId) }
 
     if (isSaveLoading) {
@@ -191,8 +190,12 @@ fun ScheduleDetailScreen(
                             isSending = isSending,
                             onSend = {
                                 if (commentText.isNotBlank()) {
-                                    isSending = true
-                                    // Todo : 댓글 추가 API 연동 후 수정
+                                    viewModel.addScheduleComment(
+                                        scheduleId = scheduleId,
+                                        content = commentText,
+                                        onSuccess = { commentText = "" },
+                                        onError = { e -> Toast.makeText(context, e, Toast.LENGTH_SHORT).show() }
+                                    )
                                 }
                             },
                             modifier = Modifier

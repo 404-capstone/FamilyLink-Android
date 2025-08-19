@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduledetail
+package com.example.capstone_404.feature.calendar.ui.component.schedule.detail
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.feature.calendar.model.gradientForPersonal
-import com.example.capstone_404.feature.calendar.model.scheduledetail.CommentUi
+import com.example.capstone_404.feature.calendar.model.schedule.detail.CommentUi
 import com.example.capstone_404.ui.theme.ButtonDisabled
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack

@@ -10,14 +10,14 @@ import androidx.compose.ui.unit.dp
 import com.example.capstone_404.R
 import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 import com.example.capstone_404.feature.calendar.model.dateFormatter
-import com.example.capstone_404.feature.calendar.model.scheduledetail.CommentUi
+import com.example.capstone_404.feature.calendar.model.schedule.detail.CommentUi
 import com.example.capstone_404.feature.calendar.model.serverDateTimeFormatter
 import com.example.capstone_404.feature.calendar.model.timeFormatter
-import com.example.capstone_404.feature.calendar.ui.component.scheduledetail.CommentSection
-import com.example.capstone_404.feature.calendar.ui.component.scheduledetail.ParticipantsSection
-import com.example.capstone_404.feature.calendar.ui.component.scheduledetail.ReadonlyRow
-import com.example.capstone_404.feature.calendar.ui.component.scheduledetail.SectionDivider
-import com.example.capstone_404.feature.calendar.ui.component.scheduledetail.TitleWithBar
+import com.example.capstone_404.feature.calendar.ui.component.schedule.detail.CommentSection
+import com.example.capstone_404.feature.calendar.ui.component.schedule.detail.ParticipantsSection
+import com.example.capstone_404.feature.calendar.ui.component.schedule.detail.ReadonlyRow
+import com.example.capstone_404.feature.calendar.ui.component.schedule.detail.SectionDivider
+import com.example.capstone_404.feature.calendar.ui.component.schedule.detail.TitleWithBar
 import java.time.LocalDateTime
 
 @Composable

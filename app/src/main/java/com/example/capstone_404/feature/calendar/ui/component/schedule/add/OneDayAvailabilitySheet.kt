@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduleadd
+package com.example.capstone_404.feature.calendar.ui.component.schedule.add
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,9 +36,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.calendar.model.Schedule
-import com.example.capstone_404.feature.calendar.model.scheduleadd.DayAvailability
-import com.example.capstone_404.feature.calendar.model.scheduleadd.ScheduleEditorState
-import com.example.capstone_404.feature.calendar.model.scheduleadd.calcOneDayAvailability
+import com.example.capstone_404.feature.calendar.model.schedule.add.DayAvailability
+import com.example.capstone_404.feature.calendar.model.schedule.add.ScheduleEditorState
+import com.example.capstone_404.feature.calendar.model.schedule.add.calcOneDayAvailability
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.theme.Error
 import com.example.capstone_404.ui.theme.Main

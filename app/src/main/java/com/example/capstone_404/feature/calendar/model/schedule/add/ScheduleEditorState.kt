@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.model.scheduleadd
+package com.example.capstone_404.feature.calendar.model.schedule.add
 
 import java.time.Instant
 import java.time.LocalDate

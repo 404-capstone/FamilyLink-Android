@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduleadd
+package com.example.capstone_404.feature.calendar.ui.component.schedule.add
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background

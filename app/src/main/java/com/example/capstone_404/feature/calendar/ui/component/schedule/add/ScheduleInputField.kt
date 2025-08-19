@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduleadd
+package com.example.capstone_404.feature.calendar.ui.component.schedule.add
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height

@@ -1,7 +1,8 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduledetail
+package com.example.capstone_404.feature.calendar.ui.component.schedule.add
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,49 +20,36 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.capstone_404.R
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
-fun ReadonlyRow(
-    icon: Int,
-    left: String,
-    right: String? = null,
+fun AvailableDateRow(
+    label: String = "가능한 날짜 확인",
+    onClick: () -> Unit
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
             .border(1.dp, Stroke, RoundedCornerShape(8.dp))
-            .padding(horizontal = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp)
     ) {
         Icon(
-            painter = painterResource(icon),
+            painter = painterResource(R.drawable.ic_calendar),
             contentDescription = null,
             tint = TextBlack
         )
-
         Spacer(Modifier.width(16.dp))
-        // 왼쪽 텍스트
         Text(
-            text = left,
+            text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextBlack,
-            maxLines = 1,
-            modifier = Modifier.weight(1f)
+            color = TextBlack
         )
-        // 오른쪽 텍스트
-        if (right != null) {
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = right,
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextBlack,
-                maxLines = 1
-            )
-        }
     }
 }

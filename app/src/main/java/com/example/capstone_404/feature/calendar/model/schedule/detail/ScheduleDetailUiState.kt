@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.model.scheduledetail
+package com.example.capstone_404.feature.calendar.model.schedule.detail
 
 import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 

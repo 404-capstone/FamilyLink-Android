@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduleadd
+package com.example.capstone_404.feature.calendar.ui.component.schedule.add
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.capstone_404.feature.calendar.model.scheduleadd.FamilyMode
+import com.example.capstone_404.feature.calendar.model.schedule.add.FamilyMode
 import com.example.capstone_404.ui.component.GuideWarningCard
 import com.example.capstone_404.ui.theme.ButtonDisabled
 import com.example.capstone_404.ui.theme.Main

@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduledetail
+package com.example.capstone_404.feature.calendar.ui.component.schedule.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

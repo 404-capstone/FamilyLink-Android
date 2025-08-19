@@ -30,11 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.calendar.model.TimeTarget
-import com.example.capstone_404.feature.calendar.ui.component.scheduleadd.AllDaySwitch
-import com.example.capstone_404.feature.calendar.ui.component.scheduleadd.PersonalParticipant
-import com.example.capstone_404.feature.calendar.ui.component.scheduleadd.ScheduleCheckbox
-import com.example.capstone_404.feature.calendar.ui.component.scheduleadd.ScheduleDateTimeRow
-import com.example.capstone_404.feature.calendar.ui.component.scheduleadd.ScheduleInputField
+import com.example.capstone_404.feature.calendar.ui.component.schedule.add.AllDaySwitch
+import com.example.capstone_404.feature.calendar.ui.component.schedule.add.PersonalParticipant
+import com.example.capstone_404.feature.calendar.ui.component.schedule.add.ScheduleCheckbox
+import com.example.capstone_404.feature.calendar.ui.component.schedule.add.ScheduleDateTimeRow
+import com.example.capstone_404.feature.calendar.ui.component.schedule.add.ScheduleInputField
 import com.example.capstone_404.feature.calendar.ui.dialog.ScheduleDateDialog
 import com.example.capstone_404.feature.calendar.ui.dialog.ScheduleTimeDialog
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel

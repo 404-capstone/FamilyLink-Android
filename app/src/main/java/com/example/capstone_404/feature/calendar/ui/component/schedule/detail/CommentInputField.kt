@@ -1,4 +1,4 @@
-package com.example.capstone_404.feature.calendar.ui.component.scheduledetail
+package com.example.capstone_404.feature.calendar.ui.component.schedule.detail
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke

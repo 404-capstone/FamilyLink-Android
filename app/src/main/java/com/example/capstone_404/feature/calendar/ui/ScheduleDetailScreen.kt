@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
-import com.example.capstone_404.feature.calendar.ui.component.scheduledetail.CommentInputBar
+import com.example.capstone_404.feature.calendar.ui.component.schedule.detail.CommentInputBar
 import com.example.capstone_404.feature.calendar.ui.content.ScheduleDetailContent
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar

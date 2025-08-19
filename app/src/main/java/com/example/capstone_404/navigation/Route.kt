@@ -19,6 +19,7 @@ object Route {
     const val CALENDAR = "calendar"
     const val ADD_PERSONAL = "add_personal"
     const val ADD_FAMILY = "add_family"
+    const val SCHEDULE_DETAIL = "schedule_detail/scheduleId={scheduleId}&scheduleTitle={scheduleTitle}?writerId={writerId}"
 
     // 다이어리 관련
     const val DIARY = "diary"

@@ -81,7 +81,9 @@ fun CustomTopBar(
         navigationIcon = navIcon ?: {},
         actions = {
             if (rightButton != null) {
-                rightButton()
+                Box(modifier = Modifier.width(48.dp)) {
+                    rightButton()
+                }
             } else if (navigationType != NavigationType.NONE) {
                 Spacer(modifier = Modifier.width(48.dp))
             } else {

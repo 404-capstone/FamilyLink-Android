@@ -20,6 +20,7 @@ import com.example.capstone_404.feature.diary.ui.DiaryWriteScreen
 import com.example.capstone_404.feature.diary.ui.QuestionSelectScreen
 import com.example.capstone_404.feature.calendar.ui.FamilyScheduleScreen
 import com.example.capstone_404.feature.calendar.ui.PersonalScheduleScreen
+import com.example.capstone_404.feature.calendar.ui.ScheduleDetailScreen
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.BottomNavigationBar
 import com.example.capstone_404.ui.component.bar.bottomTabs
@@ -166,6 +167,9 @@ fun AppNavGraph(navController: NavHostController) {
                     onNavigateToGroup = {
                         navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                         },
+                    onNavigateToDetail = { schedule ->
+                        navController.navigate("schedule_detail/scheduleId=${schedule.id}&scheduleTitle=${schedule.title}?writerId=${schedule.writerId ?: -1}")
+                    },
                     onNavigateToGroupActivity = {},
                     onNavigateToGroupScheduleAdd = {
                         viewModel.presetFamilyFromSelectedDate()
@@ -175,6 +179,35 @@ fun AppNavGraph(navController: NavHostController) {
                         viewModel.presetPersonalFromSelectedDate()
                         navController.navigate(Route.ADD_PERSONAL) { popUpTo("calendar") { inclusive = false } }
                     },
+                )
+            }
+            // 일정 상세 조회
+            composable(
+                route = Route.SCHEDULE_DETAIL,
+                arguments = listOf(
+                    navArgument("scheduleId") { type = NavType.IntType },
+                    navArgument("scheduleTitle") { type = NavType.StringType },
+                    navArgument("writerId") { type = NavType.IntType; defaultValue = -1 }
+                )
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                val scheduleId = backStackEntry.arguments?.getInt("scheduleId")!!
+                val scheduleTitle = backStackEntry.arguments?.getString("scheduleTitle")!!
+                val writerIdArg = backStackEntry.arguments?.getInt("writerId") ?: -1
+                val writerId = if (writerIdArg == -1) null else writerIdArg
+                ScheduleDetailScreen(
+                    viewModel = viewModel,
+                    scheduleId = scheduleId,
+                    scheduleTitle = scheduleTitle,
+                    writerId = writerId,
+                    onBack = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onEdit = {  },
+                    onDelete = {  }
                 )
             }
             // 개인 일정 추가

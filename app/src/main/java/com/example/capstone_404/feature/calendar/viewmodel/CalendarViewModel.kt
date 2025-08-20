@@ -25,6 +25,10 @@ import com.example.capstone_404.feature.calendar.model.schedule.add.FamilySchedu
 import com.example.capstone_404.feature.calendar.model.schedule.add.presetFromDate
 import com.example.capstone_404.feature.calendar.model.schedule.add.withAllDay
 import com.example.capstone_404.feature.calendar.model.schedule.add.withRange
+import com.example.capstone_404.feature.calendar.model.schedule.edit.EditState
+import com.example.capstone_404.feature.calendar.model.schedule.edit.extractAllDay
+import com.example.capstone_404.feature.calendar.model.schedule.edit.extractFamilyMode
+import com.example.capstone_404.feature.calendar.model.schedule.edit.makeEditor
 import com.example.capstone_404.feature.calendar.model.serverDateFormatter
 import com.example.capstone_404.feature.calendar.model.serverDateTimeFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -88,6 +92,10 @@ class CalendarViewModel @Inject constructor(
     // 일정 상세 조회 상태
     private val _scheduleDetail = MutableStateFlow(ScheduleDetailUiState())
     val scheduleDetail: StateFlow<ScheduleDetailUiState> = _scheduleDetail.asStateFlow()
+
+    // 일정 정보 수정 상태
+    private val _edit = MutableStateFlow<EditState?>(null)
+    val editState: StateFlow<EditState?> = _edit.asStateFlow()
 
     // 시작 시 그룹 내 역할 추출
     init {
@@ -682,5 +690,213 @@ class CalendarViewModel @Inject constructor(
         }
         Log.d("CalendarViewModel", "변경된 기존 일정 정보 : $edits")
         return edits
+    }
+
+
+    // -------------------- 일정 정보 수정 --------------------
+    // 수정 초기값 설정
+    fun startEditFromDetail(
+        zoneId: ZoneId
+    ) {
+        val detail = scheduleDetail.value.data ?: return
+        val isGroup = detail.participantIds.isNotEmpty()
+
+        val startTime = LocalDateTime.parse(detail.startTime, serverDateTimeFormatter)
+        val endTime = LocalDateTime.parse(detail.endTime, serverDateTimeFormatter)
+
+        val allDay = extractAllDay(startTime, endTime)
+        val editor = makeEditor(startTime, endTime, zoneId, allDay)
+
+        val familyMode = if (isGroup) extractFamilyMode(startTime, endTime) else null
+        val isFlexible = if (!isGroup) (detail.timeflex) else null
+
+        _edit.value = EditState(
+            scheduleId = detail.scheduleId,
+            isGroup = isGroup,
+            title = detail.title,
+            isFlexible = isFlexible,
+            editor = editor,
+            location = detail.location.orEmpty(),
+            memo = detail.content.orEmpty(),
+            familyMode = familyMode
+        )
+    }
+    // 수정 초기화
+    private fun clearEditState() { _edit.value = null }
+
+    // 필드 업데이트 함수
+    fun setEditTitle(text: String) {
+        _edit.update { it?.copy(title = text) }
+    }
+    fun setEditFlexible(checked: Boolean) {
+        _edit.update { it?.copy(isFlexible = checked) }
+    }
+    fun setEditMode(
+        mode: FamilyMode,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _edit.update { state ->
+            state ?: return
+            val editor = state.editor
+            val startDate = Instant.ofEpochMilli(editor.startMillis).atZone(zone).toLocalDate()
+            val endDate = Instant.ofEpochMilli(editor.endMillis).atZone(zone).toLocalDate()
+
+            val nextEditor = when (mode) {
+                FamilyMode.ONE_DAY -> {
+                    val endMillis = LocalDateTime.of(
+                        startDate,
+                        if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                        else Instant.ofEpochMilli(editor.endMillis).atZone(zone).toLocalTime()
+                    ).atZone(zone).toInstant().toEpochMilli()
+                    editor.copy(endMillis = endMillis)
+                }
+                FamilyMode.MULTI_DAYS -> {
+                    val ensuredEndDate = if (!endDate.isAfter(startDate)) startDate.plusDays(1) else endDate
+                    val endMillis = LocalDateTime.of(
+                        ensuredEndDate,
+                        if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                        else Instant.ofEpochMilli(editor.endMillis).atZone(zone).toLocalTime()
+                    ).atZone(zone).toInstant().toEpochMilli()
+                    editor.copy(endMillis = endMillis)
+                }
+            }
+            state.copy(familyMode = mode, editor = nextEditor)
+        }
+    }
+    fun setEditAllDay(
+        enabled: Boolean,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _edit.update { state ->
+            state ?: return
+            val editor = state.editor
+            if (!state.isGroup) {
+                val next = editor.withAllDay(enabled, zone)
+                val same = isSameDay(next.startMillis, next.endMillis, zone)
+                state.copy(
+                    editor = next,
+                    isFlexible = if (enabled || !same) false else state.isFlexible
+                )
+            } else {
+                val after = editor.withAllDay(enabled, zone)
+                val startDate = Instant.ofEpochMilli(after.startMillis).atZone(zone).toLocalDate()
+                var endDate = Instant.ofEpochMilli(after.endMillis).atZone(zone).toLocalDate()
+                var endMillis = after.endMillis
+
+                if (state.familyMode == FamilyMode.ONE_DAY) {
+                    if (endDate != startDate) {
+                        val end = LocalDateTime.of(
+                            startDate,
+                            if (after.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(endMillis).atZone(zone).toLocalTime()
+                        )
+                        endMillis = end.atZone(zone).toInstant().toEpochMilli()
+                    }
+                } else {
+                    if (!endDate.isAfter(startDate)) {
+                        endDate = startDate.plusDays(1)
+                        val end = LocalDateTime.of(
+                            endDate,
+                            if (after.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(endMillis).atZone(zone).toLocalTime()
+                        )
+                        endMillis = end.atZone(zone).toInstant().toEpochMilli()
+                    }
+                }
+                state.copy(editor = after.copy(endMillis = endMillis))
+            }
+        }
+    }
+    fun setEditRange(
+        start: Long,
+        end: Long,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _edit.update { state ->
+            state ?: return
+            val editor = state.editor
+            if (!state.isGroup) {
+                val next = editor.withRange(start, end)
+                val same = isSameDay(start, end, zone)
+                val mustDisable = next.isAllDay || !same
+                state.copy(
+                    editor = next,
+                    isFlexible = if (mustDisable) false else state.isFlexible
+                )
+            } else {
+                val startDate = Instant.ofEpochMilli(start).atZone(zone).toLocalDate()
+                var endDate = Instant.ofEpochMilli(end).atZone(zone).toLocalDate()
+                var newEnd = end
+
+                if (state.familyMode == FamilyMode.ONE_DAY) {
+                    if (endDate != startDate) {
+                        newEnd = LocalDateTime.of(
+                            startDate,
+                            if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(end).atZone(zone).toLocalTime()
+                        ).atZone(zone).toInstant().toEpochMilli()
+                    }
+                } else {
+                    if (!endDate.isAfter(startDate)) {
+                        endDate = startDate.plusDays(1)
+                        newEnd = LocalDateTime.of(
+                            endDate,
+                            if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(end).atZone(zone).toLocalTime()
+                        ).atZone(zone).toInstant().toEpochMilli()
+                    }
+                }
+                state.copy(editor = editor.withRange(start, newEnd))
+            }
+        }
+    }
+    fun setEditLocation(text: String) {
+        _edit.update { it?.copy(location = text) }
+    }
+    fun setEditMemo(text: String) {
+        _edit.update { it?.copy(memo = text) }
+    }
+
+    // 일정 정보 수정
+    fun submitScheduleEdit(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val state = _edit.value ?: return
+        viewModelScope.launch {
+            isSaveLoading = true
+            val zone = ZoneId.systemDefault()
+            val groupId = userInfoManager.getGroupId()
+
+            val startTime = Instant.ofEpochMilli(state.editor.startMillis)
+                .atZone(zone).toLocalDateTime().format(serverDateTimeFormatter)
+            val endTime = Instant.ofEpochMilli(state.editor.endMillis)
+                .atZone(zone).toLocalDateTime().format(serverDateTimeFormatter)
+
+            val timeflex = if (!state.isGroup) state.isFlexible else null
+
+            val body = EditScheduleRequest(
+                id = state.scheduleId,
+                title = state.title,
+                startTime = startTime,
+                endTime = endTime,
+                content = state.memo,
+                location = state.location,
+                timeflex = timeflex,
+                participantIds = null,
+                groupId = groupId!!
+            )
+
+            val result = calendarRepository.editSchedule(body)
+            result.onSuccess {data ->
+                Log.d("CalendarViewModel", "일정 수정 완료 : $data")
+                clearEditState()
+                onSuccess()
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "일정 수정 실패 : ${e.message}")
+                onError("일정 수정을 실패했습니다.")
+            }
+            isSaveLoading = false
+        }
     }
 }

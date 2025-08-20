@@ -17,9 +17,9 @@ object Route {
 
     // 캘린더 관련
     const val CALENDAR = "calendar"
-    const val ADD_PERSONAL = "add_personal"
-    const val ADD_FAMILY = "add_family"
-    const val SCHEDULE_DETAIL = "schedule_detail/scheduleId={scheduleId}&scheduleTitle={scheduleTitle}?writerId={writerId}"
+    const val SCHEDULE_PERSONAL = "schedule_personal?formMode={formMode}"
+    const val SCHEDULE_FAMILY = "schedule_family?formMode={formMode}"
+    const val SCHEDULE_DETAIL = "schedule_detail/scheduleId={scheduleId}?writerId={writerId}"
 
     // 다이어리 관련
     const val DIARY = "diary"

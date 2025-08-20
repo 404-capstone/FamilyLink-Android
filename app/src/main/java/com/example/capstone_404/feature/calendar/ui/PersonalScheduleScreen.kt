@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.calendar.model.TimeTarget
+import com.example.capstone_404.feature.calendar.model.schedule.FormMode
 import com.example.capstone_404.feature.calendar.ui.component.schedule.add.AllDaySwitch
 import com.example.capstone_404.feature.calendar.ui.component.schedule.add.PersonalParticipant
 import com.example.capstone_404.feature.calendar.ui.component.schedule.add.ScheduleCheckbox
@@ -49,27 +50,63 @@ import java.time.ZoneId
 @Composable
 fun PersonalScheduleScreen(
     viewModel: CalendarViewModel = hiltViewModel(),
+    formMode: String = "add",
     onClose: () -> Unit,
-    onSubmit: () -> Unit
+    onAdd: () -> Unit,
+    onEdit: (scheduleId: Int, writerId: Int) -> Unit
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.personalScheduleState.collectAsState()
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
     val userIdToRole by viewModel.userIdToRole.collectAsState()
     val zoneId = remember { ZoneId.systemDefault() }
 
-    // 시간 변동 체크 박스 활성화 유무
-    val canFlex = remember(uiState.editor.isAllDay, uiState.editor.startMillis, uiState.editor.endMillis) {
-        val startDate = Instant.ofEpochMilli(uiState.editor.startMillis).atZone(zoneId).toLocalDate()
-        val endDate = Instant.ofEpochMilli(uiState.editor.endMillis).atZone(zoneId).toLocalDate()
-        !uiState.editor.isAllDay && (startDate == endDate)
-    }
+    // 추가용 상태
+    val personalAdd by viewModel.personalScheduleState.collectAsState()
+    // 수정용 상태
+    val edit by viewModel.editState.collectAsState()
+    // 추가|수정 구분
+    val mode = if (edit != null && formMode == "edit") FormMode.Edit(edit!!.scheduleId) else FormMode.Add
 
     var timeTarget by remember { mutableStateOf(TimeTarget.START) }
     var showDateDialog by remember { mutableStateOf(false) }
     var showTimeDialog by remember { mutableStateOf(false) }
 
     val isSaveLoading = viewModel.isSaveLoading
+
+    // 진입 상태에 따른 동작 분류
+    val isEdit = mode is FormMode.Edit
+    // 기본값
+    val title = if (isEdit) edit?.title.orEmpty() else personalAdd.title
+    val isFlexible = if (isEdit) (edit?.isFlexible ?: false) else personalAdd.isFlexible
+    val editor = if (isEdit) (edit?.editor ?: personalAdd.editor) else personalAdd.editor
+    val location = if (isEdit) edit?.location.orEmpty() else personalAdd.location
+    val memo = if (isEdit) edit?.memo.orEmpty() else personalAdd.memo
+    // 입력값 변경
+    val setTitle: (String) -> Unit = { text ->
+        if (isEdit) viewModel.setEditTitle(text) else viewModel.setPersonalTitle(text)
+    }
+    val setFlexible: (Boolean) -> Unit = { checked ->
+        if (isEdit) viewModel.setEditFlexible(checked) else viewModel.setPersonalFlexible(checked)
+    }
+    val setAllDay: (Boolean) -> Unit = { enabled ->
+        if (isEdit) viewModel.setEditAllDay(enabled, zoneId) else viewModel.setPersonalAllDay(enabled, zoneId)
+    }
+    val setRange: (Long, Long) -> Unit = { s, e ->
+        if (isEdit) viewModel.setEditRange(s, e, zoneId) else viewModel.setPersonalRange(s, e, zoneId)
+    }
+    val setLocation: (String) -> Unit = { text ->
+        if (isEdit) viewModel.setEditLocation(text) else viewModel.setPersonalLocation(text)
+    }
+    val setMemo: (String) -> Unit = { text ->
+        if (isEdit) viewModel.setEditMemo(text) else viewModel.setPersonalMemo(text)
+    }
+
+    // 시간 변동 체크 박스 활성화 유무
+    val canFlex = remember(editor.isAllDay, editor.startMillis, editor.endMillis) {
+        val startDate = Instant.ofEpochMilli(editor.startMillis).atZone(zoneId).toLocalDate()
+        val endDate   = Instant.ofEpochMilli(editor.endMillis).atZone(zoneId).toLocalDate()
+        !editor.isAllDay && (startDate == endDate)
+    }
 
     if (isSaveLoading) {
         LoadingDialog("일정을 저장하고 있어요\n잠시만 기다려주세요!")
@@ -78,21 +115,30 @@ fun PersonalScheduleScreen(
     Scaffold(
         topBar = {
             CustomTopBar(
-                title = "개인 일정 추가",
+                title = if (isEdit) "개인 일정 수정" else "개인 일정 추가",
                 navigationType = NavigationType.CLOSE,
                 onNavigationClick = onClose,
                 rightButton = {
                     IconButton(
                         onClick = {
-                            val role = userId?.let { userIdToRole[it] }
-                            val finalTitle = uiState.title.ifBlank { "${role ?: "나"}의 일정" }
-                            viewModel.addPersonalSchedule(
-                                finalTitle = finalTitle,
-                                onSuccess = { onSubmit() },
-                                onError = { e ->
-                                    Toast.makeText(context, e, Toast.LENGTH_SHORT).show()
-                                }
-                            )
+                            if (!isEdit) {
+                                val role = userId?.let { userIdToRole[it] }
+                                val finalTitle = personalAdd.title.ifBlank { "${role ?: "나"}의 일정" }
+                                viewModel.addPersonalSchedule(
+                                    finalTitle = finalTitle,
+                                    onSuccess = { onAdd() },
+                                    onError = { e ->
+                                        Toast.makeText(context, e, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            } else {
+                                viewModel.submitScheduleEdit(
+                                    onSuccess = { onEdit(edit?.scheduleId!!, userId!!) },
+                                    onError = { e ->
+                                        Toast.makeText(context, e, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
                         }
                     ) {
                         Icon(
@@ -131,13 +177,13 @@ fun PersonalScheduleScreen(
                 // 제목 입력 필드
                 Column {
                     ScheduleInputField(
-                        value = uiState.title,
-                        onValueChange = { viewModel.setPersonalTitle(it) },
+                        value = title,
+                        onValueChange = setTitle,
                         placeholder = "제목을 입력하세요"
                     )
                     // 제목 글자 수
                     Text(
-                        text = "${uiState.title.length} / 20",
+                        text = "${title.length} / 20",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 4.dp),
@@ -146,31 +192,31 @@ fun PersonalScheduleScreen(
                     )
                 }
                 // 제목 비공개 체크 박스
-                ScheduleCheckbox(
-                    label = "제목 비공개",
-                    checked = uiState.isTitlePrivate,
-                    onCheckedChange = { viewModel.setPersonalTitlePrivate(it) },
-                    description = "선택 시 그룹원에게 \"{역할명}의 일정\"으로 표시 됩니다"
-                )
+                if (!isEdit) {
+                    ScheduleCheckbox(
+                        label = "제목 비공개",
+                        checked = personalAdd.isTitlePrivate,
+                        onCheckedChange = { viewModel.setPersonalTitlePrivate(it) },
+                        description = "선택 시 그룹원에게 \"{역할명}의 일정\"으로 표시 됩니다"
+                    )
+                }
                 // 시간 변동 체크 박스
                 ScheduleCheckbox(
                     label = "시간 변동 가능",
-                    checked = uiState.isFlexible,
-                    onCheckedChange = { viewModel.setPersonalFlexible(it) },
+                    checked = isFlexible && canFlex,
+                    onCheckedChange = setFlexible,
                     description = if (canFlex) "선택 시 일정 최적화가 진행될 때 10시~20시 사이로 변동될 수 있습니다" else "종일 또는 여러 날 일정에는 적용되지 않습니다",
                     enabled = canFlex
                 )
                 // 종일 스위치
                 AllDaySwitch(
-                    checked = uiState.editor.isAllDay,
-                    onCheckedChange = { enabled ->
-                        viewModel.setPersonalAllDay(enabled, ZoneId.systemDefault())
-                    }
+                    checked = editor.isAllDay,
+                    onCheckedChange = setAllDay
                 )
                 // 시작 날짜&시간 Row
                 ScheduleDateTimeRow(
-                    millis = uiState.editor.startMillis,
-                    allDay = uiState.editor.isAllDay,
+                    millis = editor.startMillis,
+                    allDay = editor.isAllDay,
                     onDateClick = {
                         timeTarget = TimeTarget.START
                         showDateDialog = true
@@ -183,8 +229,8 @@ fun PersonalScheduleScreen(
                 )
                 // 종료 날짜&시간 Row
                 ScheduleDateTimeRow(
-                    millis = uiState.editor.endMillis,
-                    allDay = uiState.editor.isAllDay,
+                    millis = editor.endMillis,
+                    allDay = editor.isAllDay,
                     onDateClick = {
                         timeTarget = TimeTarget.END
                         showDateDialog = true
@@ -197,24 +243,26 @@ fun PersonalScheduleScreen(
                 )
                 // 장소 입력 필드
                 ScheduleInputField(
-                    value = uiState.location,
-                    onValueChange = { viewModel.setPersonalLocation(it) },
+                    value = location,
+                    onValueChange = setLocation,
                     placeholder = "장소 (선택 사항)",
                     leadingIcon = painterResource(R.drawable.ic_location)
                 )
                 // 메모 입력 필드
                 ScheduleInputField(
-                    value = uiState.memo,
-                    onValueChange = { viewModel.setPersonalMemo(it) },
+                    value = memo,
+                    onValueChange = setMemo,
                     placeholder = "메모 (선택 사항)",
                     leadingIcon = painterResource(R.drawable.ic_help)
                 )
                 // 참여자(본인 고정)
-                userId?.let {
-                    PersonalParticipant(
-                        writerUserId = it,
-                        userIdToRole = userIdToRole
-                    )
+                if (!isEdit) {
+                    userId?.let {
+                        PersonalParticipant(
+                            writerUserId = it,
+                            userIdToRole = userIdToRole
+                        )
+                    }
                 }
             }
         }
@@ -222,13 +270,13 @@ fun PersonalScheduleScreen(
         if (showDateDialog) {
             ScheduleDateDialog(
                 target = timeTarget,
-                allDay = uiState.editor.isAllDay,
-                startMillis = uiState.editor.startMillis,
-                endMillis = uiState.editor.endMillis,
-                zoneId = ZoneId.systemDefault(),
+                allDay = editor.isAllDay,
+                startMillis = editor.startMillis,
+                endMillis = editor.endMillis,
+                zoneId = zoneId,
                 onDismiss = { showDateDialog = false },
                 onConfirm = { start, end ->
-                    viewModel.setPersonalRange(start, end)
+                    setRange(start, end)
                 }
             )
         }
@@ -236,12 +284,12 @@ fun PersonalScheduleScreen(
         if (showTimeDialog) {
             ScheduleTimeDialog(
                 target = timeTarget,
-                startMillis = uiState.editor.startMillis,
-                endMillis = uiState.editor.endMillis,
-                zoneId = ZoneId.systemDefault(),
+                startMillis = editor.startMillis,
+                endMillis = editor.endMillis,
+                zoneId = zoneId,
                 onDismiss = { showTimeDialog = false },
                 onConfirm = { start, end ->
-                    viewModel.setPersonalRange(start, end)
+                    setRange(start, end)
                 }
             )
         }

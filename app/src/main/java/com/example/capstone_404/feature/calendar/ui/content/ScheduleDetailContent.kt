@@ -24,7 +24,6 @@ import java.time.LocalDateTime
 fun ScheduleDetailContent(
     data: ScheduleDetailData,
     writerId: Int?,
-    title: String,
     userId: Int?,
     userIdToRole: Map<Int, String>,
     onToggleJoin: (join: Boolean) -> Unit
@@ -55,7 +54,7 @@ fun ScheduleDetailContent(
     ) {
         // 제목
         TitleWithBar(
-            title = title,
+            title = data.title,
             isGroup = isGroup,
             writerId = writerId,
             participantIds = participantIds,

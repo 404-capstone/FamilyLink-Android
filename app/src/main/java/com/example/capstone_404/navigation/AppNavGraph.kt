@@ -168,16 +168,16 @@ fun AppNavGraph(navController: NavHostController) {
                         navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                         },
                     onNavigateToDetail = { schedule ->
-                        navController.navigate("schedule_detail/scheduleId=${schedule.id}&scheduleTitle=${schedule.title}?writerId=${schedule.writerId ?: -1}")
+                        navController.navigate("schedule_detail/scheduleId=${schedule.id}?writerId=${schedule.writerId ?: -1}")
                     },
                     onNavigateToGroupActivity = {},
                     onNavigateToGroupScheduleAdd = {
                         viewModel.presetFamilyFromSelectedDate()
-                        navController.navigate(Route.ADD_FAMILY) { popUpTo("calendar") { inclusive = false } }
+                        navController.navigate("schedule_family?formMode=add") { popUpTo("calendar") { inclusive = false } }
                     },
                     onNavigateToPersonalScheduleAdd = {
                         viewModel.presetPersonalFromSelectedDate()
-                        navController.navigate(Route.ADD_PERSONAL) { popUpTo("calendar") { inclusive = false } }
+                        navController.navigate("schedule_personal?formMode=add") { popUpTo("calendar") { inclusive = false } }
                     },
                 )
             }
@@ -186,7 +186,6 @@ fun AppNavGraph(navController: NavHostController) {
                 route = Route.SCHEDULE_DETAIL,
                 arguments = listOf(
                     navArgument("scheduleId") { type = NavType.IntType },
-                    navArgument("scheduleTitle") { type = NavType.StringType },
                     navArgument("writerId") { type = NavType.IntType; defaultValue = -1 }
                 )
             ) { backStackEntry ->
@@ -195,50 +194,68 @@ fun AppNavGraph(navController: NavHostController) {
                 }
                 val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
                 val scheduleId = backStackEntry.arguments?.getInt("scheduleId")!!
-                val scheduleTitle = backStackEntry.arguments?.getString("scheduleTitle")!!
                 val writerIdArg = backStackEntry.arguments?.getInt("writerId") ?: -1
                 val writerId = if (writerIdArg == -1) null else writerIdArg
                 ScheduleDetailScreen(
                     viewModel = viewModel,
                     scheduleId = scheduleId,
-                    scheduleTitle = scheduleTitle,
                     writerId = writerId,
                     onBack = {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
                     },
-                    onEdit = {  }
+                    onPersonalEdit = {
+                        navController.navigate("schedule_personal?formMode=edit")
+                    },
+                    onFamilyEdit = {
+                        navController.navigate("schedule_family?formMode=edit")
+                    }
                 )
             }
-            // 개인 일정 추가
-            composable(Route.ADD_PERSONAL) {backStackEntry ->
+            // 개인 일정 추가|수정
+            composable(
+                route = Route.SCHEDULE_PERSONAL,
+                arguments = listOf(
+                    navArgument("formMode") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Route.CALENDAR)
                 }
                 val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                val formMode = backStackEntry.arguments!!.getString("formMode") ?: "add"
                 PersonalScheduleScreen(
                     viewModel = viewModel,
-                    onClose = {
+                    formMode = formMode,
+                    onClose = { navController.popBackStack() },
+                    onAdd = {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
                     },
-                    onSubmit = {
-                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    onEdit = { scheduleId, writerId ->
+                        navController.navigate("schedule_detail/scheduleId=${scheduleId}?writerId=${writerId}") { popUpTo("calendar") { inclusive = false } }
                     }
                 )
             }
             // 가족 일정 추가
-            composable(Route.ADD_FAMILY) {
-                    backStackEntry ->
+            composable(
+                route = Route.SCHEDULE_FAMILY,
+                arguments = listOf(
+                    navArgument("formMode") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Route.CALENDAR)
                 }
                 val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                val formMode = backStackEntry.arguments!!.getString("formMode") ?: "add"
                 FamilyScheduleScreen(
                     viewModel = viewModel,
-                    onClose = {
+                    formMode = formMode,
+                    onClose = { navController.popBackStack() },
+                    onAdd = {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
                     },
-                    onSubmit = {
-                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    onEdit = {
+                        navController.navigate("schedule_detail/scheduleId=${it}") { popUpTo("calendar") { inclusive = false } }
                     }
                 )
             }

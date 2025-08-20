@@ -46,20 +46,22 @@ import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.theme.Error
 import com.example.capstone_404.ui.theme.TextBlack
+import java.time.ZoneId
 
 @Composable
 fun ScheduleDetailScreen(
     viewModel: CalendarViewModel = hiltViewModel(),
     scheduleId: Int,
-    scheduleTitle: String,
     writerId: Int?,
     onBack: () -> Unit,
-    onEdit: () -> Unit
+    onPersonalEdit: () -> Unit,
+    onFamilyEdit: () -> Unit
 ) {
     val context = LocalContext.current
     val uiState by viewModel.scheduleDetail.collectAsState()
     val userIdToRole by viewModel.userIdToRole.collectAsState()
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
+    val zoneId = remember { ZoneId.systemDefault() }
     val isSaveLoading = viewModel.isSaveLoading
     val isLoading = viewModel.isLoading
     val isSending = viewModel.isCommentSending
@@ -128,8 +130,13 @@ fun ScheduleDetailScreen(
                                             color = TextBlack)
                                         },
                                     onClick = {
+                                        viewModel.startEditFromDetail(zoneId)
                                         showMenu = false
-                                        onEdit()
+                                        if (writerId != null) {
+                                            onPersonalEdit()
+                                        } else {
+                                            onFamilyEdit()
+                                        }
                                     }
                                 )
                                 DropdownMenuItem(
@@ -240,7 +247,6 @@ fun ScheduleDetailScreen(
                             ScheduleDetailContent(
                                 data = uiState.data!!,
                                 writerId = writerId,
-                                title = scheduleTitle,
                                 userId = userId,
                                 userIdToRole = userIdToRole,
                                 onToggleJoin = { join ->

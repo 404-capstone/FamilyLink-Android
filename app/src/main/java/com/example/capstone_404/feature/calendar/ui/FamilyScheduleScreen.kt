@@ -244,6 +244,7 @@ fun FamilyScheduleScreen(
                     if (!isEdit) {
                         AvailableDateRow(
                             label = availLabel,
+                            painterId = R.drawable.ic_calendar,
                             onClick = {
                                 if (familyAdd.selectedMemberIds.isEmpty()) {
                                     Toast.makeText(context, "참여자를 선택해 주세요.", Toast.LENGTH_SHORT)
@@ -333,7 +334,8 @@ fun FamilyScheduleScreen(
                 onDismiss = { showTimeDialog = false },
                 onConfirm = { newStart, newEnd ->
                     setRange(newStart, newEnd)
-                }
+                },
+                onlyTime = modeValue == FamilyMode.ONE_DAY
             )
         }
         // 최적화 가능 유무 포함한 캘린더 바텀 시트

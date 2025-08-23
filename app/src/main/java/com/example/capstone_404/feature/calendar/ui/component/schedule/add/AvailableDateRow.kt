@@ -26,7 +26,8 @@ import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
 fun AvailableDateRow(
-    label: String = "가능한 날짜 확인",
+    label: String,
+    painterId: Int,
     onClick: () -> Unit
 ) {
     Row(
@@ -41,7 +42,7 @@ fun AvailableDateRow(
             .padding(horizontal = 12.dp)
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_calendar),
+            painter = painterResource(painterId),
             contentDescription = null,
             tint = TextBlack
         )
@@ -49,7 +50,13 @@ fun AvailableDateRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextBlack
+            color = TextBlack,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            painter = painterResource(R.drawable.ic_next),
+            contentDescription = null,
+            tint = TextBlack
         )
     }
 }

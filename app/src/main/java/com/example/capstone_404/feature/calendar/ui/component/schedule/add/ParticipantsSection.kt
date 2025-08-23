@@ -43,8 +43,7 @@ import com.example.capstone_404.utils.parseRoleAndOrder
 @Composable
 fun PersonalParticipant(
     writerUserId: Int,
-    userIdToRole: Map<Int, String>,
-    modifier: Modifier = Modifier
+    userIdToRole: Map<Int, String>
 ) {
     val roleName = userIdToRole[writerUserId] ?: "나"
     val roleColor = remember(writerUserId, userIdToRole) {
@@ -53,7 +52,7 @@ fun PersonalParticipant(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
             .clip(RoundedCornerShape(8.dp))

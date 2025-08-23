@@ -36,7 +36,6 @@ fun ScheduleDateTimeRow(
     allDay: Boolean,
     onDateClick: () -> Unit,
     onTimeClick: () -> Unit,
-    modifier: Modifier = Modifier,
     icon: Painter,
     zoneId: ZoneId = ZoneId.systemDefault()
 ) {
@@ -47,7 +46,7 @@ fun ScheduleDateTimeRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
 
         Icon(painter = icon, contentDescription = "시작/종료", tint = TextBlack)

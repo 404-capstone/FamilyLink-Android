@@ -31,11 +31,10 @@ import com.example.capstone_404.ui.theme.TextWhite
 @Composable
 fun SelectModeRow(
     selected: FamilyMode,
-    onSelect: (FamilyMode) -> Unit,
-    modifier: Modifier = Modifier
+    onSelect: (FamilyMode) -> Unit
 ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
@@ -74,7 +73,7 @@ fun SelectModeRow(
 }
 
 @Composable
-private fun ModeItem(
+fun ModeItem(
     text: String,
     active: Boolean,
     onClick: () -> Unit,

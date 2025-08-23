@@ -133,10 +133,10 @@ fun ActivityRecommendScreen(
                 SectionTitle("5. 원하는 활동 성격을 선택해 주세요")
                 TypeGroupSection(
                     typeGroups = uiState.typeGroups,
-                    onSelect = { idx, trait -> viewModel.selectTraitInGroup(idx, trait) },
-                    onRemoveGroup = { idx -> viewModel.removeTraitGroup(idx) },
+                    onSelect = { idx, trait -> viewModel.selectTypeInGroup(idx, trait) },
+                    onRemoveGroup = { idx -> viewModel.removeTypeGroup(idx) },
                     canAddGroup = uiState.canAddTypeGroup,
-                    onAddGroup = { viewModel.addTraitGroupIfPossible() }
+                    onAddGroup = { viewModel.addTypeGroup() }
                 )
                 Spacer(Modifier.height(24.dp))
                 // 최종 진행 버튼

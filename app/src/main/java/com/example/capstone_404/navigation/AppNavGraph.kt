@@ -3,6 +3,7 @@ package com.example.capstone_404.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -13,6 +14,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.capstone_404.feature.calendar.ui.ActivityRecommendScreen
+import com.example.capstone_404.feature.calendar.ui.AreaSelectionScreen
 import com.example.capstone_404.feature.calendar.ui.CalendarScreen
 import com.example.capstone_404.feature.diary.ui.DiaryScreen
 import com.example.capstone_404.feature.diary.ui.DiarySelectScreen
@@ -35,6 +38,7 @@ import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 import com.example.capstone_404.feature.login.ui.SplashScreen
 import com.example.capstone_404.feature.mypage.ui.MyPageScreen
 import com.example.capstone_404.feature.mypage.ui.ProfileEditScreen
+import com.example.capstone_404.navigation.CalendarNavKeys.SELECTED_AREA
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -170,7 +174,9 @@ fun AppNavGraph(navController: NavHostController) {
                     onNavigateToDetail = { schedule ->
                         navController.navigate("schedule_detail/scheduleId=${schedule.id}?writerId=${schedule.writerId ?: -1}")
                     },
-                    onNavigateToGroupActivity = {},
+                    onNavigateToGroupActivity = {
+                        navController.navigate(Route.ACTIVITY_RECOMMEND) { popUpTo("calendar") { inclusive = false } }
+                    },
                     onNavigateToGroupScheduleAdd = {
                         viewModel.presetFamilyFromSelectedDate()
                         navController.navigate("schedule_family?formMode=add") { popUpTo("calendar") { inclusive = false } }
@@ -257,6 +263,48 @@ fun AppNavGraph(navController: NavHostController) {
                     onEdit = {
                         navController.navigate("schedule_detail/scheduleId=${it}") { popUpTo("calendar") { inclusive = false } }
                     }
+                )
+            }
+            // 가족 활동 추천
+            composable(Route.ACTIVITY_RECOMMEND) {backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+
+                LaunchedEffect(Unit) {
+                    val handle = navController.currentBackStackEntry?.savedStateHandle ?: return@LaunchedEffect
+                    handle.getStateFlow<String?>(SELECTED_AREA, null).collect { fullName ->
+                        if (fullName != null) {
+                            viewModel.setRecommendArea(fullName)
+                            handle[SELECTED_AREA] = null
+                        }
+                    }
+                }
+                ActivityRecommendScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onClickArea = {
+                        navController.navigate(Route.AREA_SELECT)
+                    },
+                    onRecommend = {},
+                )
+            }
+            // 활동 추천 지역 선택
+            composable(Route.AREA_SELECT) {
+                AreaSelectionScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onConfirm = { fullName ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(SELECTED_AREA, fullName)
+
+                        navController.popBackStack()
+                    },
                 )
             }
 

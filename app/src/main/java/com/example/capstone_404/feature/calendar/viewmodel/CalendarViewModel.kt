@@ -29,6 +29,10 @@ import com.example.capstone_404.feature.calendar.model.schedule.edit.EditState
 import com.example.capstone_404.feature.calendar.model.schedule.edit.extractAllDay
 import com.example.capstone_404.feature.calendar.model.schedule.edit.extractFamilyMode
 import com.example.capstone_404.feature.calendar.model.schedule.edit.makeEditor
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.ActivityRecommendUiState
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.ActivityType
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.InOutDoor
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.TypeGroup
 import com.example.capstone_404.feature.calendar.model.serverDateFormatter
 import com.example.capstone_404.feature.calendar.model.serverDateTimeFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -96,6 +100,10 @@ class CalendarViewModel @Inject constructor(
     // 일정 정보 수정 상태
     private val _edit = MutableStateFlow<EditState?>(null)
     val editState: StateFlow<EditState?> = _edit.asStateFlow()
+
+    // 활동 추천 상태
+    private val _activityRecommend = MutableStateFlow(ActivityRecommendUiState())
+    val activityRecommendState: StateFlow<ActivityRecommendUiState> = _activityRecommend.asStateFlow()
 
     // 시작 시 그룹 내 역할 추출
     init {
@@ -501,7 +509,7 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    // 하루 일정 시간만 저장
+    // 하루 일정 날짜 저장
     fun setFamilyDateOnly(
         date: LocalDate,
         zoneId: ZoneId = ZoneId.systemDefault()
@@ -897,6 +905,75 @@ class CalendarViewModel @Inject constructor(
                 onError("일정 수정을 실패했습니다.")
             }
             isSaveLoading = false
+        }
+    }
+
+
+    // -------------------- 활동 추천 --------------------
+    fun setRecommendArea(area: String) {
+        _activityRecommend.update { it.copy(area = area) }
+    }
+
+    fun setRecommendTimeRange(
+        start: Long,
+        end: Long,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _activityRecommend.update { state ->
+            val editor = state.editor
+            val startDate = millisToDate(start, zone)
+            val endDate = millisToDate(end, zone)
+            var newEnd = end
+
+            if (endDate != startDate) {
+                val endTime = Instant.ofEpochMilli(end).atZone(zone).toLocalTime()
+                newEnd = LocalDateTime.of(startDate, endTime)
+                    .atZone(zone).toInstant().toEpochMilli()
+            }
+
+            state.copy(
+                editor = editor.copy(isAllDay = false).withRange(start, newEnd)
+            )
+        }
+    }
+
+    fun toggleRecommendMember(userId: Int) {
+        _activityRecommend.update { cur ->
+            val next = cur.memberIds.toMutableSet().apply { if (!add(userId)) remove(userId) }
+            cur.copy(memberIds = next)
+        }
+    }
+
+    fun setRecommendMembers(userIds: Collection<Int>) {
+        _activityRecommend.update { it.copy(memberIds = userIds.toSet()) }
+    }
+
+    fun setRecommendInOutDoor(value: InOutDoor) {
+        _activityRecommend.update { it.copy(inOutDoor = value) }
+    }
+
+    fun addTypeGroup() {
+        _activityRecommend.update { state ->
+            if (state.canAddTypeGroup) state.copy(typeGroups = state.typeGroups + TypeGroup())
+            else state
+        }
+    }
+
+    fun selectTypeInGroup(groupIndex: Int, type: ActivityType) {
+        _activityRecommend.update { state ->
+            if (groupIndex !in state.typeGroups.indices) return
+            val typeGroup = state.typeGroups[groupIndex]
+            if (typeGroup.selected == type) return
+            val next = state.typeGroups.toMutableList()
+            next[groupIndex] = typeGroup.copy(selected = type)
+            state.copy(typeGroups = next)
+        }
+    }
+
+    fun removeTypeGroup(groupIndex: Int) {
+        _activityRecommend.update { state ->
+            if (state.typeGroups.size <= 1 || groupIndex !in state.typeGroups.indices) return
+            state.copy(typeGroups = state.typeGroups.toMutableList().also { it.removeAt(groupIndex) })
         }
     }
 }

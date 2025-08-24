@@ -126,7 +126,7 @@ fun ActivityRecommendScreen(
                 SectionTitle("4. 원하는 활동 공간을 선택해 주세요")
                 InOutDoorRow(
                     selected = uiState.inOutDoor,
-                    onSelect = { io -> viewModel.setRecommendInOutDoor(io) }
+                    onChange = { io -> viewModel.setRecommendInOutDoor(io) }
                 )
                 Spacer(Modifier.height(16.dp))
                 // 활동 성격(최대 3개)

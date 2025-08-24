@@ -23,6 +23,7 @@ import com.example.capstone_404.feature.diary.ui.DiaryWriteScreen
 import com.example.capstone_404.feature.diary.ui.QuestionSelectScreen
 import com.example.capstone_404.feature.calendar.ui.FamilyScheduleScreen
 import com.example.capstone_404.feature.calendar.ui.PersonalScheduleScreen
+import com.example.capstone_404.feature.calendar.ui.RecommendLoadingScreen
 import com.example.capstone_404.feature.calendar.ui.ScheduleDetailScreen
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.BottomNavigationBar
@@ -289,7 +290,9 @@ fun AppNavGraph(navController: NavHostController) {
                     onClickArea = {
                         navController.navigate(Route.AREA_SELECT)
                     },
-                    onRecommend = {},
+                    onRecommend = {
+                        navController.navigate(Route.RECOMMEND_LOADING) { popUpTo("calendar") { inclusive = false } }
+                    },
                 )
             }
             // 활동 추천 지역 선택
@@ -305,6 +308,22 @@ fun AppNavGraph(navController: NavHostController) {
 
                         navController.popBackStack()
                     },
+                )
+            }
+            // 활동 추천 로딩
+            composable(Route.RECOMMEND_LOADING) {backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                RecommendLoadingScreen(
+                    viewModel = viewModel,
+                    onClose = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onNavigateToResult = {
+                        // Todo : 활동 추천 결과 UI 구현 후 연결
+                    }
                 )
             }
 

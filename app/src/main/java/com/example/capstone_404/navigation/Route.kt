@@ -22,6 +22,7 @@ object Route {
     const val SCHEDULE_DETAIL = "schedule_detail/scheduleId={scheduleId}?writerId={writerId}"
     const val ACTIVITY_RECOMMEND = "activity_recommend"
     const val AREA_SELECT = "area_select"
+    const val RECOMMEND_LOADING = "recommend_loading"
 
     // 다이어리 관련
     const val DIARY = "diary"

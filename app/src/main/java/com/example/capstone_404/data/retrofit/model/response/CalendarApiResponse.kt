@@ -133,3 +133,17 @@ data class AddScheduleCommentData(
     val dateAt: String,
     val scheduleId: Int
 )
+
+// 활동 추천 Response
+data class RecommendData(
+    val recommendations: List<RecommendCategory>
+)
+data class RecommendCategory(
+    val category: String,
+    val items: List<RecommendItem>
+)
+data class RecommendItem(
+    val activity: String,
+    val location: String,
+    val description: String
+)

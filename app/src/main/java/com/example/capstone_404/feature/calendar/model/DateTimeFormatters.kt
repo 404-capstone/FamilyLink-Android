@@ -9,3 +9,4 @@ val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("a hh:mm", Lo
 // 서버 맞춤 시간 포맷
 val serverDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 val serverDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+val server24HourTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")

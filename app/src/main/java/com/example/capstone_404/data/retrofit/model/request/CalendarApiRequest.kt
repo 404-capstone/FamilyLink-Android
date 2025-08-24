@@ -53,3 +53,16 @@ data class AddScheduleCommentRequest(
     val content: String,
     val userId: Int
 )
+
+// 활동 추천 Request Body
+data class RecommendRequest(
+    val area: String,
+    val startTime: String,
+    val endTime: String,
+    val memberIds: List<Int>,
+    val inoutdoor: String,
+    val activityPersonalityList: List<ActivityPersonality>
+)
+data class ActivityPersonality(
+    val type: String
+)

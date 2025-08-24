@@ -5,12 +5,14 @@ import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleR
 import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
+import com.example.capstone_404.data.retrofit.model.request.RecommendRequest
 import com.example.capstone_404.data.retrofit.model.response.AddGroupData
 import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
 import com.example.capstone_404.data.retrofit.model.response.AddScheduleCommentData
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
+import com.example.capstone_404.data.retrofit.model.response.RecommendData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 import retrofit2.Response
@@ -71,4 +73,10 @@ interface CalendarApi {
     suspend fun deleteSchedule(
         @Query("scheduleId") scheduleId: Int
     ): Response<BaseResponse<Int>>
+
+    // 활동 추천
+    @POST("/schedule/group/recom")
+    suspend fun activityRecommend(
+        @Body body: RecommendRequest
+    ): Response<BaseResponse<RecommendData>>
 }

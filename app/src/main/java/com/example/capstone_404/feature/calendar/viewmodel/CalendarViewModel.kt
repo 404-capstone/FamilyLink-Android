@@ -9,11 +9,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.CalendarRepository
+import com.example.capstone_404.data.retrofit.model.request.ActivityPersonality
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
+import com.example.capstone_404.data.retrofit.model.request.RecommendRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
 import com.example.capstone_404.feature.calendar.model.schedule.add.PersonalScheduleUiState
@@ -32,7 +34,10 @@ import com.example.capstone_404.feature.calendar.model.schedule.edit.makeEditor
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.ActivityRecommendUiState
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.ActivityType
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.InOutDoor
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.TypeGroup
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.toKorean
+import com.example.capstone_404.feature.calendar.model.server24HourTimeFormatter
 import com.example.capstone_404.feature.calendar.model.serverDateFormatter
 import com.example.capstone_404.feature.calendar.model.serverDateTimeFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -101,9 +106,13 @@ class CalendarViewModel @Inject constructor(
     private val _edit = MutableStateFlow<EditState?>(null)
     val editState: StateFlow<EditState?> = _edit.asStateFlow()
 
-    // 활동 추천 상태
+    // 활동 추천 입력 상태
     private val _activityRecommend = MutableStateFlow(ActivityRecommendUiState())
     val activityRecommendState: StateFlow<ActivityRecommendUiState> = _activityRecommend.asStateFlow()
+
+    // 활동 추천 결과 상태
+    private val _recommendResult = MutableStateFlow<RecommendResultUiState>(RecommendResultUiState.Idle)
+    val recommendResult: StateFlow<RecommendResultUiState> = _recommendResult
 
     // 시작 시 그룹 내 역할 추출
     init {
@@ -910,10 +919,10 @@ class CalendarViewModel @Inject constructor(
 
 
     // -------------------- 활동 추천 --------------------
+    // 필드 업데이트 함수
     fun setRecommendArea(area: String) {
         _activityRecommend.update { it.copy(area = area) }
     }
-
     fun setRecommendTimeRange(
         start: Long,
         end: Long,
@@ -936,29 +945,24 @@ class CalendarViewModel @Inject constructor(
             )
         }
     }
-
     fun toggleRecommendMember(userId: Int) {
         _activityRecommend.update { cur ->
             val next = cur.memberIds.toMutableSet().apply { if (!add(userId)) remove(userId) }
             cur.copy(memberIds = next)
         }
     }
-
     fun setRecommendMembers(userIds: Collection<Int>) {
         _activityRecommend.update { it.copy(memberIds = userIds.toSet()) }
     }
-
-    fun setRecommendInOutDoor(value: InOutDoor) {
+    fun setRecommendInOutDoor(value: InOutDoor?) {
         _activityRecommend.update { it.copy(inOutDoor = value) }
     }
-
     fun addTypeGroup() {
         _activityRecommend.update { state ->
             if (state.canAddTypeGroup) state.copy(typeGroups = state.typeGroups + TypeGroup())
             else state
         }
     }
-
     fun selectTypeInGroup(groupIndex: Int, type: ActivityType) {
         _activityRecommend.update { state ->
             if (groupIndex !in state.typeGroups.indices) return
@@ -969,11 +973,58 @@ class CalendarViewModel @Inject constructor(
             state.copy(typeGroups = next)
         }
     }
-
     fun removeTypeGroup(groupIndex: Int) {
         _activityRecommend.update { state ->
             if (state.typeGroups.size <= 1 || groupIndex !in state.typeGroups.indices) return
             state.copy(typeGroups = state.typeGroups.toMutableList().also { it.removeAt(groupIndex) })
+        }
+    }
+
+    // 활동 추천 요청
+    fun requestRecommend(
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ) {
+        val state = _activityRecommend.value
+
+        val area = state.area
+        val startMillis = state.editor.startMillis
+        val endMillis = state.editor.endMillis
+
+        val startTime = Instant.ofEpochMilli(startMillis).atZone(zoneId).toLocalTime()
+            .format(server24HourTimeFormatter)
+        val endTime = Instant.ofEpochMilli(endMillis).atZone(zoneId).toLocalTime()
+            .format(server24HourTimeFormatter)
+
+        val memberIds = state.memberIds.toList()
+        val inoutdoor = state.inOutDoor.toKorean()
+        val personalities = state.typeGroups
+            .mapNotNull { it.selected }
+            .map { ActivityPersonality(type = it.label) }
+
+        val body = RecommendRequest(
+            area = area!!,
+            startTime = startTime,
+            endTime = endTime,
+            memberIds = memberIds,
+            inoutdoor = inoutdoor,
+            activityPersonalityList = personalities
+        )
+
+        Log.d("CalendarViewModel", "활동 추천 요청 : $body")
+        viewModelScope.launch {
+            try {
+                val result = calendarRepository.activityRecommend(body)
+                result.onSuccess { data ->
+                    Log.d("CalendarViewModel", "활동 추천 완료 : $data")
+                    _recommendResult.value = RecommendResultUiState.Success(data)
+                }.onFailure { e ->
+                    Log.e("CalendarViewModel", "활동 추천 실패 : ${e.message}")
+                    _recommendResult.value =
+                        RecommendResultUiState.Error("활동 추천 요청을 실패했습니다.\n다시 시도해 보세요.")
+                }
+            } finally {
+                _activityRecommend.value = ActivityRecommendUiState()
+            }
         }
     }
 }

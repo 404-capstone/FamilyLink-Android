@@ -89,9 +89,9 @@ object NetworkModule {
         }
         .authenticator(authenticator)
         .addInterceptor(logging)
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .writeTimeout(15, TimeUnit.SECONDS)
+        .connectTimeout(3, TimeUnit.MINUTES)
+        .readTimeout(3, TimeUnit.MINUTES)
+        .writeTimeout(3, TimeUnit.MINUTES)
         .build()
 
     // Retrofit 인스턴스 생성

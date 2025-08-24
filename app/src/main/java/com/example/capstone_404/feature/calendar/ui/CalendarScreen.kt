@@ -40,7 +40,7 @@ fun CalendarScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
     val schedulesByDate by viewModel.schedulesByDate.collectAsState()
     val userIdToRole by viewModel.userIdToRole.collectAsState()
-    val isLoading = viewModel.isLoading
+    val isGetLoading = viewModel.isGetLoading
 
     var isFabExpanded by remember { mutableStateOf(false) }
 
@@ -50,7 +50,7 @@ fun CalendarScreen(
         if (groupInfo != null) viewModel.getAllSchedules()
     }
 
-    if (isLoading) {
+    if (isGetLoading) {
         LoadingDialog("일정을 불러오고 있어요\n잠시만 기다려주세요!")
     }
 

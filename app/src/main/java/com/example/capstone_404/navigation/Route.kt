@@ -23,6 +23,7 @@ object Route {
     const val ACTIVITY_RECOMMEND = "activity_recommend"
     const val AREA_SELECT = "area_select"
     const val RECOMMEND_LOADING = "recommend_loading"
+    const val RECOMMEND_RESULT = "recommend_result"
 
     // 다이어리 관련
     const val DIARY = "diary"

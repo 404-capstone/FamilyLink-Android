@@ -18,6 +18,7 @@ import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
 import com.example.capstone_404.data.retrofit.model.request.RecommendRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
+import com.example.capstone_404.data.retrofit.model.response.RecommendItem
 import com.example.capstone_404.feature.calendar.model.schedule.add.PersonalScheduleUiState
 import com.example.capstone_404.feature.calendar.model.Schedule
 import com.example.capstone_404.feature.calendar.model.schedule.detail.ScheduleDetailUiState
@@ -35,6 +36,7 @@ import com.example.capstone_404.feature.calendar.model.schedule.recommend.Activi
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.ActivityType
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.InOutDoor
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendDraft
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.TypeGroup
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.toKorean
 import com.example.capstone_404.feature.calendar.model.server24HourTimeFormatter
@@ -43,9 +45,12 @@ import com.example.capstone_404.feature.calendar.model.serverDateTimeFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -67,6 +72,8 @@ class CalendarViewModel @Inject constructor(
     // 유저 ID Flow
     val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
 
+    var isGetLoading by mutableStateOf(false)
+        private set
     var isLoading by mutableStateOf(false)
         private set
     var isSaveLoading by mutableStateOf(false)
@@ -114,6 +121,13 @@ class CalendarViewModel @Inject constructor(
     private val _recommendResult = MutableStateFlow<RecommendResultUiState>(RecommendResultUiState.Idle)
     val recommendResult: StateFlow<RecommendResultUiState> = _recommendResult
 
+    // 활동 추천 결과에서 선택된 일정 상태
+    private val _recommendQueue = MutableStateFlow<List<RecommendDraft>>(emptyList())
+    val recommendQueueCount: StateFlow<Int> =
+        _recommendQueue.map { it.size }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    val currentRecommendDraft: StateFlow<RecommendDraft?> =
+        _recommendQueue.map { it.firstOrNull() }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     // 시작 시 그룹 내 역할 추출
     init {
         viewModelScope.launch {
@@ -136,7 +150,7 @@ class CalendarViewModel @Inject constructor(
     // 일정 전체 조회
     fun getAllSchedules() {
         viewModelScope.launch {
-            isLoading = true
+            isGetLoading = true
             val userId = userInfoManager.getUserId()
             val groupId = userInfoManager.getGroupId()
             val result = calendarRepository.getAllSchedule(groupId!!)
@@ -147,7 +161,7 @@ class CalendarViewModel @Inject constructor(
             }.onFailure { e ->
                     Log.d("CalendarViewModel", "일정 전체 조회 실패 : ${e.message}")
                 }
-            isLoading = false
+            isGetLoading = false
         }
     }
 
@@ -920,6 +934,10 @@ class CalendarViewModel @Inject constructor(
 
     // -------------------- 활동 추천 --------------------
     // 필드 업데이트 함수
+    fun presetRecommendFromSelectedDate() {
+        val date = _selectedDate.value
+        _activityRecommend.update { it.copy(editor = it.editor.presetFromDate(date)) }
+    }
     fun setRecommendArea(area: String) {
         _activityRecommend.update { it.copy(area = area) }
     }
@@ -1026,5 +1044,47 @@ class CalendarViewModel @Inject constructor(
                 _activityRecommend.value = ActivityRecommendUiState()
             }
         }
+    }
+
+    // 활동 추천 결과에서 선택된 일정 저장
+    fun setRecommendSelections(items: List<RecommendItem>) {
+        _recommendQueue.update { cur ->
+            cur + items.map {
+                RecommendDraft(
+                    location = it.location,
+                    memo = it.activity
+                )
+            }
+        }
+    }
+    // 활동 추천 결과에서 선택된 일정 초기화
+    fun clearRecommendSelections() {
+        _recommendQueue.value = emptyList()
+    }
+
+    // 현재 초안 적용
+    fun applyCurrentDraftToFamilyForm() {
+        val draft = _recommendQueue.value.firstOrNull() ?: return
+        _family.update { state ->
+            state.copy(
+                title = "",
+                location = draft.location,
+                memo = draft.memo,
+                optSelectedDate = null,
+                optResult = null
+            )
+        }
+        presetFamilyFromSelectedDate()
+    }
+    // 현재 출력된 초안 삭제
+    fun deleteCurrentRecommendDraft() {
+        _recommendQueue.update { cur -> if (cur.isNotEmpty()) cur.drop(1) else cur }
+    }
+    // 남은 초안 여부
+    fun hasMoreDrafts(): Boolean = _recommendQueue.value.isNotEmpty()
+
+    // 가족 일정 추가 입력 상태 초기화
+    fun clearFamilyUiState() {
+        _family.value = FamilyScheduleUiState()
     }
 }

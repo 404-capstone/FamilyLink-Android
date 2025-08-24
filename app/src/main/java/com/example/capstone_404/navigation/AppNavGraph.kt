@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -14,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
 import com.example.capstone_404.feature.calendar.ui.ActivityRecommendScreen
 import com.example.capstone_404.feature.calendar.ui.AreaSelectionScreen
 import com.example.capstone_404.feature.calendar.ui.CalendarScreen
@@ -24,6 +26,7 @@ import com.example.capstone_404.feature.diary.ui.QuestionSelectScreen
 import com.example.capstone_404.feature.calendar.ui.FamilyScheduleScreen
 import com.example.capstone_404.feature.calendar.ui.PersonalScheduleScreen
 import com.example.capstone_404.feature.calendar.ui.RecommendLoadingScreen
+import com.example.capstone_404.feature.calendar.ui.RecommendResultScreen
 import com.example.capstone_404.feature.calendar.ui.ScheduleDetailScreen
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.BottomNavigationBar
@@ -176,6 +179,7 @@ fun AppNavGraph(navController: NavHostController) {
                         navController.navigate("schedule_detail/scheduleId=${schedule.id}?writerId=${schedule.writerId ?: -1}")
                     },
                     onNavigateToGroupActivity = {
+                        viewModel.presetRecommendFromSelectedDate()
                         navController.navigate(Route.ACTIVITY_RECOMMEND) { popUpTo("calendar") { inclusive = false } }
                     },
                     onNavigateToGroupScheduleAdd = {
@@ -242,7 +246,7 @@ fun AppNavGraph(navController: NavHostController) {
                     }
                 )
             }
-            // 가족 일정 추가
+            // 가족 일정 추가|수정
             composable(
                 route = Route.SCHEDULE_FAMILY,
                 arguments = listOf(
@@ -322,7 +326,26 @@ fun AppNavGraph(navController: NavHostController) {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
                     },
                     onNavigateToResult = {
-                        // Todo : 활동 추천 결과 UI 구현 후 연결
+                        navController.navigate(Route.RECOMMEND_RESULT) { popUpTo("calendar") { inclusive = false } }
+                    }
+                )
+            }
+            // 활동 추천 결과
+            composable(Route.RECOMMEND_RESULT) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                val result = viewModel.recommendResult.collectAsState().value as RecommendResultUiState.Success
+                RecommendResultScreen(
+                    viewModel = viewModel,
+                    data = result.data,
+                    onClose = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onAddSchedules = {
+                        viewModel.presetFamilyFromSelectedDate()
+                        navController.navigate("schedule_family?formMode=add") { popUpTo("calendar") { inclusive = false } }
                     }
                 )
             }

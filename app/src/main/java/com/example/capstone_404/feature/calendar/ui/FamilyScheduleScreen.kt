@@ -1,6 +1,7 @@
 package com.example.capstone_404.feature.calendar.ui
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +49,7 @@ import com.example.capstone_404.feature.calendar.ui.dialog.ScheduleTimeDialog
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
+import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
@@ -66,6 +69,13 @@ fun FamilyScheduleScreen(
     val members = remember(userIdToRole) { userIdToRole.toList() }
     val zoneId = remember { ZoneId.systemDefault() }
 
+    // 활동 추천 결과에서 선택한 초안 갱신용
+    val queueCount by viewModel.recommendQueueCount.collectAsState()
+    val draft by viewModel.currentRecommendDraft.collectAsState()
+    var appliedInitial by remember { mutableStateOf(false) }
+    // 진입 경로 [활동 추천] 체크
+    val fromRecommend = remember(draft, formMode) { draft != null && formMode == "add" }
+
     // 추가용 상태
     val familyAdd by viewModel.familyScheduleState.collectAsState()
     // 수정용 상태
@@ -77,6 +87,7 @@ fun FamilyScheduleScreen(
         familyAdd.optSelectedDate?.format(dateFormatter) ?: "가능한 날짜 확인"
     }
 
+    var showCancelDialog by remember { mutableStateOf(false) }
     var timeTarget by remember { mutableStateOf(TimeTarget.START) }
     var showDateDialog by remember { mutableStateOf(false) }
     var showTimeDialog by remember { mutableStateOf(false) }
@@ -115,6 +126,34 @@ fun FamilyScheduleScreen(
         if (isEdit) viewModel.setEditMemo(text) else viewModel.setFamilyMemo(text)
     }
 
+    // 초안 있을 때만 다이얼로그 출력
+    BackHandler(enabled = true) {
+        if (draft != null) {
+            showCancelDialog = true
+        } else {
+            onClose()
+        }
+    }
+    // 초안 갱신
+    LaunchedEffect(draft) {
+        if (!appliedInitial && draft != null && formMode == "add") {
+            viewModel.applyCurrentDraftToFamilyForm()
+            viewModel.setFamilyMode(FamilyMode.ONE_DAY)
+            viewModel.setFamilyAllDay(false)
+            appliedInitial = true
+        }
+    }
+    // 최적화 시트 열릴 때마다 전체 조회
+    LaunchedEffect(showAvailSheet) {
+        if (showAvailSheet) {
+            viewModel.getAllSchedules()
+        }
+    }
+
+    if (formMode == "add" && queueCount > 0 && draft == null) {
+        LoadingDialog("추천 정보를 불러오고 있어요\n잠시만 기다려주세요!")
+    }
+
     if (isLoading) {
         LoadingDialog("일정을 최적화 중이에요\n잠시만 기다려주세요!")
     }
@@ -128,7 +167,10 @@ fun FamilyScheduleScreen(
             CustomTopBar(
                 title = if (isEdit) "가족 일정 수정" else "가족 일정 추가",
                 navigationType = NavigationType.CLOSE,
-                onNavigationClick = onClose,
+                onNavigationClick = {
+                    if (draft != null) showCancelDialog = true
+                    else onClose()
+                },
                 rightButton = {
                     IconButton(
                         onClick = {
@@ -150,7 +192,16 @@ fun FamilyScheduleScreen(
                                     return@IconButton
                                 }
                                 viewModel.addFamilySchedule(
-                                    onSuccess = { onAdd() },
+                                    onSuccess = {
+                                        viewModel.deleteCurrentRecommendDraft()
+                                        if (viewModel.hasMoreDrafts()) {
+                                            appliedInitial = false
+                                            Toast.makeText(context, "다음으로 선택된 추천을 불러왔어요!", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            viewModel.clearRecommendSelections()
+                                            onAdd()
+                                        }
+                                    },
                                     onError = { e ->
                                         Toast.makeText(context, e, Toast.LENGTH_SHORT).show()
                                     }
@@ -214,17 +265,18 @@ fun FamilyScheduleScreen(
                         color = TextGray
                     )
                 }
-                // 하루|며칠 선택
-                SelectModeRow(
-                    selected = modeValue,
-                    onSelect = setMode
-                )
-                // 종일 스위치
-                AllDaySwitch(
-                    checked = editor.isAllDay,
-                    onCheckedChange = setAllDay
-                )
-
+                if (!fromRecommend) {
+                    // 하루|며칠 선택
+                    SelectModeRow(
+                        selected = modeValue,
+                        onSelect = setMode
+                    )
+                    // 종일 스위치
+                    AllDaySwitch(
+                        checked = editor.isAllDay,
+                        onCheckedChange = setAllDay
+                    )
+                }
                 if (modeValue == FamilyMode.ONE_DAY) {
                     // 하루 - 시간만
                     ScheduleOnlyTimeRow(
@@ -247,8 +299,7 @@ fun FamilyScheduleScreen(
                             painterId = R.drawable.ic_calendar,
                             onClick = {
                                 if (familyAdd.selectedMemberIds.isEmpty()) {
-                                    Toast.makeText(context, "참여자를 선택해 주세요.", Toast.LENGTH_SHORT)
-                                        .show()
+                                    Toast.makeText(context, "참여자를 선택해 주세요.", Toast.LENGTH_SHORT).show()
                                 } else {
                                     showAvailSheet = true
                                 }
@@ -289,14 +340,16 @@ fun FamilyScheduleScreen(
                     value = location,
                     onValueChange = setLocation,
                     placeholder = "장소 (선택 사항)",
-                    leadingIcon = painterResource(R.drawable.ic_location)
+                    leadingIcon = painterResource(R.drawable.ic_location),
+                    maxLength = 30
                 )
                 // 메모
                 ScheduleInputField(
                     value = memo,
                     onValueChange = setMemo,
                     placeholder = "메모 (선택 사항)",
-                    leadingIcon = painterResource(R.drawable.ic_help)
+                    leadingIcon = painterResource(R.drawable.ic_help),
+                    maxLength = 30
                 )
                 // 참여자 선택(가족 일정 공용)
                 if (!isEdit) {
@@ -373,6 +426,27 @@ fun FamilyScheduleScreen(
                         viewModel.clearOptimizeResult()
                         showAvailSheet = false
                     }
+                )
+            }
+            if (showCancelDialog) {
+                ActionDialog(
+                    title = "추천 일정 추가를 취소하시겠습니까?",
+                    description = "해당 일정만 삭제되고, 남은 추천은 유지됩니다.",
+                    confirmText = "해당 일정 삭제",
+                    cancelText = "아니오",
+                    onConfirm = {
+                        showCancelDialog = false
+                        viewModel.deleteCurrentRecommendDraft()
+                        if (viewModel.hasMoreDrafts()) {
+                            appliedInitial = false
+                            Toast.makeText(context, "다음으로 선택된 추천을 불러왔어요!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            viewModel.clearRecommendSelections()
+                            viewModel.clearFamilyUiState()
+                            onClose()
+                        }
+                    },
+                    onDismiss = { showCancelDialog = false }
                 )
             }
         }

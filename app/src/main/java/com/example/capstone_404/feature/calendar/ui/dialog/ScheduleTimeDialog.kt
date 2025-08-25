@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,13 +38,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.example.capstone_404.R
 import com.example.capstone_404.feature.calendar.model.TimeTarget
+import com.example.capstone_404.feature.calendar.model.timeFormatter
 import com.example.capstone_404.ui.component.ButtonDefault
+import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
+import com.example.capstone_404.ui.theme.TextGray
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.time.Instant
@@ -59,7 +66,8 @@ fun ScheduleTimeDialog(
     endMillis: Long,
     zoneId: ZoneId = ZoneId.systemDefault(),
     onDismiss: () -> Unit,
-    onConfirm: (newStartMillis: Long, newEndMillis: Long) -> Unit
+    onConfirm: (newStartMillis: Long, newEndMillis: Long) -> Unit,
+    onlyTime: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -100,12 +108,20 @@ fun ScheduleTimeDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // 상단 프리뷰
-                RangePreview(
-                    start = previewStart,
-                    end = previewEnd,
-                    active = target,
-                    allDay = false
-                )
+                if (onlyTime) {
+                    TimeOnlyPreview(
+                        start = previewStart,
+                        end = previewEnd,
+                        active = target
+                    )
+                } else {
+                    RangePreview(
+                        start = previewStart,
+                        end = previewEnd,
+                        active = target,
+                        allDay = false
+                    )
+                }
                 // 시간 선택 다이얼
                 TimeWheelRow(
                     time = pickedTime,
@@ -120,14 +136,36 @@ fun ScheduleTimeDialog(
                     val newStart = previewStart
                     var newEnd   = previewEnd
 
-                    if (target == TimeTarget.START) {
-                        if (!newEnd.isAfter(newStart)) {
-                            newEnd = newStart.plusHours(1)
+                    if (onlyTime) {
+                        if (target == TimeTarget.START) {
+                            val startLt = newStart.toLocalTime()
+                            if (startLt.hour == 23 && startLt.minute == 59) {
+                                Toast.makeText(context, "시작 시간은 23:59로 설정할 수 없어요.", Toast.LENGTH_SHORT).show()
+                                return@ButtonDefault
+                            }
+                            if (startLt.hour >= 23) {
+                                newEnd = LocalDateTime.of(newStart.toLocalDate(), LocalTime.of(23, 59))
+                            } else {
+                                if (!newEnd.isAfter(newStart)) {
+                                    newEnd = newStart.plusHours(1)
+                                }
+                            }
+                        } else {
+                            if (!newEnd.isAfter(newStart)) {
+                                Toast.makeText(context, "종료 시점은 시작 시점 이후로 설정해 주세요.", Toast.LENGTH_SHORT).show()
+                                return@ButtonDefault
+                            }
                         }
                     } else {
-                        if (!newEnd.isAfter(newStart)) {
-                            Toast.makeText(context, "종료 시점은 시작 시점 이후로 설정해 주세요.", Toast.LENGTH_SHORT).show()
-                            return@ButtonDefault
+                        if (target == TimeTarget.START) {
+                            if (!newEnd.isAfter(newStart)) {
+                                newEnd = newStart.plusHours(1)
+                            }
+                        } else {
+                            if (!newEnd.isAfter(newStart)) {
+                                Toast.makeText(context, "종료 시점은 시작 시점 이후로 설정해 주세요.", Toast.LENGTH_SHORT).show()
+                                return@ButtonDefault
+                            }
                         }
                     }
                     onConfirm(
@@ -274,5 +312,46 @@ private fun WheelPicker(
             Modifier.align(Alignment.Center).fillMaxWidth().offset(y =  (itemHeight / 2)).height(1.dp),
             color = Stroke
         )
+    }
+}
+
+@Composable
+private fun TimeOnlyPreview(
+    start: LocalDateTime,
+    end: LocalDateTime,
+    active: TimeTarget
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .border(1.dp, Stroke, RoundedCornerShape(8.dp))
+            .padding(vertical = 8.dp, horizontal = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = timeFormatter.format(start.toLocalTime()),
+                style = MaterialTheme.typography.headlineSmall,
+                color = if (active == TimeTarget.START) Main else TextGray
+            )
+        }
+
+        Icon(
+            painter = painterResource(R.drawable.ic_next),
+            tint = TextGray,
+            contentDescription = null
+        )
+
+        Column(
+            Modifier.weight(1f),
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = timeFormatter.format(end.toLocalTime()),
+                style = MaterialTheme.typography.headlineSmall,
+                color = if (active == TimeTarget.END) Main else TextGray
+            )
+        }
     }
 }

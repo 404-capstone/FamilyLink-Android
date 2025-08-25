@@ -2,16 +2,22 @@ package com.example.capstone_404.data.retrofit.api
 
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
+import com.example.capstone_404.data.retrofit.model.request.RecommendRequest
 import com.example.capstone_404.data.retrofit.model.response.AddGroupData
 import com.example.capstone_404.data.retrofit.model.response.AddPersonalData
+import com.example.capstone_404.data.retrofit.model.response.AddScheduleCommentData
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.EditScheduleData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
+import com.example.capstone_404.data.retrofit.model.response.RecommendData
 import com.example.capstone_404.data.retrofit.model.response.ScheduleData
+import com.example.capstone_404.data.retrofit.model.response.ScheduleDetailData
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -49,4 +55,28 @@ interface CalendarApi {
     suspend fun editSchedule(
         @Body body: EditScheduleRequest
     ): Response<BaseResponse<EditScheduleData>>
+
+    // 일정 상세 조회
+    @GET("/schedule/comment")
+    suspend fun getScheduleDetail(
+        @Query("scheduleId") scheduleId: Int
+    ): Response<BaseResponse<ScheduleDetailData>>
+
+    // 일정 댓글 작성
+    @POST("/schedule/comment/add")
+    suspend fun addScheduleComment(
+        @Body body: AddScheduleCommentRequest
+    ): Response<BaseResponse<AddScheduleCommentData>>
+
+    // 일정 삭제
+    @DELETE("/schedule/delete")
+    suspend fun deleteSchedule(
+        @Query("scheduleId") scheduleId: Int
+    ): Response<BaseResponse<Int>>
+
+    // 활동 추천
+    @POST("/schedule/group/recom")
+    suspend fun activityRecommend(
+        @Body body: RecommendRequest
+    ): Response<BaseResponse<RecommendData>>
 }

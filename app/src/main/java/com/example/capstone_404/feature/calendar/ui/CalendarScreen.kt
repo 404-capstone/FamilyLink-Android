@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
+import com.example.capstone_404.feature.calendar.model.Schedule
 import com.example.capstone_404.feature.calendar.ui.content.CalendarScreenContent
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.NotJoinedGroupContent
@@ -29,6 +30,7 @@ import com.example.capstone_404.ui.component.fab.ExpandableFabItem
 fun CalendarScreen(
     viewModel: CalendarViewModel = hiltViewModel(),
     onNavigateToGroup: () -> Unit,
+    onNavigateToDetail: (schedule: Schedule) -> Unit,
     onNavigateToGroupActivity: () -> Unit,
     onNavigateToGroupScheduleAdd: () -> Unit,
     onNavigateToPersonalScheduleAdd: () -> Unit
@@ -38,7 +40,7 @@ fun CalendarScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
     val schedulesByDate by viewModel.schedulesByDate.collectAsState()
     val userIdToRole by viewModel.userIdToRole.collectAsState()
-    val isLoading = viewModel.isLoading
+    val isGetLoading = viewModel.isGetLoading
 
     var isFabExpanded by remember { mutableStateOf(false) }
 
@@ -48,7 +50,7 @@ fun CalendarScreen(
         if (groupInfo != null) viewModel.getAllSchedules()
     }
 
-    if (isLoading) {
+    if (isGetLoading) {
         LoadingDialog("일정을 불러오고 있어요\n잠시만 기다려주세요!")
     }
 
@@ -71,10 +73,13 @@ fun CalendarScreen(
                 ) {
                     if (groupInfo != null && userId != null) {
                     CalendarScreenContent(
-                            selectedDate = selectedDate,
-                            onDateSelected = viewModel::setSelectedDate,
-                            schedulesByDate = schedulesByDate,
-                            userIdToRole = userIdToRole
+                        selectedDate = selectedDate,
+                        onDateSelected = viewModel::setSelectedDate,
+                        schedulesByDate = schedulesByDate,
+                        userIdToRole = userIdToRole,
+                        onClickedItem = { schedule ->
+                            onNavigateToDetail(schedule)
+                        }
                         )
                     } else {
                         NotJoinedGroupContent(onNavigateToGroup = onNavigateToGroup)

@@ -3,6 +3,8 @@ package com.example.capstone_404.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -13,6 +15,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
+import com.example.capstone_404.feature.calendar.ui.ActivityRecommendScreen
+import com.example.capstone_404.feature.calendar.ui.AreaSelectionScreen
 import com.example.capstone_404.feature.calendar.ui.CalendarScreen
 import com.example.capstone_404.feature.diary.ui.DiaryScreen
 import com.example.capstone_404.feature.diary.ui.DiarySelectScreen
@@ -20,6 +25,9 @@ import com.example.capstone_404.feature.diary.ui.DiaryWriteScreen
 import com.example.capstone_404.feature.diary.ui.QuestionSelectScreen
 import com.example.capstone_404.feature.calendar.ui.FamilyScheduleScreen
 import com.example.capstone_404.feature.calendar.ui.PersonalScheduleScreen
+import com.example.capstone_404.feature.calendar.ui.RecommendLoadingScreen
+import com.example.capstone_404.feature.calendar.ui.RecommendResultScreen
+import com.example.capstone_404.feature.calendar.ui.ScheduleDetailScreen
 import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.bar.BottomNavigationBar
 import com.example.capstone_404.ui.component.bar.bottomTabs
@@ -34,6 +42,7 @@ import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 import com.example.capstone_404.feature.login.ui.SplashScreen
 import com.example.capstone_404.feature.mypage.ui.MyPageScreen
 import com.example.capstone_404.feature.mypage.ui.ProfileEditScreen
+import com.example.capstone_404.navigation.CalendarNavKeys.SELECTED_AREA
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -166,47 +175,177 @@ fun AppNavGraph(navController: NavHostController) {
                     onNavigateToGroup = {
                         navController.navigate(Route.GROUP) { popUpTo(0) { inclusive = true } }
                         },
-                    onNavigateToGroupActivity = {},
+                    onNavigateToDetail = { schedule ->
+                        navController.navigate("schedule_detail/scheduleId=${schedule.id}?writerId=${schedule.writerId ?: -1}")
+                    },
+                    onNavigateToGroupActivity = {
+                        viewModel.presetRecommendFromSelectedDate()
+                        navController.navigate(Route.ACTIVITY_RECOMMEND) { popUpTo("calendar") { inclusive = false } }
+                    },
                     onNavigateToGroupScheduleAdd = {
                         viewModel.presetFamilyFromSelectedDate()
-                        navController.navigate(Route.ADD_FAMILY) { popUpTo("calendar") { inclusive = false } }
+                        navController.navigate("schedule_family?formMode=add") { popUpTo("calendar") { inclusive = false } }
                     },
                     onNavigateToPersonalScheduleAdd = {
                         viewModel.presetPersonalFromSelectedDate()
-                        navController.navigate(Route.ADD_PERSONAL) { popUpTo("calendar") { inclusive = false } }
+                        navController.navigate("schedule_personal?formMode=add") { popUpTo("calendar") { inclusive = false } }
                     },
                 )
             }
-            // 개인 일정 추가
-            composable(Route.ADD_PERSONAL) {backStackEntry ->
+            // 일정 상세 조회
+            composable(
+                route = Route.SCHEDULE_DETAIL,
+                arguments = listOf(
+                    navArgument("scheduleId") { type = NavType.IntType },
+                    navArgument("writerId") { type = NavType.IntType; defaultValue = -1 }
+                )
+            ) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Route.CALENDAR)
                 }
                 val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
-                PersonalScheduleScreen(
+                val scheduleId = backStackEntry.arguments?.getInt("scheduleId")!!
+                val writerIdArg = backStackEntry.arguments?.getInt("writerId") ?: -1
+                val writerId = if (writerIdArg == -1) null else writerIdArg
+                ScheduleDetailScreen(
                     viewModel = viewModel,
-                    onClose = {
+                    scheduleId = scheduleId,
+                    writerId = writerId,
+                    onBack = {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
                     },
-                    onSubmit = {
-                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    onPersonalEdit = {
+                        navController.navigate("schedule_personal?formMode=edit")
+                    },
+                    onFamilyEdit = {
+                        navController.navigate("schedule_family?formMode=edit")
                     }
                 )
             }
-            // 가족 일정 추가
-            composable(Route.ADD_FAMILY) {
-                    backStackEntry ->
+            // 개인 일정 추가|수정
+            composable(
+                route = Route.SCHEDULE_PERSONAL,
+                arguments = listOf(
+                    navArgument("formMode") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Route.CALENDAR)
                 }
                 val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                val formMode = backStackEntry.arguments!!.getString("formMode") ?: "add"
+                PersonalScheduleScreen(
+                    viewModel = viewModel,
+                    formMode = formMode,
+                    onClose = { navController.popBackStack() },
+                    onAdd = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onEdit = { scheduleId, writerId ->
+                        navController.navigate("schedule_detail/scheduleId=${scheduleId}?writerId=${writerId}") { popUpTo("calendar") { inclusive = false } }
+                    }
+                )
+            }
+            // 가족 일정 추가|수정
+            composable(
+                route = Route.SCHEDULE_FAMILY,
+                arguments = listOf(
+                    navArgument("formMode") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                val formMode = backStackEntry.arguments!!.getString("formMode") ?: "add"
                 FamilyScheduleScreen(
+                    viewModel = viewModel,
+                    formMode = formMode,
+                    onClose = { navController.popBackStack() },
+                    onAdd = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onEdit = {
+                        navController.navigate("schedule_detail/scheduleId=${it}") { popUpTo("calendar") { inclusive = false } }
+                    }
+                )
+            }
+            // 가족 활동 추천
+            composable(Route.ACTIVITY_RECOMMEND) {backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+
+                LaunchedEffect(Unit) {
+                    val handle = navController.currentBackStackEntry?.savedStateHandle ?: return@LaunchedEffect
+                    handle.getStateFlow<String?>(SELECTED_AREA, null).collect { fullName ->
+                        if (fullName != null) {
+                            viewModel.setRecommendArea(fullName)
+                            handle[SELECTED_AREA] = null
+                        }
+                    }
+                }
+                ActivityRecommendScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onClickArea = {
+                        navController.navigate(Route.AREA_SELECT)
+                    },
+                    onRecommend = {
+                        navController.navigate(Route.RECOMMEND_LOADING) { popUpTo("calendar") { inclusive = false } }
+                    },
+                )
+            }
+            // 활동 추천 지역 선택
+            composable(Route.AREA_SELECT) {
+                AreaSelectionScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onConfirm = { fullName ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(SELECTED_AREA, fullName)
+
+                        navController.popBackStack()
+                    },
+                )
+            }
+            // 활동 추천 로딩
+            composable(Route.RECOMMEND_LOADING) {backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                RecommendLoadingScreen(
                     viewModel = viewModel,
                     onClose = {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
                     },
-                    onSubmit = {
+                    onNavigateToResult = {
+                        navController.navigate(Route.RECOMMEND_RESULT) { popUpTo("calendar") { inclusive = false } }
+                    }
+                )
+            }
+            // 활동 추천 결과
+            composable(Route.RECOMMEND_RESULT) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.CALENDAR)
+                }
+                val viewModel: CalendarViewModel = hiltViewModel(parentEntry)
+                val result = viewModel.recommendResult.collectAsState().value as RecommendResultUiState.Success
+                RecommendResultScreen(
+                    viewModel = viewModel,
+                    data = result.data,
+                    onClose = {
                         navController.navigate(Route.CALENDAR) { popUpTo(0) { inclusive = true } }
+                    },
+                    onAddSchedules = {
+                        viewModel.presetFamilyFromSelectedDate()
+                        navController.navigate("schedule_family?formMode=add") { popUpTo("calendar") { inclusive = false } }
                     }
                 )
             }

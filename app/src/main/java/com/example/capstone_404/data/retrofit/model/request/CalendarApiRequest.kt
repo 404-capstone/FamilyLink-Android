@@ -42,5 +42,27 @@ data class EditScheduleRequest(
     val endTime: String? = null,
     val content: String? = null,
     val location: String? = null,
-    val timeflex: Boolean? = null
+    val timeflex: Boolean? = null,
+    val participantIds: List<Int>? = null,
+    val groupId: Int
+)
+
+// 일정 댓글 작성 Request Body
+data class AddScheduleCommentRequest(
+    val scheduleId: Int,
+    val content: String,
+    val userId: Int
+)
+
+// 활동 추천 Request Body
+data class RecommendRequest(
+    val area: String,
+    val startTime: String,
+    val endTime: String,
+    val memberIds: List<Int>,
+    val inoutdoor: String,
+    val activityPersonalityList: List<ActivityPersonality>
+)
+data class ActivityPersonality(
+    val type: String
 )

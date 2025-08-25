@@ -99,5 +99,51 @@ data class EditScheduleData(
     val endTime: String,
     val content: String?,
     val location: String?,
-    val timeflex: Boolean
+    val timeflex: Boolean,
+    val participantIds: List<Int> = emptyList()
+)
+
+// 일정 상세 조회 Response
+@Serializable
+data class ScheduleDetailData(
+    val scheduleId: Int,
+    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val timeflex: Boolean,
+    val location: String? = null,
+    val content: String? = null,
+    val participantIds: List<Int> = emptyList(),
+    val permission: Boolean,
+    val comments: List<ScheduleComment> = emptyList()
+)
+@Serializable
+data class ScheduleComment(
+    val commentId: Int,
+    val body: String,
+    val dateAt: String,
+    val userId: Int
+)
+
+// 일정 댓글 작성 Response
+@Serializable
+data class AddScheduleCommentData(
+    val id: Int,
+    val body: String,
+    val dateAt: String,
+    val scheduleId: Int
+)
+
+// 활동 추천 Response
+data class RecommendData(
+    val recommendations: List<RecommendCategory>
+)
+data class RecommendCategory(
+    val category: String,
+    val items: List<RecommendItem>
+)
+data class RecommendItem(
+    val activity: String,
+    val location: String,
+    val description: String
 )

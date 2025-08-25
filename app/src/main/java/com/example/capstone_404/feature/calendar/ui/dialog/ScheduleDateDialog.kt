@@ -29,7 +29,7 @@ import com.example.capstone_404.R
 import com.example.capstone_404.feature.calendar.model.TimeTarget
 import com.example.capstone_404.feature.calendar.model.dateFormatter
 import com.example.capstone_404.feature.calendar.model.timeFormatter
-import com.example.capstone_404.feature.calendar.ui.component.scheduleadd.DateOnlyCalendar
+import com.example.capstone_404.feature.calendar.ui.component.schedule.add.DateOnlyCalendar
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke

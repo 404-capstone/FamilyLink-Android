@@ -48,7 +48,8 @@ fun CalendarScreenContent(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
     schedulesByDate: Map<LocalDate, List<Schedule>>,
-    userIdToRole: Map<Int, String>
+    userIdToRole: Map<Int, String>,
+    onClickedItem: (schedule: Schedule) -> Unit
 ) {
     // 날짜 출력 범위
     val startMonth = remember { YearMonth.now().minusMonths(6) }
@@ -137,7 +138,7 @@ fun CalendarScreenContent(
                         schedules = daySchedules,
                         userIdToRole = userIdToRole,
                         onItemClick = { schedule ->
-                            // Todo : 상세 정보 조회 페이지 제작 후 연결
+                            onClickedItem(schedule)
                         },
                         onClickToday = {
                             val today = LocalDate.now()

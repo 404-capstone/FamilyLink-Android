@@ -9,28 +9,48 @@ import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.CalendarRepository
+import com.example.capstone_404.data.retrofit.model.request.ActivityPersonality
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
+import com.example.capstone_404.data.retrofit.model.request.AddScheduleCommentRequest
 import com.example.capstone_404.data.retrofit.model.request.EditScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.OptimizeRequest
+import com.example.capstone_404.data.retrofit.model.request.RecommendRequest
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.data.retrofit.model.response.OptimizeData
-import com.example.capstone_404.feature.calendar.model.scheduleadd.PersonalScheduleUiState
+import com.example.capstone_404.data.retrofit.model.response.RecommendItem
+import com.example.capstone_404.feature.calendar.model.schedule.add.PersonalScheduleUiState
 import com.example.capstone_404.feature.calendar.model.Schedule
+import com.example.capstone_404.feature.calendar.model.schedule.detail.ScheduleDetailUiState
 import com.example.capstone_404.feature.calendar.model.scheduleMapper
-import com.example.capstone_404.feature.calendar.model.scheduleadd.FamilyMode
-import com.example.capstone_404.feature.calendar.model.scheduleadd.FamilyScheduleUiState
-import com.example.capstone_404.feature.calendar.model.scheduleadd.presetFromDate
-import com.example.capstone_404.feature.calendar.model.scheduleadd.withAllDay
-import com.example.capstone_404.feature.calendar.model.scheduleadd.withRange
+import com.example.capstone_404.feature.calendar.model.schedule.add.FamilyMode
+import com.example.capstone_404.feature.calendar.model.schedule.add.FamilyScheduleUiState
+import com.example.capstone_404.feature.calendar.model.schedule.add.presetFromDate
+import com.example.capstone_404.feature.calendar.model.schedule.add.withAllDay
+import com.example.capstone_404.feature.calendar.model.schedule.add.withRange
+import com.example.capstone_404.feature.calendar.model.schedule.edit.EditState
+import com.example.capstone_404.feature.calendar.model.schedule.edit.extractAllDay
+import com.example.capstone_404.feature.calendar.model.schedule.edit.extractFamilyMode
+import com.example.capstone_404.feature.calendar.model.schedule.edit.makeEditor
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.ActivityRecommendUiState
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.ActivityType
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.InOutDoor
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendDraft
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.TypeGroup
+import com.example.capstone_404.feature.calendar.model.schedule.recommend.toKorean
+import com.example.capstone_404.feature.calendar.model.server24HourTimeFormatter
 import com.example.capstone_404.feature.calendar.model.serverDateFormatter
 import com.example.capstone_404.feature.calendar.model.serverDateTimeFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -52,9 +72,13 @@ class CalendarViewModel @Inject constructor(
     // 유저 ID Flow
     val userIdFlow: Flow<Int?> = userInfoManager.userIdFlow
 
+    var isGetLoading by mutableStateOf(false)
+        private set
     var isLoading by mutableStateOf(false)
         private set
     var isSaveLoading by mutableStateOf(false)
+        private set
+    var isCommentSending by mutableStateOf(false)
         private set
 
     // 선택된 날짜
@@ -81,6 +105,29 @@ class CalendarViewModel @Inject constructor(
     private val _optimizeResult = MutableStateFlow<OptimizeData?>(null)
     val optimizeResult: StateFlow<OptimizeData?> = _optimizeResult.asStateFlow()
 
+    // 일정 상세 조회 상태
+    private val _scheduleDetail = MutableStateFlow(ScheduleDetailUiState())
+    val scheduleDetail: StateFlow<ScheduleDetailUiState> = _scheduleDetail.asStateFlow()
+
+    // 일정 정보 수정 상태
+    private val _edit = MutableStateFlow<EditState?>(null)
+    val editState: StateFlow<EditState?> = _edit.asStateFlow()
+
+    // 활동 추천 입력 상태
+    private val _activityRecommend = MutableStateFlow(ActivityRecommendUiState())
+    val activityRecommendState: StateFlow<ActivityRecommendUiState> = _activityRecommend.asStateFlow()
+
+    // 활동 추천 결과 상태
+    private val _recommendResult = MutableStateFlow<RecommendResultUiState>(RecommendResultUiState.Idle)
+    val recommendResult: StateFlow<RecommendResultUiState> = _recommendResult
+
+    // 활동 추천 결과에서 선택된 일정 상태
+    private val _recommendQueue = MutableStateFlow<List<RecommendDraft>>(emptyList())
+    val recommendQueueCount: StateFlow<Int> =
+        _recommendQueue.map { it.size }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    val currentRecommendDraft: StateFlow<RecommendDraft?> =
+        _recommendQueue.map { it.firstOrNull() }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     // 시작 시 그룹 내 역할 추출
     init {
         viewModelScope.launch {
@@ -103,7 +150,7 @@ class CalendarViewModel @Inject constructor(
     // 일정 전체 조회
     fun getAllSchedules() {
         viewModelScope.launch {
-            isLoading = true
+            isGetLoading = true
             val userId = userInfoManager.getUserId()
             val groupId = userInfoManager.getGroupId()
             val result = calendarRepository.getAllSchedule(groupId!!)
@@ -111,10 +158,116 @@ class CalendarViewModel @Inject constructor(
                 Log.d("CalendarViewModel", "일정 전체 조회 성공 : $data")
                 val roleMap = _userIdToRole.value
                 _schedulesByDate.value = scheduleMapper(data, roleMap, userId)
-            }
-                .onFailure { e ->
+            }.onFailure { e ->
                     Log.d("CalendarViewModel", "일정 전체 조회 실패 : ${e.message}")
                 }
+            isGetLoading = false
+        }
+    }
+
+    // 일정 상세 조회
+    fun getScheduleDetail(scheduleId: Int) {
+        viewModelScope.launch {
+            _scheduleDetail.value = ScheduleDetailUiState(isLoading = true)
+            val result = calendarRepository.getScheduleDetail(scheduleId)
+            result.onSuccess { data ->
+                Log.d("CalendarViewModel", "일정 상세 조회 성공 : $data")
+                _scheduleDetail.value = ScheduleDetailUiState(data = data)
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "일정 상세 조회 실패 : ${e.message}")
+                _scheduleDetail.value = ScheduleDetailUiState(error = "일정 정보 불러오기를 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요.")
+            }
+        }
+    }
+
+    // 일정 상세 조회에서 참가
+    fun toggleScheduleParticipation(
+        scheduleId: Int,
+        userId: Int,
+        join: Boolean,
+        onError: (String) -> Unit
+    ) {
+        val current = scheduleDetail.value.data ?: return
+        val currentList = current.participantIds.toMutableSet()
+        if (join) currentList.add(userId) else currentList.remove(userId)
+
+        viewModelScope.launch {
+            isSaveLoading = true
+            val groupId = userInfoManager.getGroupId()
+            val body = EditScheduleRequest(
+                id = scheduleId,
+                title = null,
+                startTime = null,
+                endTime = null,
+                content = null,
+                location = null,
+                timeflex = null,
+                participantIds = currentList.toList(),
+                groupId = groupId!!
+            )
+            val result = calendarRepository.editSchedule(body)
+            result.onSuccess { data ->
+                Log.d("CalendarViewModel", "참여 정보 수정 성공 : $data")
+                val updated = current.copy(participantIds = currentList.toList())
+                _scheduleDetail.value = scheduleDetail.value.copy(data = updated, error = null)
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "참여 정보 수정 실패 : ${e.message}")
+                onError("참여 정보 수정을 실패했습니다.")
+            }
+            isSaveLoading = false
+        }
+    }
+
+    // 일정 댓글 작성
+    fun addScheduleComment(
+        scheduleId: Int,
+        content: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            isCommentSending = true
+            try {
+                val userId = userInfoManager.getUserId()
+                val body = AddScheduleCommentRequest(
+                    scheduleId = scheduleId,
+                    content = content,
+                    userId = userId!!
+                )
+                val result = calendarRepository.addScheduleComment(body)
+
+                result.onSuccess { data ->
+                    Log.d("CalendarViewModel", "댓글 작성 성공 : $data")
+                    getScheduleDetail(scheduleId)
+                    onSuccess()
+                }.onFailure { e ->
+                    Log.e("CalendarViewModel", "댓글 작성 실패 : ${e.message}")
+                    onError("댓글 등록을 실패했어요.")
+                }
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "댓글 작성 실패 : ${e.message}")
+                onError("댓글 등록을 실패했어요.")
+            }
+            isCommentSending = false
+        }
+    }
+
+    // 일정 삭제
+    fun deleteSchedule(
+        scheduleId: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            isLoading = true
+            val result = calendarRepository.deleteSchedule(scheduleId)
+            result.onSuccess { data ->
+                Log.d("CalendarViewModel", "일정 삭제 성공 : $data")
+                onSuccess()
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "일정 삭제 실패 : ${e.message}")
+                onError("일정 삭제를 실패했습니다.")
+            }
             isLoading = false
         }
     }
@@ -379,7 +532,7 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    // 하루 일정 시간만 저장
+    // 하루 일정 날짜 저장
     fun setFamilyDateOnly(
         date: LocalDate,
         zoneId: ZoneId = ZoneId.systemDefault()
@@ -543,9 +696,10 @@ class CalendarViewModel @Inject constructor(
     }
 
     // 최적화 결과 중 변경된 일정 정보 추출
-    private fun extractChangedInfo(opt: OptimizeData): List<EditScheduleRequest> {
+    private suspend fun extractChangedInfo(opt: OptimizeData): List<EditScheduleRequest> {
         val beforeMap = opt.beforeSchedule.personalSchedule.associateBy { it.schduleId }
         val edits = mutableListOf<EditScheduleRequest>()
+        val groupId = userInfoManager.getGroupId()
 
         opt.afterSchedule.personalSchedule.forEach { after ->
             val before = beforeMap[after.schduleId] ?: return@forEach
@@ -559,11 +713,378 @@ class CalendarViewModel @Inject constructor(
                     endTime = after.endTime,
                     content = null,
                     location = null,
-                    timeflex = null
+                    timeflex = null,
+                    participantIds = null,
+                    groupId = groupId!!
                 )
             }
         }
         Log.d("CalendarViewModel", "변경된 기존 일정 정보 : $edits")
         return edits
+    }
+
+
+    // -------------------- 일정 정보 수정 --------------------
+    // 수정 초기값 설정
+    fun startEditFromDetail(
+        zoneId: ZoneId
+    ) {
+        val detail = scheduleDetail.value.data ?: return
+        val isGroup = detail.participantIds.isNotEmpty()
+
+        val startTime = LocalDateTime.parse(detail.startTime, serverDateTimeFormatter)
+        val endTime = LocalDateTime.parse(detail.endTime, serverDateTimeFormatter)
+
+        val allDay = extractAllDay(startTime, endTime)
+        val editor = makeEditor(startTime, endTime, zoneId, allDay)
+
+        val familyMode = if (isGroup) extractFamilyMode(startTime, endTime) else null
+        val isFlexible = if (!isGroup) (detail.timeflex) else null
+
+        _edit.value = EditState(
+            scheduleId = detail.scheduleId,
+            isGroup = isGroup,
+            title = detail.title,
+            isFlexible = isFlexible,
+            editor = editor,
+            location = detail.location.orEmpty(),
+            memo = detail.content.orEmpty(),
+            familyMode = familyMode
+        )
+    }
+    // 수정 초기화
+    private fun clearEditState() { _edit.value = null }
+
+    // 필드 업데이트 함수
+    fun setEditTitle(text: String) {
+        _edit.update { it?.copy(title = text) }
+    }
+    fun setEditFlexible(checked: Boolean) {
+        _edit.update { it?.copy(isFlexible = checked) }
+    }
+    fun setEditMode(
+        mode: FamilyMode,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _edit.update { state ->
+            state ?: return
+            val editor = state.editor
+            val startDate = Instant.ofEpochMilli(editor.startMillis).atZone(zone).toLocalDate()
+            val endDate = Instant.ofEpochMilli(editor.endMillis).atZone(zone).toLocalDate()
+
+            val nextEditor = when (mode) {
+                FamilyMode.ONE_DAY -> {
+                    val endMillis = LocalDateTime.of(
+                        startDate,
+                        if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                        else Instant.ofEpochMilli(editor.endMillis).atZone(zone).toLocalTime()
+                    ).atZone(zone).toInstant().toEpochMilli()
+                    editor.copy(endMillis = endMillis)
+                }
+                FamilyMode.MULTI_DAYS -> {
+                    val ensuredEndDate = if (!endDate.isAfter(startDate)) startDate.plusDays(1) else endDate
+                    val endMillis = LocalDateTime.of(
+                        ensuredEndDate,
+                        if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                        else Instant.ofEpochMilli(editor.endMillis).atZone(zone).toLocalTime()
+                    ).atZone(zone).toInstant().toEpochMilli()
+                    editor.copy(endMillis = endMillis)
+                }
+            }
+            state.copy(familyMode = mode, editor = nextEditor)
+        }
+    }
+    fun setEditAllDay(
+        enabled: Boolean,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _edit.update { state ->
+            state ?: return
+            val editor = state.editor
+            if (!state.isGroup) {
+                val next = editor.withAllDay(enabled, zone)
+                val same = isSameDay(next.startMillis, next.endMillis, zone)
+                state.copy(
+                    editor = next,
+                    isFlexible = if (enabled || !same) false else state.isFlexible
+                )
+            } else {
+                val after = editor.withAllDay(enabled, zone)
+                val startDate = Instant.ofEpochMilli(after.startMillis).atZone(zone).toLocalDate()
+                var endDate = Instant.ofEpochMilli(after.endMillis).atZone(zone).toLocalDate()
+                var endMillis = after.endMillis
+
+                if (state.familyMode == FamilyMode.ONE_DAY) {
+                    if (endDate != startDate) {
+                        val end = LocalDateTime.of(
+                            startDate,
+                            if (after.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(endMillis).atZone(zone).toLocalTime()
+                        )
+                        endMillis = end.atZone(zone).toInstant().toEpochMilli()
+                    }
+                } else {
+                    if (!endDate.isAfter(startDate)) {
+                        endDate = startDate.plusDays(1)
+                        val end = LocalDateTime.of(
+                            endDate,
+                            if (after.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(endMillis).atZone(zone).toLocalTime()
+                        )
+                        endMillis = end.atZone(zone).toInstant().toEpochMilli()
+                    }
+                }
+                state.copy(editor = after.copy(endMillis = endMillis))
+            }
+        }
+    }
+    fun setEditRange(
+        start: Long,
+        end: Long,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _edit.update { state ->
+            state ?: return
+            val editor = state.editor
+            if (!state.isGroup) {
+                val next = editor.withRange(start, end)
+                val same = isSameDay(start, end, zone)
+                val mustDisable = next.isAllDay || !same
+                state.copy(
+                    editor = next,
+                    isFlexible = if (mustDisable) false else state.isFlexible
+                )
+            } else {
+                val startDate = Instant.ofEpochMilli(start).atZone(zone).toLocalDate()
+                var endDate = Instant.ofEpochMilli(end).atZone(zone).toLocalDate()
+                var newEnd = end
+
+                if (state.familyMode == FamilyMode.ONE_DAY) {
+                    if (endDate != startDate) {
+                        newEnd = LocalDateTime.of(
+                            startDate,
+                            if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(end).atZone(zone).toLocalTime()
+                        ).atZone(zone).toInstant().toEpochMilli()
+                    }
+                } else {
+                    if (!endDate.isAfter(startDate)) {
+                        endDate = startDate.plusDays(1)
+                        newEnd = LocalDateTime.of(
+                            endDate,
+                            if (editor.isAllDay) LocalTime.MAX.minusSeconds(1)
+                            else Instant.ofEpochMilli(end).atZone(zone).toLocalTime()
+                        ).atZone(zone).toInstant().toEpochMilli()
+                    }
+                }
+                state.copy(editor = editor.withRange(start, newEnd))
+            }
+        }
+    }
+    fun setEditLocation(text: String) {
+        _edit.update { it?.copy(location = text) }
+    }
+    fun setEditMemo(text: String) {
+        _edit.update { it?.copy(memo = text) }
+    }
+
+    // 일정 정보 수정
+    fun submitScheduleEdit(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val state = _edit.value ?: return
+        viewModelScope.launch {
+            isSaveLoading = true
+            val zone = ZoneId.systemDefault()
+            val groupId = userInfoManager.getGroupId()
+
+            val startTime = Instant.ofEpochMilli(state.editor.startMillis)
+                .atZone(zone).toLocalDateTime().format(serverDateTimeFormatter)
+            val endTime = Instant.ofEpochMilli(state.editor.endMillis)
+                .atZone(zone).toLocalDateTime().format(serverDateTimeFormatter)
+
+            val timeflex = if (!state.isGroup) state.isFlexible else null
+
+            val body = EditScheduleRequest(
+                id = state.scheduleId,
+                title = state.title,
+                startTime = startTime,
+                endTime = endTime,
+                content = state.memo,
+                location = state.location,
+                timeflex = timeflex,
+                participantIds = null,
+                groupId = groupId!!
+            )
+
+            val result = calendarRepository.editSchedule(body)
+            result.onSuccess {data ->
+                Log.d("CalendarViewModel", "일정 수정 완료 : $data")
+                clearEditState()
+                onSuccess()
+            }.onFailure { e ->
+                Log.e("CalendarViewModel", "일정 수정 실패 : ${e.message}")
+                onError("일정 수정을 실패했습니다.")
+            }
+            isSaveLoading = false
+        }
+    }
+
+
+    // -------------------- 활동 추천 --------------------
+    // 필드 업데이트 함수
+    fun presetRecommendFromSelectedDate() {
+        val date = _selectedDate.value
+        _activityRecommend.update { it.copy(editor = it.editor.presetFromDate(date)) }
+    }
+    fun setRecommendArea(area: String) {
+        _activityRecommend.update { it.copy(area = area) }
+    }
+    fun setRecommendTimeRange(
+        start: Long,
+        end: Long,
+        zone: ZoneId = ZoneId.systemDefault()
+    ) {
+        _activityRecommend.update { state ->
+            val editor = state.editor
+            val startDate = millisToDate(start, zone)
+            val endDate = millisToDate(end, zone)
+            var newEnd = end
+
+            if (endDate != startDate) {
+                val endTime = Instant.ofEpochMilli(end).atZone(zone).toLocalTime()
+                newEnd = LocalDateTime.of(startDate, endTime)
+                    .atZone(zone).toInstant().toEpochMilli()
+            }
+
+            state.copy(
+                editor = editor.copy(isAllDay = false).withRange(start, newEnd)
+            )
+        }
+    }
+    fun toggleRecommendMember(userId: Int) {
+        _activityRecommend.update { cur ->
+            val next = cur.memberIds.toMutableSet().apply { if (!add(userId)) remove(userId) }
+            cur.copy(memberIds = next)
+        }
+    }
+    fun setRecommendMembers(userIds: Collection<Int>) {
+        _activityRecommend.update { it.copy(memberIds = userIds.toSet()) }
+    }
+    fun setRecommendInOutDoor(value: InOutDoor?) {
+        _activityRecommend.update { it.copy(inOutDoor = value) }
+    }
+    fun addTypeGroup() {
+        _activityRecommend.update { state ->
+            if (state.canAddTypeGroup) state.copy(typeGroups = state.typeGroups + TypeGroup())
+            else state
+        }
+    }
+    fun selectTypeInGroup(groupIndex: Int, type: ActivityType) {
+        _activityRecommend.update { state ->
+            if (groupIndex !in state.typeGroups.indices) return
+            val typeGroup = state.typeGroups[groupIndex]
+            if (typeGroup.selected == type) return
+            val next = state.typeGroups.toMutableList()
+            next[groupIndex] = typeGroup.copy(selected = type)
+            state.copy(typeGroups = next)
+        }
+    }
+    fun removeTypeGroup(groupIndex: Int) {
+        _activityRecommend.update { state ->
+            if (state.typeGroups.size <= 1 || groupIndex !in state.typeGroups.indices) return
+            state.copy(typeGroups = state.typeGroups.toMutableList().also { it.removeAt(groupIndex) })
+        }
+    }
+
+    // 활동 추천 요청
+    fun requestRecommend(
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ) {
+        val state = _activityRecommend.value
+
+        val area = state.area
+        val startMillis = state.editor.startMillis
+        val endMillis = state.editor.endMillis
+
+        val startTime = Instant.ofEpochMilli(startMillis).atZone(zoneId).toLocalTime()
+            .format(server24HourTimeFormatter)
+        val endTime = Instant.ofEpochMilli(endMillis).atZone(zoneId).toLocalTime()
+            .format(server24HourTimeFormatter)
+
+        val memberIds = state.memberIds.toList()
+        val inoutdoor = state.inOutDoor.toKorean()
+        val personalities = state.typeGroups
+            .mapNotNull { it.selected }
+            .map { ActivityPersonality(type = it.label) }
+
+        val body = RecommendRequest(
+            area = area!!,
+            startTime = startTime,
+            endTime = endTime,
+            memberIds = memberIds,
+            inoutdoor = inoutdoor,
+            activityPersonalityList = personalities
+        )
+
+        Log.d("CalendarViewModel", "활동 추천 요청 : $body")
+        viewModelScope.launch {
+            try {
+                val result = calendarRepository.activityRecommend(body)
+                result.onSuccess { data ->
+                    Log.d("CalendarViewModel", "활동 추천 완료 : $data")
+                    _recommendResult.value = RecommendResultUiState.Success(data)
+                }.onFailure { e ->
+                    Log.e("CalendarViewModel", "활동 추천 실패 : ${e.message}")
+                    _recommendResult.value =
+                        RecommendResultUiState.Error("활동 추천 요청을 실패했습니다.\n다시 시도해 보세요.")
+                }
+            } finally {
+                _activityRecommend.value = ActivityRecommendUiState()
+            }
+        }
+    }
+
+    // 활동 추천 결과에서 선택된 일정 저장
+    fun setRecommendSelections(items: List<RecommendItem>) {
+        _recommendQueue.update { cur ->
+            cur + items.map {
+                RecommendDraft(
+                    location = it.location,
+                    memo = it.activity
+                )
+            }
+        }
+    }
+    // 활동 추천 결과에서 선택된 일정 초기화
+    fun clearRecommendSelections() {
+        _recommendQueue.value = emptyList()
+    }
+
+    // 현재 초안 적용
+    fun applyCurrentDraftToFamilyForm() {
+        val draft = _recommendQueue.value.firstOrNull() ?: return
+        _family.update { state ->
+            state.copy(
+                title = "",
+                location = draft.location,
+                memo = draft.memo,
+                optSelectedDate = null,
+                optResult = null
+            )
+        }
+        presetFamilyFromSelectedDate()
+    }
+    // 현재 출력된 초안 삭제
+    fun deleteCurrentRecommendDraft() {
+        _recommendQueue.update { cur -> if (cur.isNotEmpty()) cur.drop(1) else cur }
+    }
+    // 남은 초안 여부
+    fun hasMoreDrafts(): Boolean = _recommendQueue.value.isNotEmpty()
+
+    // 가족 일정 추가 입력 상태 초기화
+    fun clearFamilyUiState() {
+        _family.value = FamilyScheduleUiState()
     }
 }

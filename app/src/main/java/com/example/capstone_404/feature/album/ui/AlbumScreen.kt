@@ -1,6 +1,9 @@
 package com.example.capstone_404.feature.album.ui
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
@@ -23,17 +30,49 @@ import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.component.fab.SingleFab
 import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.utils.RequestStoragePermission
 
 @Composable
 fun AlbumScreen(
     viewModel: AlbumViewModel = hiltViewModel(),
-    onNavigateToGroup: () -> Unit
+    onNavigateToGroup: () -> Unit,
+    onNavigateToPhotoInput: (String) -> Unit  // 이미지 URI를 파라미터로 받음
 ) {
     val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
     val albums by viewModel.albums.collectAsState()
     val selectedYearMonth by viewModel.selectedYearMonth.collectAsState()
     val isLoading = viewModel.isLoading
+    val context = LocalContext.current
+
+    // 갈러리 권한 실행 관리 변수
+    var requestGalleryPermission by remember { mutableStateOf(false) }
+
+    // 갤러리에서 이미지 선택
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { imageUri ->
+            // 선택된 이미지를 Navigation 파라미터로 전달
+            val encodedUri = java.net.URLEncoder.encode(imageUri.toString(), "UTF-8")
+            // 사진 정보 입력 화면으로 이동
+            onNavigateToPhotoInput(encodedUri)
+        }
+    }
+
+    // 저장소 권한 요청 실행
+    if (requestGalleryPermission) {
+        RequestStoragePermission(
+            context = context,
+            onGranted = {
+                galleryLauncher.launch("image/*")
+                requestGalleryPermission = false
+            },
+            onDenied = {
+                requestGalleryPermission = false
+            }
+        )
+    }
 
     // 그룹 정보가 있을 때만 앨범 데이터 로드
     LaunchedEffect(groupInfo) {
@@ -75,7 +114,6 @@ fun AlbumScreen(
                 .fillMaxSize()
                 .padding(top = innerPadding.calculateTopPadding())
         ) {
-            // 반응형 패딩
             val horizontalPadding = when {
                 // 사진 그리드 상태일 때는 패딩 최소화
                 selectedYearMonth != null -> 8.dp
@@ -87,7 +125,7 @@ fun AlbumScreen(
                 }
             }
 
-            // 그룹 미가입 상태 또는 그룹 가입 상태에 따른 UI 표시
+            // 그룹 미가입/가입 상태에 따른 UI 표시
             if (groupInfo != null && userId != null) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     AlbumScreenContent(
@@ -97,9 +135,11 @@ fun AlbumScreen(
                         onRefresh = viewModel::getAllAlbums,
                         modifier = Modifier.padding(horizontal = horizontalPadding)
                     )
-                    //사진추가
+                    // 사진 추가 FAB
                     SingleFab(
-                        onClick = { },
+                        onClick = {
+                            requestGalleryPermission = true
+                        },
                         icon = R.drawable.ic_add
                     )
                 }

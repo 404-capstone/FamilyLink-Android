@@ -8,6 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -16,6 +17,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.capstone_404.feature.album.ui.AlbumScreen
+import com.example.capstone_404.feature.album.ui.PhotoInputScreen
+import com.example.capstone_404.feature.album.viewmodel.AlbumViewModel
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
 import com.example.capstone_404.feature.calendar.ui.ActivityRecommendScreen
 import com.example.capstone_404.feature.calendar.ui.AreaSelectionScreen
@@ -44,6 +47,7 @@ import com.example.capstone_404.feature.login.ui.SplashScreen
 import com.example.capstone_404.feature.mypage.ui.MyPageScreen
 import com.example.capstone_404.feature.mypage.ui.ProfileEditScreen
 import com.example.capstone_404.navigation.CalendarNavKeys.SELECTED_AREA
+import java.net.URLDecoder
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -438,12 +442,42 @@ fun AppNavGraph(navController: NavHostController) {
             }
 
             // 앨범
-            composable(Route.ALBUM) {
+            composable(Route.ALBUM) { backStackEntry ->
+                val viewModel: AlbumViewModel = hiltViewModel(backStackEntry)
                 AlbumScreen(
+                    viewModel = viewModel,
                     onNavigateToGroup = {
                         navController.navigate(Route.GROUP) {
                             popUpTo(Route.ALBUM) { inclusive = true }
                         }
+                    },
+                    onNavigateToPhotoInput = { encodedImageUri ->
+                        navController.navigate("photo_input/$encodedImageUri")
+                    }
+                )
+            }
+
+            // 사진 정보 입력
+            composable(
+                route = Route.PHOTO_INPUT,
+                arguments = listOf(navArgument("imageUri") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.ALBUM)
+                }
+                val viewModel: AlbumViewModel = hiltViewModel(parentEntry)
+
+                val encodedImageUri = backStackEntry.arguments?.getString("imageUri") ?: ""
+                val imageUri = URLDecoder.decode(encodedImageUri, "UTF-8").toUri()
+
+                PhotoInputScreen(
+                    viewModel = viewModel,
+                    initialImageUri = imageUri,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onSaveComplete = {
+                        navController.popBackStack()
                     }
                 )
             }

@@ -24,6 +24,7 @@ data class PhotoInfoData(
     val thumbnailurl: String,
     val content: String,
     val area: String,
-    val time: Long,
+    val date: String,
+    val time: String,
     val userid: List<Int>
 )

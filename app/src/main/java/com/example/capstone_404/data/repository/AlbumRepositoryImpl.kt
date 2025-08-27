@@ -14,7 +14,7 @@ class AlbumRepositoryImpl @Inject constructor(
 ) : AlbumRepository {
 
     // 테스트 모드 (테스트 완료 후 false로 변경)
-    private val isTestMode = false
+    private val isTestMode = true
 
     override suspend fun getAllAlbums(groupId: Int): Result<AlbumSearchData> {
         if (isTestMode) {
@@ -49,9 +49,10 @@ class AlbumRepositoryImpl @Inject constructor(
                             photoid = 1,
                             title = "신정 가족 모임",
                             thumbnailurl = "https://picsum.photos/400/300?random=1",
-                            content = "새해 첫날 온 가족이 모여서 떡국을 먹으며 새해 인사를 나누었어요",
+                            content = "새해 첫날 온 가족이 모여서 떡국을 먹으며 새해 인사를 나누었어요. 할머니가 정성스럽게 끓인 떡국 한 그릇에는 가족의 사랑과 새해에 대한 희망이 가득 담겨 있었습니다. 온 가족이 둘러앉아 한 해의 계획을 나누고, 아이들은 세뱃돈을 받으며 새해 첫날의 즐거움을 만끽했습니다. 창밖으로는 첫눈이 내리기 시작했고, 따뜻한 방 안에서 나누는 가족의 대화는 그 어떤 것보다 소중한 시간이었습니다.",
                             area = "서울 강남구",
-                            time = System.currentTimeMillis() - (20 * 24 * 60 * 60 * 1000L),
+                            date = "2025-01-01",
+                            time = "12:00",
                             userid = listOf(1, 2, 3, 4)
                         ),
                         PhotoInfoData(
@@ -60,7 +61,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=2",
                             content = "할아버지의 새해 덕담을 듣고 있는 손자들의 모습",
                             area = "서울 강남구",
-                            time = System.currentTimeMillis() - (19 * 24 * 60 * 60 * 1000L),
+                            date = "2025-01-02",
+                            time = "14:30",
                             userid = listOf(1, 3, 4)
                         )
                     )
@@ -74,7 +76,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=3",
                             content = "아이들이 한복을 입고 어른들께 세배를 드리는 모습",
                             area = "경기도 수원시",
-                            time = System.currentTimeMillis() - (10 * 24 * 60 * 60 * 1000L),
+                            date = "2025-02-01",
+                            time = "10:00",
                             userid = listOf(1, 2, 3, 4, 5)
                         ),
                         PhotoInfoData(
@@ -83,7 +86,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=4",
                             content = "온 가족이 둘러앉아 윷놀이를 하는 즐거운 시간",
                             area = "경기도 수원시",
-                            time = System.currentTimeMillis() - (9 * 24 * 60 * 60 * 1000L),
+                            date = "2025-02-02",
+                            time = "15:30",
                             userid = listOf(1, 2, 3)
                         ),
                         PhotoInfoData(
@@ -92,7 +96,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=5",
                             content = "엄마가 정성스럽게 끓인 떡국을 모두 함께 먹었어요",
                             area = "경기도 수원시",
-                            time = System.currentTimeMillis() - (8 * 24 * 60 * 60 * 1000L),
+                            date = "2025-02-03",
+                            time = "",
                             userid = listOf(1, 2, 3, 4, 5)
                         )
                     )
@@ -106,7 +111,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=6",
                             content = "여의도 한강공원에서 벚꽃구경을 하며 피크닉을 즐겼어요",
                             area = "서울 영등포구",
-                            time = System.currentTimeMillis() - (5 * 24 * 60 * 60 * 1000L),
+                            date = "2025-03-15",
+                            time = "11:20",
                             userid = listOf(2, 3, 4)
                         ),
                         PhotoInfoData(
@@ -115,7 +121,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=7",
                             content = "돗자리를 펴고 도시락을 나눠먹는 따뜻한 봄날",
                             area = "서울 영등포구",
-                            time = System.currentTimeMillis() - (4 * 24 * 60 * 60 * 1000L),
+                            date = "2025-03-16",
+                            time = "",
                             userid = listOf(1, 2, 3, 4)
                         ),
                         PhotoInfoData(
@@ -124,7 +131,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=8",
                             content = "아이들과 함께 연을 날리며 즐거운 시간을 보냈어요",
                             area = "서울 영등포구",
-                            time = System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000L),
+                            date = "2025-03-17",
+                            time = "16:10",
                             userid = listOf(3, 4, 5)
                         ),
                         PhotoInfoData(
@@ -133,7 +141,8 @@ class AlbumRepositoryImpl @Inject constructor(
                             thumbnailurl = "https://picsum.photos/400/300?random=9",
                             content = "가족 모두가 손을 잡고 한강을 따라 산책하는 모습",
                             area = "서울 영등포구",
-                            time = System.currentTimeMillis() - (2 * 24 * 60 * 60 * 1000L),
+                            date = "2025-03-18",
+                            time = "17:30",
                             userid = listOf(1, 2, 3, 4, 5)
                         )
                     )

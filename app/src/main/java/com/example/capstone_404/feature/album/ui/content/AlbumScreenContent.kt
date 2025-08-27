@@ -36,6 +36,7 @@ fun AlbumScreenContent(
     albums: Map<String, List<Photo>>,
     selectedYearMonth: String?,
     onYearMonthClick: (String?) -> Unit,
+    onPhotoClick: (String) -> Unit = {},  // 사진 클릭 이벤트
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -68,7 +69,7 @@ fun AlbumScreenContent(
                             yearMonth = yearMonth,
                             photoCount = photos.size,
                             thumbnailUrl = photos
-                                .maxByOrNull { it.time }  // 최신 사진을 썸네일로
+                                .maxByOrNull { it.sortableDateTime }
                                 ?.thumbnailUrl,
                             onClick = { onYearMonthClick(yearMonth) }
                         )
@@ -93,13 +94,13 @@ fun AlbumScreenContent(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(
-                            items = photos.sortedByDescending { it.time },  // 최신순
+                            items = photos.sortedByDescending { it.sortableDateTime },
                             key = { it.id }
                         ) { photo ->
                             PhotoGridItem(
                                 photo = photo,
                                 onClick = {
-                                    // TODO: 사진 상세 보기 화면으로 이동
+                                    onPhotoClick(photo.id)
                                 }
                             )
                         }

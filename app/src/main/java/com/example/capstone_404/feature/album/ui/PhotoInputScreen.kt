@@ -28,10 +28,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -89,7 +88,6 @@ fun PhotoInputScreen(
     // 초기 이미지 URI 설정
     LaunchedEffect(initialImageUri) {
         viewModel.setSelectedImage(initialImageUri)
-        Log.d("PhotoInputScreen", "initialImageUri를 ViewModel에 설정")
     }
 
     // 뒤로가기 처리
@@ -123,7 +121,7 @@ fun PhotoInputScreen(
                 navigationType = NavigationType.BACK,
                 onNavigationClick = onNavigateBack,
                 rightButton = {
-                    TextButton(
+                    IconButton(
                         onClick = {
                             // 필수 입력 사항 검증
                             when {
@@ -132,6 +130,9 @@ fun PhotoInputScreen(
                                 }
                                 photoAddState.title.isEmpty() -> {
                                     Toast.makeText(context, "사진 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                                }
+                                photoAddState.date.isEmpty() -> {
+                                    Toast.makeText(context, "촬영 날짜를 선택해주세요.", Toast.LENGTH_SHORT).show()
                                 }
                                 else -> {
                                     // TODO: 실제 저장 로직 구현 시 사용
@@ -281,7 +282,7 @@ fun PhotoInputScreen(
                     members = groupMembers,  // 그룹 멤버 정보
                     selectedParticipants = photoAddState.selectedParticipants.toSet(),
                     onParticipantToggle = viewModel::toggleParticipant,
-                    onSetSelectedParticipants = viewModel::setAllParticipants
+                    onSetSelectedParticipants = viewModel::updateSelectedParticipants
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }

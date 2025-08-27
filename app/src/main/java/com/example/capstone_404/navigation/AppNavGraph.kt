@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.capstone_404.feature.album.ui.AlbumScreen
+import com.example.capstone_404.feature.album.ui.PhotoDetailScreen
 import com.example.capstone_404.feature.album.ui.PhotoInputScreen
 import com.example.capstone_404.feature.album.viewmodel.AlbumViewModel
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
@@ -76,7 +77,7 @@ fun AppNavGraph(navController: NavHostController) {
         NavHost(
             navController = navController,
             // UI 빌드 테스트 할 때 startDestination = Route.{테스트 UI 경로}로 바꿔서 테스트하고 다시 LOGIN으로 돌려놓으면 됨
-            startDestination = Route.SPLASH,
+            startDestination = Route.ALBUM,
             modifier = Modifier.padding(innerPadding)
         ) {
             // 스플래시(자동 로그인)
@@ -453,6 +454,9 @@ fun AppNavGraph(navController: NavHostController) {
                     },
                     onNavigateToPhotoInput = { encodedImageUri ->
                         navController.navigate("photo_input/$encodedImageUri")
+                    },
+                    onNavigateToPhotoDetail = { photoId ->
+                        navController.navigate("photo_detail/$photoId")
                     }
                 )
             }
@@ -478,6 +482,30 @@ fun AppNavGraph(navController: NavHostController) {
                     },
                     onSaveComplete = {
                         navController.popBackStack()
+                    }
+                )
+            }
+
+            // 사진 상세 조회
+            composable(
+                route = Route.PHOTO_DETAIL,
+                arguments = listOf(navArgument("photoId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.ALBUM)
+                }
+                val viewModel: AlbumViewModel = hiltViewModel(parentEntry)
+
+                val photoId = backStackEntry.arguments?.getString("photoId") ?: ""
+
+                PhotoDetailScreen(
+                    viewModel = viewModel,
+                    photoId = photoId,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToEdit = { photoId ->
+                        // TODO: 수정 화면 구현
                     }
                 )
             }

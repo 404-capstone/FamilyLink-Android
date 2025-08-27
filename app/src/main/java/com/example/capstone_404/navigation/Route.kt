@@ -34,6 +34,7 @@ object Route {
     // 앨범 관련
     const val ALBUM = "album"
     const val PHOTO_INPUT = "photo_input/{imageUri}"
+    const val PHOTO_DETAIL = "photo_detail/{photoId}"
 
     // 내정보 관련
     const val MYPAGE = "mypage"

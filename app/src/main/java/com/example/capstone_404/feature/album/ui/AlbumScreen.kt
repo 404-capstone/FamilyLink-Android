@@ -1,6 +1,5 @@
 package com.example.capstone_404.feature.album.ui
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,12 +30,14 @@ import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.component.fab.SingleFab
 import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.utils.RequestStoragePermission
+import java.net.URLEncoder
 
 @Composable
 fun AlbumScreen(
     viewModel: AlbumViewModel = hiltViewModel(),
     onNavigateToGroup: () -> Unit,
-    onNavigateToPhotoInput: (String) -> Unit  // 이미지 URI를 파라미터로 받음
+    onNavigateToPhotoInput: (String) -> Unit,  // 이미지 URI를 파라미터로 받음
+    onNavigateToPhotoDetail: (String) -> Unit = {}  // 사진 ID를 파라미터로 받음
 ) {
     val groupInfo by viewModel.groupInfoFlow.collectAsState(initial = null)
     val userId by viewModel.userIdFlow.collectAsState(initial = null)
@@ -54,7 +55,7 @@ fun AlbumScreen(
     ) { uri ->
         uri?.let { imageUri ->
             // 선택된 이미지를 Navigation 파라미터로 전달
-            val encodedUri = java.net.URLEncoder.encode(imageUri.toString(), "UTF-8")
+            val encodedUri = URLEncoder.encode(imageUri.toString(), "UTF-8")
             // 사진 정보 입력 화면으로 이동
             onNavigateToPhotoInput(encodedUri)
         }
@@ -125,13 +126,14 @@ fun AlbumScreen(
                 }
             }
 
-            // 그룹 미가입/가입 상태에 따른 UI 표시
+            // 그룹 미가입 상태 또는 그룹 가입 상태에 따른 UI 표시
             if (groupInfo != null && userId != null) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     AlbumScreenContent(
                         albums = albums,
                         selectedYearMonth = selectedYearMonth,
                         onYearMonthClick = viewModel::selectYearMonth,
+                        onPhotoClick = onNavigateToPhotoDetail,
                         onRefresh = viewModel::getAllAlbums,
                         modifier = Modifier.padding(horizontal = horizontalPadding)
                     )

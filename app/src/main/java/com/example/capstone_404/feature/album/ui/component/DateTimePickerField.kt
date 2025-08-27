@@ -30,9 +30,6 @@ import com.example.capstone_404.feature.album.ui.dialog.PhotoTimeDialog
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @Composable
 fun DateTimePickerField(
@@ -57,13 +54,13 @@ fun DateTimePickerField(
         )
         // 날짜 선택 버튼
         DateTimeButton(
-            text = formatDateForDisplay(date),
+            text = DateTimeUtil.formatDateForDisplay(date),
             onClick = { showDateDialog = true },
             modifier = Modifier.weight(1f)
         )
         // 시간 선택 버튼 (선택사항)
         DateTimeButton(
-            text = if (time.isNotEmpty()) time else "촬영 시간",
+            text = if (time.isNotEmpty()) time else "촬영 시간 (선택 사항)",
             isPlaceholder = time.isEmpty(),
             onClick = { showTimeDialog = true },
             modifier = Modifier.weight(1f)
@@ -118,19 +115,5 @@ private fun DateTimeButton(
             style = MaterialTheme.typography.bodyMedium,
             color = if (isPlaceholder) TextGray else TextBlack
         )
-    }
-}
-
-//  날짜 형식 변환 함수
-private fun formatDateForDisplay(date: String): String {
-    return try {
-        val localDate = LocalDate.parse(date)
-        val formatter = DateTimeFormatter.ofPattern("MM.dd(E)", Locale.KOREA)
-        formatter.format(localDate)
-    } catch (e: Exception) {
-        val parts = date.split("-")
-        if (parts.size == 3) {
-            "${parts[1]}월 ${parts[2]}일"
-        } else date
     }
 }

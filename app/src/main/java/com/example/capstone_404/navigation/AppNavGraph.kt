@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.capstone_404.feature.album.ui.AlbumScreen
 import com.example.capstone_404.feature.album.ui.PhotoDetailScreen
+import com.example.capstone_404.feature.album.ui.PhotoEditScreen
 import com.example.capstone_404.feature.album.ui.PhotoInputScreen
 import com.example.capstone_404.feature.album.viewmodel.AlbumViewModel
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
@@ -505,9 +506,37 @@ fun AppNavGraph(navController: NavHostController) {
                         navController.popBackStack()
                     },
                     onNavigateToEdit = { photoId ->
-                        // TODO: 수정 화면 구현
+                        navController.navigate("photo_edit/$photoId")
                     }
                 )
+            }
+
+            // 사진 정보 수정
+            composable(
+                route = Route.PHOTO_EDIT,
+                arguments = listOf(navArgument("photoId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.ALBUM)
+                }
+                val viewModel: AlbumViewModel = hiltViewModel(parentEntry)
+
+                val photoId = backStackEntry.arguments?.getString("photoId") ?: ""
+                val photo = viewModel.getPhotoById(photoId)
+
+                if (photo != null) {
+                    PhotoEditScreen(
+                        viewModel = viewModel,
+                        photo = photo,
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                } else {
+                    LaunchedEffect(Unit) {
+                        navController.popBackStack()
+                    }
+                }
             }
         }
     }

@@ -13,7 +13,9 @@ import com.example.capstone_404.data.repository.AlbumRepository
 import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.feature.album.model.Photo
 import com.example.capstone_404.feature.album.model.PhotoAddState
+import com.example.capstone_404.feature.album.model.PhotoEditState
 import com.example.capstone_404.feature.album.model.toAlbumMap
+import com.example.capstone_404.feature.album.model.toEditState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,18 +54,32 @@ class AlbumViewModel @Inject constructor(
     private val _photoAddState = MutableStateFlow(PhotoAddState())
     val photoAddState: StateFlow<PhotoAddState> = _photoAddState.asStateFlow()
 
-    // 그룹원 정보
+    // 사진 수정 상태 Flow
+    private val _photoEditState = MutableStateFlow(PhotoEditState())
+    val photoEditState: StateFlow<PhotoEditState> = _photoEditState.asStateFlow()
+
+    // 수정 중 상태
+    var isUpdating by mutableStateOf(false)
+        private set
+
+    // 수정 에러 메시지
+    var updateError by mutableStateOf<String?>(null)
+        private set
+
+    // 수정 성공 여부
+    var updateSuccess by mutableStateOf(false)
+        private set
+
+    // 그룹 멤버 정보
     val groupMembers: StateFlow<List<Pair<Int, String>>> = groupInfoFlow
         .map { groupInfo ->
             val members = groupInfo?.userinfo?.map { user ->
                 user.userId to user.role
             } ?: emptyList()
-            // 실제 그룹원 데이터가 없을 때만 테스트 데이터 사용(테스트 데이터를 사용할 때는
-            // getTestGroupMembers()를 제외하고 아래 if-else문 주석처리)
-            if (members.isEmpty()) {
+            // 테스트 데이터로 테스트할 때만 getTestGroupMembers() 제외하고
+            // if-else문 추석 처리 후 테스트, 테스트하고 주석 해제하기
+            members.ifEmpty {
                 getTestGroupMembers()
-            } else {
-                members
             }
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -111,7 +127,7 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    // ----- 사진 추가 관련 함수들 -----
+    // ----- 사진 추가 관련 함수 -----
 
     // 선택된 이미지 설정
     fun setSelectedImage(imageUri: Uri?) {
@@ -152,17 +168,18 @@ class AlbumViewModel @Inject constructor(
     fun deletePhoto(photoId: String) {
         viewModelScope.launch {
             // TODO: 실제 API 호출로 교체
+            val location = findPhotoLocation(photoId) ?: return@launch
             val currentAlbums = _albums.value.toMutableMap()
-            currentAlbums.forEach { (yearMonth, photos) ->
-                val filteredPhotos = photos.filter { it.id != photoId }
-                if (filteredPhotos.size != photos.size) {
-                    if (filteredPhotos.isEmpty()) {
-                        currentAlbums.remove(yearMonth)
-                    } else {
-                        currentAlbums[yearMonth] = filteredPhotos
-                    }
-                }
+            val photos = currentAlbums[location.yearMonth]?.toMutableList() ?: return@launch
+
+            photos.removeAt(location.photoIndex)
+
+            if (photos.isEmpty()) {
+                currentAlbums.remove(location.yearMonth)
+            } else {
+                currentAlbums[location.yearMonth] = photos
             }
+
             _albums.value = currentAlbums
         }
     }
@@ -172,9 +189,177 @@ class AlbumViewModel @Inject constructor(
         _photoAddState.value = PhotoAddState()
     }
 
+    // ----- 사진 수정 관련 함수 -----
+
+    // 사진 수정 상태 초기화
+    fun initializeEditState(photo: Photo) {
+        _photoEditState.value = photo.toEditState()
+        updateError = null
+        updateSuccess = false
+    }
+
+    // 공통 PhotoEditState 업데이트 함수
+    private fun updatePhotoEditState(update: (PhotoEditState) -> PhotoEditState) {
+        _photoEditState.value = update(_photoEditState.value)
+    }
+
+    // 개별 수정 함수들
+    fun updateEditTitle(title: String) = updatePhotoEditState { it.copy(title = title) }
+    fun updateEditDate(date: String) = updatePhotoEditState { it.copy(date = date) }
+    fun updateEditTime(time: String) = updatePhotoEditState { it.copy(time = time) }
+    fun updateEditLocation(location: String) = updatePhotoEditState { it.copy(location = location) }
+    fun updateEditDescription(description: String) = updatePhotoEditState { it.copy(description = description) }
+    fun updateEditParticipants(participants: Set<Int>) {
+        updatePhotoEditState { it.copy(selectedParticipants = participants.toList()) }
+    }
+
+    // 사진 정보 수정
+    fun updatePhoto(photoId: String) {
+        viewModelScope.launch {
+            isUpdating = true
+            updateError = null
+            updateSuccess = false
+
+            try {
+                // 변경사항이 있는지 확인
+                val originalPhoto = getPhotoById(photoId)
+                if (originalPhoto != null && hasChanges(originalPhoto)) {
+                    // TODO: 실제 API 호출로 교체
+                    // 로컬 데이터 업데이트
+                    updateLocalPhotoData(photoId, _photoEditState.value)
+                    updateSuccess = true
+                } else {
+                    // 변경사항이 없는 경우 별도 처리 없이 그냥 완료
+                    Log.d("AlbumViewModel", "변경사항이 없음.")
+                }
+            } catch (e: Exception) {
+                Log.e("AlbumViewModel", "사진 수정 실패: ${e.message}")
+                updateError = "사진 수정에 실패했습니다. 다시 시도해주세요."
+            } finally {
+                isUpdating = false
+            }
+        }
+    }
+
+    // 로컬 데이터 업데이트
+    private fun updateLocalPhotoData(photoId: String, editState: PhotoEditState) {
+        val updatedPhoto = findAndUpdatePhoto(photoId, editState)
+        if (updatedPhoto != null) {
+            handleDateChangeIfNeeded(photoId, updatedPhoto, editState)
+        }
+    }
+
+    // 사진 찾기 및 업데이트
+    private fun findAndUpdatePhoto(photoId: String, editState: PhotoEditState): Photo? {
+        val currentAlbums = _albums.value.toMutableMap()
+        var updatedPhoto: Photo? = null
+
+        currentAlbums.forEach { (yearMonth, photos) ->
+            val photoIndex = photos.indexOfFirst { it.id == photoId }
+            if (photoIndex != -1) {
+                val oldPhoto = photos[photoIndex]
+                updatedPhoto = oldPhoto.copy(
+                    title = editState.title,
+                    date = editState.date,
+                    time = editState.time,
+                    area = editState.location,
+                    content = editState.description,
+                    userIds = editState.selectedParticipants
+                )
+
+                val mutablePhotos = photos.toMutableList()
+                mutablePhotos[photoIndex] = updatedPhoto!!
+                currentAlbums[yearMonth] = mutablePhotos.sortedByDescending { it.sortableDateTime }
+                return@forEach
+            }
+        }
+
+        _albums.value = currentAlbums
+        return updatedPhoto
+    }
+
+    // 날짜 변경 시 앨범 이동 처리
+    private fun handleDateChangeIfNeeded(photoId: String, updatedPhoto: Photo, editState: PhotoEditState) {
+        val oldYearMonth = findPhotoYearMonth(photoId, _albums.value)
+        val newYearMonth = editState.date.substring(0, 7)
+
+        if (oldYearMonth != null && oldYearMonth != newYearMonth) {
+            val currentAlbums = _albums.value.toMutableMap()
+
+            // 기존 앨범에서 사진 제거
+            val oldPhotos = currentAlbums[oldYearMonth]?.filter { it.id != photoId }
+            if (oldPhotos.isNullOrEmpty()) {
+                currentAlbums.remove(oldYearMonth)
+            } else {
+                currentAlbums[oldYearMonth] = oldPhotos
+            }
+
+            // 새 앨범에 사진 추가
+            val newPhotos = (currentAlbums[newYearMonth] ?: emptyList()).toMutableList()
+            newPhotos.add(updatedPhoto)
+            currentAlbums[newYearMonth] = newPhotos.sortedByDescending { it.sortableDateTime }
+
+            // 새 앨범으로 이동
+            _selectedYearMonth.value = newYearMonth
+            _albums.value = currentAlbums
+        }
+    }
+
+    // 사진 위치 정보
+    private data class PhotoLocation(
+        val yearMonth: String,
+        val photoIndex: Int,
+        val photo: Photo
+    )
+
+    // 사진 위치 찾기
+    private fun findPhotoLocation(photoId: String): PhotoLocation? {
+        _albums.value.forEach { (yearMonth, photos) ->
+            val index = photos.indexOfFirst { it.id == photoId }
+            if (index != -1) {
+                return PhotoLocation(yearMonth, index, photos[index])
+            }
+        }
+        return null
+    }
+
+    // 사진이 속한 년월 찾기
+    private fun findPhotoYearMonth(photoId: String, albums: Map<String, List<Photo>>): String? {
+        albums.forEach { (yearMonth, photos) ->
+            if (photos.any { it.id == photoId }) {
+                return yearMonth
+            }
+        }
+        return null
+    }
+
+    // 특정 사진 조회
+    fun getPhotoById(photoId: String): Photo? {
+        return findPhotoLocation(photoId)?.photo
+    }
+
+    // 변경사항 감지
+    fun hasChanges(originalPhoto: Photo): Boolean {
+        val editState = _photoEditState.value
+        return editState.title != originalPhoto.title ||
+                editState.date != originalPhoto.date ||
+                editState.time != originalPhoto.time ||
+                editState.location != originalPhoto.area ||
+                editState.description != originalPhoto.content ||
+                editState.selectedParticipants.toSet() != originalPhoto.userIds.toSet()
+    }
+
+    // 사진 수정 상태 초기화
+    fun resetPhotoEditState() {
+        _photoEditState.value = PhotoEditState()
+        updateError = null
+        updateSuccess = false
+    }
+
     // ViewModel 정리
     override fun onCleared() {
         super.onCleared()
         resetPhotoAddState()
+        resetPhotoEditState()
     }
 }

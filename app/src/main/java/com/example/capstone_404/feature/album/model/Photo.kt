@@ -30,3 +30,14 @@ data class Photo(
         }
     }
 }
+
+// 사진 정보 수정 확장
+fun Photo.toEditState() = PhotoEditState(
+    photoId = id,
+    title = title,
+    date = date,
+    time = time,
+    location = area,
+    description = content,
+    selectedParticipants = userIds
+)

@@ -1,7 +1,6 @@
 package com.example.capstone_404.feature.album.ui
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -87,6 +86,7 @@ fun PhotoInputScreen(
 
     // 초기 이미지 URI 설정
     LaunchedEffect(initialImageUri) {
+        viewModel.resetPhotoAddState()
         viewModel.setSelectedImage(initialImageUri)
     }
 
@@ -273,7 +273,7 @@ fun PhotoInputScreen(
                     value = photoAddState.description,
                     onValueChange = viewModel::updateDescription,
                     placeholder = "설명 (선택 사항)",
-                    maxLength = 200,
+                    maxLength = 250,
                     minLines = 5,
                     maxLines = 10
                 )

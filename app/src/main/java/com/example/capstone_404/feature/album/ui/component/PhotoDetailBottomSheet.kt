@@ -55,44 +55,46 @@ fun PhotoDetailBottomSheet(
             ),
             color = TextBlack
         )
-
         // 장소
-        if (photo.area.isNotEmpty()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_location),
-                    contentDescription = "장소",
-                    tint = TextGray,
-                    modifier = Modifier.size(16.dp)
-                )
-                Text(
-                    text = photo.area,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextBlack
-                )
-            }
-        }
-
-        // 설명
-        if (photo.content.isNotEmpty()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_location),
+                contentDescription = "장소",
+                tint = TextBlack,
+                modifier = Modifier.size(20.dp)
+            )
             Text(
-                text = photo.content.ifEmpty { "" },
-                style = MaterialTheme.typography.bodyMedium,
+                text = photo.area.ifEmpty { " " },
+                style = MaterialTheme.typography.bodySmall,
                 color = TextBlack,
-                minLines = 3,
+                minLines = 1,
+                maxLines = 1
             )
         }
-
+        // 설명
+        Text(
+            text = photo.content.ifEmpty { " " },
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextBlack,
+            minLines = 3,
+            maxLines = 3
+        )
         // 참여자
+        Text(
+            text = "참여자",
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextBlack
+        )
+
         if (photo.userIds.isNotEmpty()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 photo.userIds.forEach { participantId ->
@@ -106,6 +108,12 @@ fun PhotoDetailBottomSheet(
                     }
                 }
             }
+        } else {
+            Text(
+                text = " ",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextGray
+            )
         }
     }
 }

@@ -86,8 +86,15 @@ fun PhotoInputScreen(
 
     // 초기 이미지 URI 설정
     LaunchedEffect(initialImageUri) {
-        viewModel.resetPhotoAddState()
         viewModel.setSelectedImage(initialImageUri)
+    }
+
+    // 에러 메시지 토스트 처리
+    LaunchedEffect(photoAddState.errorMessage) {
+        photoAddState.errorMessage?.let { errorMessage ->
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            viewModel.clearPhotoAddError()
+        }
     }
 
     // 뒤로가기 처리
@@ -135,9 +142,12 @@ fun PhotoInputScreen(
                                     Toast.makeText(context, "촬영 날짜를 선택해주세요.", Toast.LENGTH_SHORT).show()
                                 }
                                 else -> {
-                                    // TODO: 실제 저장 로직 구현 시 사용
-                                    // 임시 완료 처리
-                                    onSaveComplete()
+                                    viewModel.addPhoto(
+                                        onSuccess = {
+                                            Toast.makeText(context, "사진이 저장되었습니다", Toast.LENGTH_SHORT).show()
+                                            onSaveComplete()
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -275,7 +285,7 @@ fun PhotoInputScreen(
                     placeholder = "설명 (선택 사항)",
                     maxLength = 250,
                     minLines = 5,
-                    maxLines = 10
+                    maxLines = 8
                 )
                 // 참여자 선택
                 ParticipantSelector(
@@ -284,6 +294,7 @@ fun PhotoInputScreen(
                     onParticipantToggle = viewModel::toggleParticipant,
                     onSetSelectedParticipants = viewModel::updateSelectedParticipants
                 )
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }

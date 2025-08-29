@@ -75,9 +75,10 @@ fun AlbumScreen(
         )
     }
 
-    // 그룹 정보가 있을 때만 앨범 데이터 로드
     LaunchedEffect(groupInfo) {
-        if (groupInfo != null) viewModel.getAllAlbums()
+        if (groupInfo != null && viewModel.albums.value.isEmpty()) {
+            viewModel.getAllAlbums()
+        }
     }
 
     // 로딩 dialog
@@ -137,7 +138,6 @@ fun AlbumScreen(
                         onRefresh = viewModel::getAllAlbums,
                         modifier = Modifier.padding(horizontal = horizontalPadding)
                     )
-                    // 사진 추가 FAB
                     SingleFab(
                         onClick = {
                             requestGalleryPermission = true

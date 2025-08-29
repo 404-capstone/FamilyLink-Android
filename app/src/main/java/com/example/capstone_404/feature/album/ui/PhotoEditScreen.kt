@@ -71,7 +71,10 @@ fun PhotoEditScreen(
     // 수정 성공 시 처리
     LaunchedEffect(updateSuccess) {
         if (updateSuccess) {
-            Toast.makeText(context, "사진 정보가 수정되었습니다", Toast.LENGTH_SHORT).show()
+            if (hasChanges) {
+                Toast.makeText(context, "사진 정보가 수정되었습니다", Toast.LENGTH_SHORT).show()
+            }
+            viewModel.resetPhotoEditState()
             onNavigateBack()
         }
     }
@@ -109,9 +112,6 @@ fun PhotoEditScreen(
                                 }
                                 photoEditState.date.isEmpty() -> {
                                     Toast.makeText(context, "촬영 날짜를 선택해주세요.", Toast.LENGTH_SHORT).show()
-                                }
-                                !hasChanges -> {
-                                    Toast.makeText(context, "변경 사항이 없습니다.", Toast.LENGTH_SHORT).show()
                                 }
                                 else -> {
                                     viewModel.updatePhoto(photo.id)

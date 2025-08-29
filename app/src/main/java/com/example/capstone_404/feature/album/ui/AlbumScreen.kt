@@ -86,10 +86,11 @@ fun AlbumScreen(
         LoadingDialog("앨범을 불러오는 중...\n잠시만 기다려주세요!")
     }
 
-    BackHandler(
-        enabled = selectedYearMonth != null
-    ) {
-        viewModel.onBackPressed()
+    // 앨범에서 다른 탭으로 이동 방지
+    BackHandler(enabled = true) {
+        if (selectedYearMonth != null) {
+            viewModel.onBackPressed()
+        }
     }
     Scaffold(
         topBar = {

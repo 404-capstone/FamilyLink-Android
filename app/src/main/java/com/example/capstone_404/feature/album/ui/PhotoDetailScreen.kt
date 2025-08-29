@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.album.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -47,6 +49,7 @@ import com.example.capstone_404.feature.album.viewmodel.AlbumViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.dialog.ActionDialog
+import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.Error
 import com.example.capstone_404.ui.theme.Stroke
@@ -63,6 +66,9 @@ fun PhotoDetailScreen(
     val albums by viewModel.albums.collectAsState()
     val selectedYearMonth by viewModel.selectedYearMonth.collectAsState()
     val groupMembers by viewModel.groupMembers.collectAsState()
+    val isDeletingPhoto = viewModel.isDeletingPhoto
+    val deleteError = viewModel.deleteError
+    val context = LocalContext.current
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -108,6 +114,18 @@ fun PhotoDetailScreen(
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = bottomSheetState
     )
+
+    // 삭제 에러 처리
+    LaunchedEffect(deleteError) {
+        deleteError?.let { error ->
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            viewModel.clearDeleteError()
+        }
+    }
+
+    if (isDeletingPhoto) {
+        LoadingDialog("사진을 삭제하는 중...")
+    }
 
 
     // 갤러리가 비어있을 때 처리
@@ -293,11 +311,12 @@ fun PhotoDetailScreen(
             description = "삭제된 사진은 복구할 수 없습니다.",
             confirmText = "삭제",
             onConfirm = {
-                currentPhoto?.let { photo ->
-                    viewModel.deletePhoto(photo.id)
-                }
                 showDeleteDialog = false
-                onNavigateBack()
+                currentPhoto?.let { photo ->
+                    viewModel.deletePhoto(photo.id) {
+                        onNavigateBack()
+                    }
+                }
             },
             onDismiss = {
                 showDeleteDialog = false

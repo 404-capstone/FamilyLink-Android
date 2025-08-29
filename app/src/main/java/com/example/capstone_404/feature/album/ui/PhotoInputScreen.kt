@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -99,6 +100,7 @@ fun PhotoInputScreen(
 
     // 뒤로가기 처리
     BackHandler {
+        viewModel.resetPhotoAddState()
         onNavigateBack()
     }
 
@@ -118,7 +120,7 @@ fun PhotoInputScreen(
 
     // 로딩 다이얼로그
     if (photoAddState.isLoading) {
-        LoadingDialog("사진 정보를 저장하는 중...\n잠시만 기다려주세요!")
+        LoadingDialog("사진 업로드 중...\n잠시만 기다려주세요!")
     }
 
     Scaffold(
@@ -126,7 +128,10 @@ fun PhotoInputScreen(
             CustomTopBar(
                 title = "상세 정보",
                 navigationType = NavigationType.BACK,
-                onNavigationClick = onNavigateBack,
+                onNavigationClick = {
+                    viewModel.resetPhotoAddState()
+                    onNavigateBack()
+                },
                 rightButton = {
                     IconButton(
                         onClick = {
@@ -167,6 +172,7 @@ fun PhotoInputScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .imePadding()
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {

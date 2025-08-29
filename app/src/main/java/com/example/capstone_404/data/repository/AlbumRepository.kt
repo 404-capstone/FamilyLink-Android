@@ -19,4 +19,10 @@ interface AlbumRepository {
         photoData: PhotoAddState,
         imageUri: Uri
     ): Result<AlbumSaveResponse>
+
+    // 사진 삭제
+    suspend fun deletePhoto(
+        groupId: Int,
+        photoId: String
+    ): Result<String>
 }

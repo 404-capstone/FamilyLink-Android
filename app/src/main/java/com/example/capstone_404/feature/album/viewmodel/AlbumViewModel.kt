@@ -70,6 +70,14 @@ class AlbumViewModel @Inject constructor(
     var updateSuccess by mutableStateOf(false)
         private set
 
+    // 삭제 중 상태
+    var isDeletingPhoto by mutableStateOf(false)
+        private set
+
+    // 삭제 에러 메시지
+    var deleteError by mutableStateOf<String?>(null)
+        private set
+
     // 그룹 멤버 정보
     val groupMembers: StateFlow<List<Pair<Int, String>>> = groupInfoFlow
         .map { groupInfo ->
@@ -217,23 +225,60 @@ class AlbumViewModel @Inject constructor(
     }
 
     // 사진 삭제
-    fun deletePhoto(photoId: String) {
+    fun deletePhoto(photoId: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
-            // TODO: 실제 API 호출로 교체
-            val location = findPhotoLocation(photoId) ?: return@launch
-            val currentAlbums = _albums.value.toMutableMap()
-            val photos = currentAlbums[location.yearMonth]?.toMutableList() ?: return@launch
+            try {
+                isDeletingPhoto = true
+                deleteError = null
 
-            photos.removeAt(location.photoIndex)
+                val groupId = userInfoManager.getGroupId()
+                if (groupId != null) {
+                    val result = albumRepository.deletePhoto(
+                        groupId = groupId,
+                        photoId = photoId
+                    )
 
-            if (photos.isEmpty()) {
-                currentAlbums.remove(location.yearMonth)
-            } else {
-                currentAlbums[location.yearMonth] = photos
+                    result.onSuccess { responseMessage ->
+                        deletePhotoFromLocal(photoId)
+                        Log.d("AlbumViewModel", "사진 삭제 성공: $responseMessage")
+                        onSuccess()
+                    }.onFailure { e ->
+                        Log.e("AlbumViewModel", "사진 삭제 실패: ${e.message}")
+                        deleteError = "사진 삭제에 실패했습니다. 다시 시도해주세요."
+                    }
+                } else {
+                    Log.e("AlbumViewModel", "GroupId가 null입니다")
+                    deleteError = "그룹 정보를 찾을 수 없습니다."
+                }
+            } catch (e: Exception) {
+                Log.e("AlbumViewModel", "사진 삭제 중 예외 발생", e)
+                deleteError = "예상치 못한 오류가 발생했습니다."
+            } finally {
+                isDeletingPhoto = false
             }
-
-            _albums.value = currentAlbums
         }
+    }
+
+    // 로컬 데이터 삭제
+    private fun deletePhotoFromLocal(photoId: String) {
+        val location = findPhotoLocation(photoId) ?: return
+        val currentAlbums = _albums.value.toMutableMap()
+        val photos = currentAlbums[location.yearMonth]?.toMutableList() ?: return
+
+        photos.removeAt(location.photoIndex)
+
+        if (photos.isEmpty()) {
+            currentAlbums.remove(location.yearMonth)
+        } else {
+            currentAlbums[location.yearMonth] = photos
+        }
+
+        _albums.value = currentAlbums
+    }
+
+    // 삭제 에러 초기화
+    fun clearDeleteError() {
+        deleteError = null
     }
 
     // 사진 추가 상태 초기화

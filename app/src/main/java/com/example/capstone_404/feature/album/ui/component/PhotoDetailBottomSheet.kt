@@ -79,8 +79,7 @@ fun PhotoDetailBottomSheet(
             text = photo.content.ifEmpty { " " },
             style = MaterialTheme.typography.bodyMedium,
             color = TextBlack,
-            minLines = 3,
-            maxLines = 3
+            minLines = 3
         )
         // 참여자
         Text(

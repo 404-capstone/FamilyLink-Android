@@ -88,6 +88,36 @@ class AlbumRepositoryImpl @Inject constructor(
         }
     }
 
+    // 사진 삭제
+    override suspend fun deletePhoto(
+        groupId: Int,
+        photoId: String
+    ): Result<String> {
+        if (isTestMode) {
+            delay(1000)
+            return Result.success("${photoId}번 사진 삭제를 성공했습니다.")
+        }
+
+        return try {
+            val response = albumApi.deletePhoto(
+                groupId = groupId,
+                photoId = photoId
+            )
+
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("AlbumRepository", "Delete error response: $errorBody")
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // 테스트용 데이터
     private suspend fun createTestData(): Result<AlbumSearchData> {
         delay(1000)

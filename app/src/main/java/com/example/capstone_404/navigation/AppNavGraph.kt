@@ -479,10 +479,10 @@ fun AppNavGraph(navController: NavHostController) {
                     viewModel = viewModel,
                     initialImageUri = imageUri,
                     onNavigateBack = {
-                        navController.popBackStack()
+                        navController.popBackStack(Route.ALBUM, inclusive = false)
                     },
                     onSaveComplete = {
-                        navController.popBackStack()
+                        navController.popBackStack(Route.ALBUM, inclusive = false)
                     }
                 )
             }
@@ -503,7 +503,7 @@ fun AppNavGraph(navController: NavHostController) {
                     viewModel = viewModel,
                     photoId = photoId,
                     onNavigateBack = {
-                        navController.popBackStack()
+                        navController.popBackStack(Route.ALBUM, inclusive = false)
                     },
                     onNavigateToEdit = { photoId ->
                         navController.navigate("photo_edit/$photoId")

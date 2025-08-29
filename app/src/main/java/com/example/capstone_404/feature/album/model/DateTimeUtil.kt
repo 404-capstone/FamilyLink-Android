@@ -32,7 +32,7 @@ object DateTimeUtil {
         )
     }
 
-    // 날짜와 시간을 "2025.01.01(수) 오후 02:30" 형식으로 포맷
+    //날짜와 시간을 "2025.01.01(수) 오후 02:30" 형식으로 포맷, 시간이 비어있으면 날짜만 반환
     fun formatDateTime(date: String, time: String): String {
         return try {
             val localDate = LocalDate.parse(date)
@@ -50,7 +50,8 @@ object DateTimeUtil {
         }
     }
 
-    // 날짜를 "01.01(수)" 형식으로 포맷
+
+    // 날짜를 "01.01(수)" 형식으로 포맷 (짧은 형식)
     fun formatDateForDisplay(date: String): String {
         return try {
             val localDate = LocalDate.parse(date)

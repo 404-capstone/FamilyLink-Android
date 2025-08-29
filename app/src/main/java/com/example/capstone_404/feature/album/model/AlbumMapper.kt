@@ -5,7 +5,7 @@ import com.example.capstone_404.data.retrofit.model.response.PhotoInfoData
 
 fun List<AlbumInfoData>.toAlbumMap(): Map<String, List<Photo>> {
     return mapNotNull { albumInfo ->
-        val photos = albumInfo.photoInfoDtoList.map { it.toPhoto() }
+        val photos = albumInfo.photo.map { it.toPhoto() }
         if (photos.isNotEmpty()) {
             albumInfo.date to photos
         } else {
@@ -18,26 +18,19 @@ fun PhotoInfoData.toPhoto(): Photo {
     return Photo(
         id = photoid.toString(),
         title = title,
-        thumbnailUrl = thumbnailurl,
-        imageUrl = thumbnailurl,
-        content = content,
-        area = area,
+        thumbnailUrl = thumnailurl,
+        imageUrl = thumnailurl,
+        content = content ?: "",
+        area = area ?: "",
         date = date,
-        time = time,
-        userIds = userid
+        time = time ?: "",
+        userIds = userid ?: emptyList()
     )
 }
-
 
 fun String.toKoreanYearMonth(): String {
     val parts = split("-")
     return if (parts.size == 2) {
         "${parts[0]}년 ${parts[1].toIntOrNull() ?: parts[1]}월"
     } else this
-}
-
-
-fun String.isValidYearMonth(): Boolean {
-    val regex = Regex("\\d{4}-\\d{2}")
-    return matches(regex)
 }

@@ -6,14 +6,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AlbumSearchData(
     val groupId: Int,
-    val albumInfoDtoList: List<AlbumInfoData>
+    val album: List<AlbumInfoData>?
 )
 
 // 앨범 정보 데이터
 @Serializable
 data class AlbumInfoData(
     val date: String,  // (YYYY-MM)
-    val photoInfoDtoList: List<PhotoInfoData>
+    val photo: List<PhotoInfoData>
 )
 
 // 사진 정보 response
@@ -21,10 +21,18 @@ data class AlbumInfoData(
 data class PhotoInfoData(
     val photoid: Int,
     val title: String,
-    val thumbnailurl: String,
-    val content: String,
-    val area: String,
+    val thumnailurl: String,
+    val content: String?,
+    val area: String?,
     val date: String,
-    val time: String,
-    val userid: List<Int>
+    val time: String?,
+    val userid: List<Int>?
+)
+
+// 사진 저장 응답 데이터
+@Serializable
+data class AlbumSaveResponse(
+    val albumId: Int,
+    val photoId: Int,
+    val size: Int
 )

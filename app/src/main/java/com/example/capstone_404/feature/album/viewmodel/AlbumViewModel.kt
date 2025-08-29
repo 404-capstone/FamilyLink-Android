@@ -76,8 +76,6 @@ class AlbumViewModel @Inject constructor(
             val members = groupInfo?.userinfo?.map { user ->
                 user.userId to user.role
             } ?: emptyList()
-            // 테스트 데이터로 테스트할 때만 getTestGroupMembers() 제외하고
-            // if-else문 추석 처리 후 테스트, 테스트하고 주석 해제하기
             members.ifEmpty {
                 getTestGroupMembers()
             }
@@ -102,7 +100,7 @@ class AlbumViewModel @Inject constructor(
             val groupId = userInfoManager.getGroupId()
             val result = albumRepository.getAllAlbums(groupId!!)
             result.onSuccess { data ->
-                val albumMap = data.albumInfoDtoList.toAlbumMap()
+                val albumMap = data.album?.toAlbumMap() ?: emptyMap()
                 _albums.value = albumMap
             }.onFailure { e ->
                 Log.e("AlbumViewModel", "앨범 조회 실패: ${e.message}")
@@ -162,6 +160,60 @@ class AlbumViewModel @Inject constructor(
         _photoAddState.value = _photoAddState.value.copy(
             selectedParticipants = participants.toList()
         )
+    }
+
+    // 사진 추가 상태 업데이트 함수
+    private fun updatePhotoAddLoading(isLoading: Boolean) {
+        _photoAddState.value = _photoAddState.value.copy(isLoading = isLoading)
+    }
+
+    private fun updatePhotoAddError(errorMessage: String?) {
+        _photoAddState.value = _photoAddState.value.copy(errorMessage = errorMessage)
+    }
+
+    // 에러 메시지 초기화
+    fun clearPhotoAddError() {
+        updatePhotoAddError(null)
+    }
+
+    // 사진 추가
+    fun addPhoto(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                updatePhotoAddLoading(true)
+                updatePhotoAddError(null)
+
+                val groupId = userInfoManager.getGroupId()
+                val imageUri = _photoAddState.value.selectedImage
+                val photoData = _photoAddState.value
+
+                if (groupId != null && imageUri != null && photoData.date.isNotEmpty()) {
+                    val result = albumRepository.addPhoto(
+                        groupId = groupId,
+                        photoData = _photoAddState.value,
+                        imageUri = imageUri
+                    )
+
+                    result.onSuccess { _ ->
+                        resetPhotoAddState()
+                        getAllAlbums()
+                        onSuccess()
+                    }.onFailure { e ->
+                        Log.e("AlbumViewModel", "사진 추가 실패 - 에러 메시지: ${e.message}")
+                        Log.e("AlbumViewModel", "사진 추가 실패 - 상세 정보", e)
+                        updatePhotoAddError("사진 저장에 실패했습니다. 다시 시도해주세요.")
+                    }
+                } else {
+                    Log.e("AlbumViewModel", "필수 정보 누락 - groupId: $groupId, imageUri: $imageUri, date: '${photoData.date}'")
+                    updatePhotoAddError("필수 정보가 누락되었습니다.")
+                }
+            } catch (e: Exception) {
+                Log.e("AlbumViewModel", "사진 추가 중 예외 발생", e)
+                updatePhotoAddError("예상치 못한 오류가 발생했습니다.")
+            } finally {
+                updatePhotoAddLoading(false)
+            }
+        }
     }
 
     // 사진 삭제
@@ -229,8 +281,7 @@ class AlbumViewModel @Inject constructor(
                     updateLocalPhotoData(photoId, _photoEditState.value)
                     updateSuccess = true
                 } else {
-                    // 변경사항이 없는 경우 별도 처리 없이 그냥 완료
-                    Log.d("AlbumViewModel", "변경사항이 없음.")
+                    updateSuccess = true
                 }
             } catch (e: Exception) {
                 Log.e("AlbumViewModel", "사진 수정 실패: ${e.message}")

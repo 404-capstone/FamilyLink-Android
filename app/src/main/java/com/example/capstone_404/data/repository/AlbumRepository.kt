@@ -1,6 +1,8 @@
 package com.example.capstone_404.data.repository
 
 import android.net.Uri
+import com.example.capstone_404.data.retrofit.model.request.PhotoEditRequest
+import com.example.capstone_404.data.retrofit.model.response.AlbumEditResponse
 import com.example.capstone_404.data.retrofit.model.response.AlbumSaveResponse
 import com.example.capstone_404.data.retrofit.model.response.AlbumSearchData
 import com.example.capstone_404.feature.album.model.PhotoAddState
@@ -25,4 +27,10 @@ interface AlbumRepository {
         groupId: Int,
         photoId: String
     ): Result<String>
+
+    // 사진 수정
+    suspend fun editPhoto(
+        groupId: Int,
+        photoEditRequest: PhotoEditRequest
+    ): Result<AlbumEditResponse>
 }

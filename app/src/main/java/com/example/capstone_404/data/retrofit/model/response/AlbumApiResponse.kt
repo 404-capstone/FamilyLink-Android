@@ -36,3 +36,14 @@ data class AlbumSaveResponse(
     val photoId: Int,
     val size: Int
 )
+
+// 사진 수정 응답 데이터
+@Serializable
+data class AlbumEditResponse(
+    val photoid: Int,
+    val title: String,
+    val content: String?,
+    val date: String,
+    val time: String?,
+    val userIds: List<Int>?
+)

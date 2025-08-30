@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.example.capstone_404.data.retrofit.api.AlbumApi
+import com.example.capstone_404.data.retrofit.model.request.PhotoEditRequest
+import com.example.capstone_404.data.retrofit.model.response.AlbumEditResponse
 import com.example.capstone_404.data.retrofit.model.response.AlbumInfoData
 import com.example.capstone_404.data.retrofit.model.response.AlbumSaveResponse
 import com.example.capstone_404.data.retrofit.model.response.AlbumSearchData
@@ -111,6 +113,45 @@ class AlbumRepositoryImpl @Inject constructor(
             } else {
                 val errorBody = response.errorBody()?.string()
                 Log.e("AlbumRepository", "Delete error response: $errorBody")
+                Result.failure(Exception("오류 코드: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 사진 수정
+    override suspend fun editPhoto(
+        groupId: Int,
+        photoEditRequest: PhotoEditRequest
+    ): Result<AlbumEditResponse> {
+        if (isTestMode) {
+            delay(1500) // 네트워크 지연 시뮬레이션
+            return Result.success(
+                AlbumEditResponse(
+                    photoid = photoEditRequest.photoId,
+                    title = photoEditRequest.title,
+                    content = photoEditRequest.content,
+                    date = photoEditRequest.date,
+                    time = photoEditRequest.time,
+                    userIds = photoEditRequest.userId
+                )
+            )
+        }
+
+        return try {
+            val response = albumApi.editPhoto(
+                groupId = groupId,
+                request = photoEditRequest
+            )
+
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("AlbumRepository", "Edit error response: $errorBody")
                 Result.failure(Exception("오류 코드: ${response.code()}"))
             }
         } catch (e: Exception) {

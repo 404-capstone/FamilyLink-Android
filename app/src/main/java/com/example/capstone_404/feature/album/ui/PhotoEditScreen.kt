@@ -80,6 +80,14 @@ fun PhotoEditScreen(
         }
     }
 
+    // 수정 에러 처리
+    LaunchedEffect(updateError) {
+        updateError?.let { error ->
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            viewModel.clearUpdateError()
+        }
+    }
+
     BackHandler {
         if (hasChanges) {
             showExitDialog = true

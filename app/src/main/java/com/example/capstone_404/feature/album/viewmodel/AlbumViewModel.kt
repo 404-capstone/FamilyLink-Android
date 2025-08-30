@@ -123,16 +123,6 @@ class AlbumViewModel @Inject constructor(
         _selectedYearMonth.value = yearMonth
     }
 
-    // 뒤로가기 처리
-    fun onBackPressed(): Boolean {
-        return if (_selectedYearMonth.value != null) {
-            selectYearMonth(null)
-            true
-        } else {
-            false
-        }
-    }
-
     // ----- 사진 추가 관련 함수 -----
 
     // 선택된 이미지 설정
@@ -207,7 +197,6 @@ class AlbumViewModel @Inject constructor(
                         getAllAlbums()
                         onSuccess()
                     }.onFailure { e ->
-                        Log.e("AlbumViewModel", "사진 추가 실패 - 에러 메시지: ${e.message}")
                         Log.e("AlbumViewModel", "사진 추가 실패 - 상세 정보", e)
                         updatePhotoAddError("사진 저장에 실패했습니다. 다시 시도해주세요.")
                     }
@@ -269,6 +258,9 @@ class AlbumViewModel @Inject constructor(
 
         if (photos.isEmpty()) {
             currentAlbums.remove(location.yearMonth)
+            if (_selectedYearMonth.value == location.yearMonth) {
+                _selectedYearMonth.value = null
+            }
         } else {
             currentAlbums[location.yearMonth] = photos
         }
@@ -313,24 +305,47 @@ class AlbumViewModel @Inject constructor(
     // 사진 정보 수정
     fun updatePhoto(photoId: String) {
         viewModelScope.launch {
-            isUpdating = true
-            updateError = null
-            updateSuccess = false
-
             try {
-                // 변경사항이 있는지 확인
-                val originalPhoto = getPhotoById(photoId)
-                if (originalPhoto != null && hasChanges(originalPhoto)) {
-                    // TODO: 실제 API 호출로 교체
-                    // 로컬 데이터 업데이트
-                    updateLocalPhotoData(photoId, _photoEditState.value)
-                    updateSuccess = true
+                isUpdating = true
+                updateError = null
+                updateSuccess = false
+
+                val groupId = userInfoManager.getGroupId()
+                if (groupId != null) {
+                    // 필수 필드 검증
+                    val editState = _photoEditState.value
+                    if (editState.title.isBlank()) {
+                        updateError = "제목은 필수 입력사항입니다."
+                        return@launch
+                    }
+
+                    if (editState.date.isBlank()) {
+                        updateError = "날짜는 필수 입력사항입니다."
+                        return@launch
+                    }
+
+                    val request = editState.toEditRequest()
+                    val result = albumRepository.editPhoto(
+                        groupId = groupId,
+                        photoEditRequest = request
+                    )
+
+                    result.onSuccess { response ->
+                        // 서버 수정 성공 후 로컬 데이터 업데이트
+                        updateLocalPhotoData(photoId, editState)
+                        Log.d("AlbumViewModel", "사진 수정 성공: photoid=${response.photoid}, title=${response.title}, userid: ${response.userIds}, date: ${response.date}")
+                        updateSuccess = true
+                    }.onFailure { e ->
+                        Log.e("AlbumViewModel", "사진 수정 실패: ${e.message}")
+                        updateError = "사진 수정에 실패했습니다. 다시 시도해주세요."
+                    }
                 } else {
-                    updateSuccess = true
+                    Log.e("AlbumViewModel", "GroupId가 null입니다")
+                    updateError = "그룹 정보를 찾을 수 없습니다."
                 }
             } catch (e: Exception) {
-                Log.e("AlbumViewModel", "사진 수정 실패: ${e.message}")
-                updateError = "사진 수정에 실패했습니다. 다시 시도해주세요."
+                Log.e("AlbumViewModel", "사진 수정 중 예외 발생", e)
+                updateError = "예상치 못한 오류가 발생했습니다."
             } finally {
                 isUpdating = false
             }
@@ -365,7 +380,10 @@ class AlbumViewModel @Inject constructor(
 
                 val mutablePhotos = photos.toMutableList()
                 mutablePhotos[photoIndex] = updatedPhoto!!
-                currentAlbums[yearMonth] = mutablePhotos.sortedByDescending { it.sortableDateTime }
+                currentAlbums[yearMonth] = mutablePhotos.sortedWith(
+                    compareByDescending<Photo> { it.sortableDateTime }
+                        .thenByDescending { it.id.toIntOrNull() ?: 0 }
+                )
                 return@forEach
             }
         }
@@ -393,7 +411,10 @@ class AlbumViewModel @Inject constructor(
             // 새 앨범에 사진 추가
             val newPhotos = (currentAlbums[newYearMonth] ?: emptyList()).toMutableList()
             newPhotos.add(updatedPhoto)
-            currentAlbums[newYearMonth] = newPhotos.sortedByDescending { it.sortableDateTime }
+            currentAlbums[newYearMonth] = newPhotos.sortedWith(
+                compareByDescending<Photo> { it.sortableDateTime }
+                    .thenByDescending { it.id.toIntOrNull() ?: 0 }
+            )
 
             // 새 앨범으로 이동
             _selectedYearMonth.value = newYearMonth
@@ -450,6 +471,11 @@ class AlbumViewModel @Inject constructor(
         _photoEditState.value = PhotoEditState()
         updateError = null
         updateSuccess = false
+    }
+
+    // 수정 에러 초기화
+    fun clearUpdateError() {
+        updateError = null
     }
 
     // ViewModel 정리

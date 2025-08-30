@@ -1,13 +1,17 @@
 package com.example.capstone_404.data.retrofit.api
 
+import com.example.capstone_404.data.retrofit.model.request.PhotoEditRequest
+import com.example.capstone_404.data.retrofit.model.response.AlbumEditResponse
 import com.example.capstone_404.data.retrofit.model.response.AlbumSaveResponse
 import com.example.capstone_404.data.retrofit.model.response.AlbumSearchData
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
@@ -42,6 +46,10 @@ interface AlbumApi {
         @Query("photoId") photoId: String
     ): Response<BaseResponse<String>>
 
-    // TODO: 추후 추가될 API
-    // @PATCH("/album/edit") - 사진 정보 수정
+    // 사진 정보 수정
+    @PATCH("/album/edit")
+    suspend fun editPhoto(
+        @Query("groupId") groupId: Int,
+        @Body request: PhotoEditRequest
+    ): Response<BaseResponse<AlbumEditResponse>>
 }

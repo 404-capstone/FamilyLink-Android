@@ -8,6 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -15,6 +16,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.capstone_404.feature.album.ui.AlbumScreen
+import com.example.capstone_404.feature.album.ui.PhotoDetailScreen
+import com.example.capstone_404.feature.album.ui.PhotoEditScreen
+import com.example.capstone_404.feature.album.ui.PhotoInputScreen
+import com.example.capstone_404.feature.album.viewmodel.AlbumViewModel
 import com.example.capstone_404.feature.calendar.model.schedule.recommend.RecommendResultUiState
 import com.example.capstone_404.feature.calendar.ui.ActivityRecommendScreen
 import com.example.capstone_404.feature.calendar.ui.AreaSelectionScreen
@@ -43,6 +49,7 @@ import com.example.capstone_404.feature.login.ui.SplashScreen
 import com.example.capstone_404.feature.mypage.ui.MyPageScreen
 import com.example.capstone_404.feature.mypage.ui.ProfileEditScreen
 import com.example.capstone_404.navigation.CalendarNavKeys.SELECTED_AREA
+import java.net.URLDecoder
 
 // 페이지 만들 때 추가 해야됨
 @Composable
@@ -436,9 +443,101 @@ fun AppNavGraph(navController: NavHostController) {
                 )
             }
 
-            // 임시 정의
-            composable(Route.ALBUM) {  }
+            // 앨범
+            composable(Route.ALBUM) { backStackEntry ->
+                val viewModel: AlbumViewModel = hiltViewModel(backStackEntry)
+                AlbumScreen(
+                    viewModel = viewModel,
+                    onNavigateToGroup = {
+                        navController.navigate(Route.GROUP) {
+                            popUpTo(Route.ALBUM) { inclusive = true }
+                        }
+                    },
+                    onNavigateToPhotoInput = { encodedImageUri ->
+                        navController.navigate("photo_input/$encodedImageUri")
+                    },
+                    onNavigateToPhotoDetail = { photoId ->
+                        navController.navigate("photo_detail/$photoId")
+                    }
+                )
+            }
 
+            // 사진 정보 입력
+            composable(
+                route = Route.PHOTO_INPUT,
+                arguments = listOf(navArgument("imageUri") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.ALBUM)
+                }
+                val viewModel: AlbumViewModel = hiltViewModel(parentEntry)
+
+                val encodedImageUri = backStackEntry.arguments?.getString("imageUri") ?: ""
+                val imageUri = URLDecoder.decode(encodedImageUri, "UTF-8").toUri()
+
+                PhotoInputScreen(
+                    viewModel = viewModel,
+                    initialImageUri = imageUri,
+                    onNavigateBack = {
+                        navController.popBackStack(Route.ALBUM, inclusive = false)
+                    },
+                    onSaveComplete = {
+                        navController.popBackStack(Route.ALBUM, inclusive = false)
+                    }
+                )
+            }
+
+            // 사진 상세 조회
+            composable(
+                route = Route.PHOTO_DETAIL,
+                arguments = listOf(navArgument("photoId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.ALBUM)
+                }
+                val viewModel: AlbumViewModel = hiltViewModel(parentEntry)
+
+                val photoId = backStackEntry.arguments?.getString("photoId") ?: ""
+
+                PhotoDetailScreen(
+                    viewModel = viewModel,
+                    photoId = photoId,
+                    onNavigateBack = {
+                        navController.popBackStack(Route.ALBUM, inclusive = false)
+                    },
+                    onNavigateToEdit = { photoId ->
+                        navController.navigate("photo_edit/$photoId")
+                    }
+                )
+            }
+
+            // 사진 정보 수정
+            composable(
+                route = Route.PHOTO_EDIT,
+                arguments = listOf(navArgument("photoId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(Route.ALBUM)
+                }
+                val viewModel: AlbumViewModel = hiltViewModel(parentEntry)
+
+                val photoId = backStackEntry.arguments?.getString("photoId") ?: ""
+                val photo = viewModel.getPhotoById(photoId)
+
+                if (photo != null) {
+                    PhotoEditScreen(
+                        viewModel = viewModel,
+                        photo = photo,
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                } else {
+                    LaunchedEffect(Unit) {
+                        navController.popBackStack()
+                    }
+                }
+            }
         }
     }
 }

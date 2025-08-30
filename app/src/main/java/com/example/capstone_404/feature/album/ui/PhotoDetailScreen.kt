@@ -44,6 +44,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.album.model.DateTimeUtil
+import com.example.capstone_404.feature.album.model.Photo
 import com.example.capstone_404.feature.album.ui.component.PhotoDetailBottomSheet
 import com.example.capstone_404.feature.album.viewmodel.AlbumViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar
@@ -72,10 +73,13 @@ fun PhotoDetailScreen(
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // 현재 앨범의 모든 사진 목록 (최신순 정렬)
+    // 현재 앨범의 모든 사진 목록 (최신순 정렬 + ID 내림차순)
     val photos = remember(albums, selectedYearMonth) {
         selectedYearMonth?.let { yearMonth ->
-            albums[yearMonth]?.sortedByDescending { it.sortableDateTime } ?: emptyList()
+            albums[yearMonth]?.sortedWith(
+                compareByDescending<Photo> { it.sortableDateTime }
+                    .thenByDescending { it.id.toIntOrNull() ?: 0 }
+            ) ?: emptyList()
         } ?: emptyList()
     }
 
@@ -89,6 +93,14 @@ fun PhotoDetailScreen(
         initialPage = initialPage,
         pageCount = { photos.size }
     )
+
+    // 사진 목록 변경 시 pager 상태 동기화
+    LaunchedEffect(photos, photoId) {
+        val targetIndex = photos.indexOfFirst { it.id == photoId }
+        if (targetIndex >= 0 && targetIndex != pagerState.currentPage) {
+            pagerState.animateScrollToPage(targetIndex)
+        }
+    }
 
     // 현재 사진
     val currentPhoto by remember {

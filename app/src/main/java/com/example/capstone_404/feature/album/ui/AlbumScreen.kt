@@ -76,7 +76,7 @@ fun AlbumScreen(
     }
 
     LaunchedEffect(groupInfo) {
-        if (groupInfo != null && viewModel.albums.value.isEmpty()) {
+        if (groupInfo != null) {
             viewModel.getAllAlbums()
         }
     }
@@ -87,9 +87,9 @@ fun AlbumScreen(
     }
 
     // 앨범에서 다른 탭으로 이동 방지
-    BackHandler(enabled = true) {
+    BackHandler(enabled = selectedYearMonth != null) {
         if (selectedYearMonth != null) {
-            viewModel.onBackPressed()
+            viewModel.selectYearMonth(null)
         }
     }
     Scaffold(

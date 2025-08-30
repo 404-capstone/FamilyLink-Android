@@ -18,6 +18,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -69,7 +70,11 @@ fun AlbumScreenContent(
                             yearMonth = yearMonth,
                             photoCount = photos.size,
                             thumbnailUrl = photos
-                                .maxByOrNull { it.sortableDateTime }
+                                .sortedWith(
+                                    compareByDescending<Photo> { it.sortableDateTime }
+                                        .thenByDescending { it.id.toIntOrNull() ?: 0 }
+                                )
+                                .firstOrNull()
                                 ?.thumbnailUrl,
                             onClick = { onYearMonthClick(yearMonth) }
                         )
@@ -81,29 +86,34 @@ fun AlbumScreenContent(
             else -> {
                 val photos = albums[selectedYearMonth] ?: emptyList()
 
-                if (photos.isEmpty()) {
-                    EmptyAlbumState(
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                        contentPadding = PaddingValues(vertical = 8.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            items = photos.sortedByDescending { it.sortableDateTime },
-                            key = { it.id }
-                        ) { photo ->
-                            PhotoGridItem(
-                                photo = photo,
-                                onClick = {
-                                    onPhotoClick(photo.id)
-                                }
-                            )
-                        }
+                // 선택된 앨범이 더 이상 존재하지 않으면 메인으로 자동 복귀
+                if (selectedYearMonth !in albums.keys && albums.isNotEmpty()) {
+                    LaunchedEffect(selectedYearMonth) {
+                        onYearMonthClick(null)
+                    }
+                }
+
+                // 앨범이 존재하면 사진 그리드 표시
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(
+                        items = photos.sortedWith(
+                            compareByDescending<Photo> { it.sortableDateTime }
+                                .thenByDescending { it.id.toIntOrNull() ?: 0 }
+                        ),
+                        key = { it.id }
+                    ) { photo ->
+                        PhotoGridItem(
+                            photo = photo,
+                            onClick = {
+                                onPhotoClick(photo.id)
+                            }
+                        )
                     }
                 }
             }

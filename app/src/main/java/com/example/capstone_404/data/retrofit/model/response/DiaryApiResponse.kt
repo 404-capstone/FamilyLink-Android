@@ -24,3 +24,22 @@ data class GroupQuestionData(
     val date: String,
     val responders: List<String>
 )
+
+// 일기 상세 조회 Response
+@Serializable
+data class DiaryDetailData(
+    val id: Long,
+    val content: String,
+    val userId: Long,
+    val diaryAt: String,
+    val feedBack: String,
+    val emotions: List<EmotionData>
+)
+
+// 감정 분석 데이터 Response
+@Serializable
+data class EmotionData(
+    val id: Long,
+    val label: String,
+    val score: Double
+)

@@ -1,15 +1,10 @@
 package com.example.capstone_404.feature.diary.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +31,6 @@ import com.example.capstone_404.feature.diary.ui.component.AiFeedbackSection
 import com.example.capstone_404.feature.diary.viewmodel.DiarySelectViewModel
 import com.example.capstone_404.feature.diary.model.DiaryDetail
 import com.example.capstone_404.feature.diary.model.DiarySelectUiState
-import com.example.capstone_404.feature.diary.model.SelectType
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
@@ -188,7 +182,7 @@ fun DiarySelectScreen(
             confirmText = "삭제",
             onConfirm = {
                 showDeleteDialog.value = false
-                viewModel.deleteSelected(diaryId, SelectType.DIARY)
+                viewModel.deleteDiary(diaryId)
             },
             onDismiss = { showDeleteDialog.value = false }
         )

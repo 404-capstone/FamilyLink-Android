@@ -1,16 +1,17 @@
 package com.example.capstone_404.feature.diary.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capstone_404.data.repository.DiaryRepository
+import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
 import com.example.capstone_404.feature.diary.model.DiaryDetail
 import com.example.capstone_404.feature.diary.model.QuestionDetail
 import com.example.capstone_404.feature.diary.model.DiarySelectUiState
-import com.example.capstone_404.feature.diary.model.SelectType
 import com.example.capstone_404.feature.diary.model.EmotionResult
 import com.example.capstone_404.feature.diary.model.EmotionColorConstants
 import com.example.capstone_404.feature.diary.model.Question
 import com.example.capstone_404.feature.diary.model.QuestionWithAnswers
-import com.example.capstone_404.feature.diary.model.Responder
 import com.example.capstone_404.feature.diary.model.roleLabelsToResponders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -18,27 +19,40 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class DiarySelectViewModel @Inject constructor() : ViewModel() {
+class DiarySelectViewModel @Inject constructor(
+    private val diaryRepository: DiaryRepository
+) : ViewModel() {
 
     // 상태 관리
     private val _diarySelectState = MutableStateFlow<DiarySelectUiState>(DiarySelectUiState.Loading)
     val diarySelectState: StateFlow<DiarySelectUiState> = _diarySelectState.asStateFlow()
-    
+
     // 비즈니스 로직
     fun selectDiary(id: String) {
         viewModelScope.launch {
             _diarySelectState.value = DiarySelectUiState.Loading
-            delay(200) // 실제 Repository 연동 시 제거
-            
-            val item = diaryStore[id]
-            if (item != null) {
-                _diarySelectState.value = DiarySelectUiState.Success(item)
-            } else {
-                // 에러 시 기본 데이터 반환
-                _diarySelectState.value = DiarySelectUiState.Success(diaryStore["1"]!!)
+
+            val diaryId = id.toLongOrNull()
+            if (diaryId == null) {
+                Log.e("DiarySelectViewModel", "잘못된 다이어리 ID: $id")
+                _diarySelectState.value = DiarySelectUiState.Success(getErrorDiaryDetail())
+                return@launch
+            }
+
+            val result = diaryRepository.getDiaryDetail(diaryId)
+            result.onSuccess { response ->
+                Log.d("DiarySelectViewModel", "다이어리 상세 조회 성공: $response")
+                val diaryDetail = convertToDiaryDetail(response)
+                _diarySelectState.value = DiarySelectUiState.Success(diaryDetail)
+            }.onFailure { error ->
+                Log.e("DiarySelectViewModel", "다이어리 상세 조회 실패: ${error.message}")
+                _diarySelectState.value = DiarySelectUiState.Success(getErrorDiaryDetail())
             }
         }
     }
@@ -58,18 +72,70 @@ class DiarySelectViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun deleteSelected(id: String, type: SelectType) {
+    fun deleteDiary(diaryId: String) {
         viewModelScope.launch {
-            when (type) {
-                SelectType.DIARY -> diaryStore.remove(id)
-                SelectType.QUESTION -> questionStore.remove(id)
+            val id = diaryId.toLongOrNull()
+            if (id == null) {
+                Log.e("DiarySelectViewModel", "잘못된 다이어리 ID: $diaryId")
+                _diarySelectState.value = DiarySelectUiState.Success(getErrorDiaryDetail())
+                return@launch
             }
+            // TODO: 다이어리 삭제 API (/diary/delete) 연동 필요
             _diarySelectState.value = DiarySelectUiState.Deleted
         }
     }
 
+    private fun convertToDiaryDetail(response: DiaryDetailData): DiaryDetail {
+        return DiaryDetail(
+            id = response.id.toString(),
+            date = formatDate(response.diaryAt),
+            diaryText = response.content,
+            emotions = response.emotions.map { emotion ->
+                EmotionResult(
+                    emotion = emotion.label,
+                    percentage = (emotion.score * 100).toFloat(),
+                    color = mapEmotionToColor(emotion.label)
+                )
+            },
+            aiFeedback = response.feedBack
+        )
+    }
+
+    private fun formatDate(dateTimeString: String): String {
+        return try {
+            val dateTime = LocalDateTime.parse(dateTimeString.take(19))
+            val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd(E)", Locale.KOREA)
+            dateTime.format(formatter)
+        } catch (e: Exception) {
+            Log.e("DiarySelectViewModel", "날짜 파싱 실패: '$dateTimeString'")
+            dateTimeString.take(10).replace("-", ".")
+        }
+    }
+
+    private fun mapEmotionToColor(emotionLabel: String): androidx.compose.ui.graphics.Color {
+        return when (emotionLabel) {
+            "기쁨" -> EmotionColorConstants.JOY
+            "혐오" -> EmotionColorConstants.DISGUST
+            "놀람" -> EmotionColorConstants.SURPRISE
+            "슬픔" -> EmotionColorConstants.SADNESS
+            "분노" -> EmotionColorConstants.ANGER
+            "상처" -> EmotionColorConstants.HURT
+            else -> EmotionColorConstants.JOY // 기본값
+        }
+    }
+
+    private fun getErrorDiaryDetail(): DiaryDetail {
+        return DiaryDetail(
+            id = "error",
+            date = "오류 발생",
+            diaryText = "다이어리 정보를 불러오는 중 오류가 발생했습니다.",
+            emotions = emptyList(),
+            aiFeedback = "다이어리 정보를 불러올 수 없습니다."
+        )
+    }
+
     // 테스트 데이터 (임시)
-    // TODO: Repository 연동 시 제거하고 실제 데이터 소스 사용
+    // TODO: 공통질문 api 연동 시 제거
     private val diaryStore: MutableMap<String, DiaryDetail> = mutableMapOf(
         "1" to DiaryDetail(
             id = "1",

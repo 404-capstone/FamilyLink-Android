@@ -24,8 +24,8 @@ class DiaryRepositoryImpl @Inject constructor(
                 Result.success(data)
             } else {
                 val errorBody = response.errorBody()?.string()
-                Log.e("DiaryRepository", "Error response body: $errorBody")
-                Result.failure(Exception("오류 코드: ${response.code()}"))
+                Log.e("DiaryRepository", "다이어리 전체 조회 에러 [${response.code()}]: $errorBody")
+                Result.failure(Exception("다이어리 정보를 불러오는데 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -42,10 +42,29 @@ class DiaryRepositoryImpl @Inject constructor(
                 } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 val errorBody = response.errorBody()?.string()
-                Log.e("DiaryRepository", "Error response body: $errorBody")
-                Result.failure(Exception("오류 코드: ${response.code()}"))
+                Log.e("DiaryRepository", "다이어리 상세 조회 에러 [${response.code()}]: $errorBody")
+                Result.failure(Exception("다이어리 정보를 불러오는데 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
             }
         } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteDiary(diaryId: Long): Result<String> {
+        return try {
+            val response = diaryApi.deleteDiary(diaryId)
+
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.success("삭제 완료")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("DiaryRepository", "다이어리 삭제 에러 [${response.code()}]: $errorBody")
+                Result.failure(Exception("다이어리 삭제에 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
+            }
+        } catch (e: Exception) {
+            Log.e("DiaryRepository", "Delete exception: ${e.message}")
             Result.failure(e)
         }
     }

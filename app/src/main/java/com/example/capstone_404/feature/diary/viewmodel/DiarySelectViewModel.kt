@@ -80,8 +80,15 @@ class DiarySelectViewModel @Inject constructor(
                 _diarySelectState.value = DiarySelectUiState.Success(getErrorDiaryDetail())
                 return@launch
             }
-            // TODO: 다이어리 삭제 API (/diary/delete) 연동 필요
-            _diarySelectState.value = DiarySelectUiState.Deleted
+
+            val result = diaryRepository.deleteDiary(id)
+            result.onSuccess { message ->
+                Log.d("DiarySelectViewModel", "다이어리 삭제 성공: $message")
+                _diarySelectState.value = DiarySelectUiState.Deleted
+            }.onFailure { error ->
+                Log.e("DiarySelectViewModel", "다이어리 삭제 실패: ${error.message}")
+                _diarySelectState.value = DiarySelectUiState.Success(getErrorDiaryDetail())
+            }
         }
     }
 

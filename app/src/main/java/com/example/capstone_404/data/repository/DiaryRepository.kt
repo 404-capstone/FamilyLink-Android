@@ -15,4 +15,9 @@ interface DiaryRepository {
     suspend fun getDiaryDetail(
         diaryId: Long
     ): Result<DiaryDetailData>
+
+    // 일기 삭제
+    suspend fun deleteDiary(
+        diaryId: Long
+    ): Result<String>
 }

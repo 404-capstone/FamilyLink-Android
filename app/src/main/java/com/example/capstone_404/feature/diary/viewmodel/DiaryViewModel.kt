@@ -73,7 +73,6 @@ class DiaryViewModel @Inject constructor(
         )
     }
 
-    // 다이어리와 공통질문 조회
     fun loadUserData() {
         viewModelScope.launch {
             setLoadingState()
@@ -90,7 +89,7 @@ class DiaryViewModel @Inject constructor(
         }
     }
 
-    // API 호출
+    // 다이어리 전체 조회
     private suspend fun fetchUserData(userId: Int) {
         val result = diaryRepository.getDiaryAndQuestions(userId)
         result.onSuccess { response ->
@@ -143,13 +142,13 @@ class DiaryViewModel @Inject constructor(
     // EmotionType 매핑
     private fun mapEmotionStringToType(emotion: String): EmotionType {
         return when (emotion) {
-            "기쁨" -> EmotionType.JOY
+            "행복" -> EmotionType.HAPPINESS
             "혐오" -> EmotionType.DISGUST
             "놀람" -> EmotionType.SURPRISE
             "슬픔" -> EmotionType.SADNESS
             "분노" -> EmotionType.ANGER
-            "상처" -> EmotionType.HURT
-            else -> EmotionType.JOY // 기본값
+            "불안" -> EmotionType.ANXIETY
+            else -> EmotionType.HAPPINESS
         }
     }
 }

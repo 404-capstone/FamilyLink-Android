@@ -1,7 +1,9 @@
 package com.example.capstone_404.data.repository
 
+import com.example.capstone_404.data.retrofit.model.request.DiaryCreateRequest
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
+import com.example.capstone_404.data.retrofit.model.response.FeedBackData
 import com.example.capstone_404.data.retrofit.model.response.TodayQuestionData
 
 // 다이어리 API Repository 인터페이스
@@ -26,4 +28,9 @@ interface DiaryRepository {
     suspend fun getTodayQuestions(
         groupId: Int
     ): Result<TodayQuestionData>
+
+    // 다이어리 작성
+    suspend fun createDiary(
+        request: DiaryCreateRequest
+    ): Result<FeedBackData>
 }

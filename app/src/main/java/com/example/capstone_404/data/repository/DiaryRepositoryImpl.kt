@@ -2,8 +2,10 @@ package com.example.capstone_404.data.repository
 
 import android.util.Log
 import com.example.capstone_404.data.retrofit.api.DiaryApi
+import com.example.capstone_404.data.retrofit.model.request.DiaryCreateRequest
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
+import com.example.capstone_404.data.retrofit.model.response.FeedBackData
 import com.example.capstone_404.data.retrofit.model.response.TodayQuestionData
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -84,12 +86,32 @@ class DiaryRepositoryImpl @Inject constructor(
                     Log.w("DiaryRepository", "이미 응답 완료: $errorBody")
                     Result.failure(Exception("오늘 해당 응답을 하셨습니다."))
                 } else {
-                    Log.e("DiaryRepository", "질문지 조회 API 에러 [${response.code()}]: $errorBody")
+                    Log.e("DiaryRepository", "질문지 조회 에러 [${response.code()}]: $errorBody")
                     Result.failure(Exception("질문을 불러오는데 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
                 }
             }
         } catch (e: Exception) {
             Log.e("DiaryRepository", "질문지 조회 실패: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun createDiary(request: DiaryCreateRequest): Result<FeedBackData> {
+        return try {
+            val response = diaryApi.createDiary(request)
+
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Log.d("DiaryRepository", "다이어리 작성 성공: $data")
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("DiaryRepository", "다이어리 작성 에러 [${response.code()}]: $errorBody")
+                Result.failure(Exception("다이어리 저장에 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
+            }
+        } catch (e: Exception) {
+            Log.e("DiaryRepository", "다이어리 작성 실패: ${e.message}")
             Result.failure(e)
         }
     }

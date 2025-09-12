@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.DiaryRepository
+import com.example.capstone_404.data.retrofit.model.request.DiaryCreateRequest
+import com.example.capstone_404.data.retrofit.model.response.FeedBackData
 import com.example.capstone_404.data.retrofit.model.response.GroupQuestionItem
 import com.example.capstone_404.feature.diary.model.DiaryWriteState
 import com.example.capstone_404.feature.diary.model.WriteStep
@@ -12,7 +14,6 @@ import com.example.capstone_404.feature.diary.model.FeedbackResult
 import com.example.capstone_404.feature.diary.model.EmotionResult
 import com.example.capstone_404.feature.diary.model.EmotionColorConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -27,7 +28,6 @@ class DiaryWriteViewModel @Inject constructor(
     
     companion object {
         private const val MIN_DIARY_LENGTH = 50 // 최소 다이어리 길이(50자)
-        private const val LOADING_DELAY = 1500L // 로딩 지연 시간
     }
     
     private val _uiState = MutableStateFlow(DiaryWriteState())
@@ -96,47 +96,76 @@ class DiaryWriteViewModel @Inject constructor(
     private fun handlePrevToDiary() {
         _uiState.update { it.copy(step = WriteStep.DIARY) }
     }
-    
+
     private fun handleSubmit() {
         _uiState.update { it.copy(step = WriteStep.LOADING) }
-        
+
         viewModelScope.launch {
-            delay(LOADING_DELAY)
-            
-            // 피드백 결과 테스트 데이터
-            val testResult = testFeedbackResult(_uiState.value.diaryText)
-            
-            _uiState.update { 
-                it.copy(
-                    step = WriteStep.RESULT,
-                    result = testResult
+            val currentState = _uiState.value
+            val userId = userInfoManager.getUserId()
+
+            if (userId == null) {
+                _errorMessage.value = "사용자 정보를 찾을 수 없습니다.\n다시 로그인해주세요."
+                _uiState.update { it.copy(step = WriteStep.DIARY) }
+                return@launch
+            }
+
+            try {
+                // 다이어리 작성 및 AI 피드백 생성
+                val diaryResult = diaryRepository.createDiary(
+                    DiaryCreateRequest(
+                        content = currentState.diaryText,
+                        userId = userId.toLong()
+                    )
                 )
+                if (diaryResult.isFailure) {
+                    _errorMessage.value = diaryResult.exceptionOrNull()?.message
+                        ?: "다이어리 저장에 실패했습니다."
+                    _uiState.update { it.copy(step = WriteStep.DIARY) }
+                    return@launch
+                }
+                val feedbackData = diaryResult.getOrNull()!!
+                val feedbackResult = convertToFeedbackResult(feedbackData)
+                _uiState.update {
+                    it.copy(
+                        step = WriteStep.RESULT,
+                        result = feedbackResult
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.e("DiaryWriteViewModel", "저장 중 오류 발생: ${e.message}")
+                _errorMessage.value = "저장 중 오류가 발생했습니다."
+                _uiState.update { it.copy(step = WriteStep.DIARY) }
             }
         }
     }
-    
-    // 테스트용 피드백 결과 생성
-    private fun testFeedbackResult(diaryText: String): FeedbackResult {
-        val emotions = listOf(
-            EmotionResult("기쁨", 0.452f, EmotionColorConstants.JOY),
-            EmotionResult("혐오", 0.210f, EmotionColorConstants.DISGUST),
-            EmotionResult("놀람", 0.180f, EmotionColorConstants.SURPRISE),
-            EmotionResult("슬픔", 0.098f, EmotionColorConstants.SADNESS),
-            EmotionResult("분노", 0.035f, EmotionColorConstants.ANGER),
-            EmotionResult("상처", 0.025f, EmotionColorConstants.HURT)
-        )
-        
-        val aiFeedback = """
-            AI가 작성한 피드백입니다. 반갑습니다.
-            안녕하세요. 어려웠을 하루를
-            잘 보내셨네요.
-        """.trimIndent()
-        
+
+    private fun convertToFeedbackResult(feedbackData: FeedBackData): FeedbackResult {
         return FeedbackResult(
-            diaryText = diaryText,
-            emotionResults = emotions,
-            aiFeedback = aiFeedback
+            diaryText = feedbackData.diary,
+            emotionResults = feedbackData.emotions.map { emotion ->
+                EmotionResult(
+                    emotion = emotion.emotion,
+                    percentage = (emotion.percent / 100f).toFloat(),
+                    color = getEmotionColor(emotion.emotion)
+                )
+            },
+            aiFeedback = feedbackData.feedback
         )
+    }
+
+    // 감정에 따른 색상 매핑
+    private fun getEmotionColor(emotion: String): androidx.compose.ui.graphics.Color {
+        return when (emotion) {
+            "행복" -> EmotionColorConstants.HAPPINESS
+            "혐오" -> EmotionColorConstants.DISGUST
+            "슬픔" -> EmotionColorConstants.SADNESS
+            "불안" -> EmotionColorConstants.ANXIETY
+            "분노" -> EmotionColorConstants.ANGER
+            "놀람" -> EmotionColorConstants.SURPRISE
+            else -> EmotionColorConstants.HAPPINESS
+        }
     }
     
     // 다이어리 작성 가능 여부 확인

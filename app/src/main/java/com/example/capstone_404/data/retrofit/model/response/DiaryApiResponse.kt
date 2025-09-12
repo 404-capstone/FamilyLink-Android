@@ -56,3 +56,17 @@ data class GroupQuestionItem(
     val questionId: Int,
     val content: String
 )
+
+// 다이어리 작성(AI피드백 생성) Response
+@Serializable
+data class FeedBackData(
+    val diary: String,
+    val feedback: String,
+    val emotions: List<EmotionAnalysisData>
+)
+
+@Serializable
+data class EmotionAnalysisData(
+    val emotion: String,
+    val percent: Double
+)

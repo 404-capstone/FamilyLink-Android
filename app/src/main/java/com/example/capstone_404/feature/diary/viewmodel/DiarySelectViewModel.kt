@@ -121,13 +121,13 @@ class DiarySelectViewModel @Inject constructor(
 
     private fun mapEmotionToColor(emotionLabel: String): androidx.compose.ui.graphics.Color {
         return when (emotionLabel) {
-            "기쁨" -> EmotionColorConstants.JOY
+            "행복" -> EmotionColorConstants.HAPPINESS
             "혐오" -> EmotionColorConstants.DISGUST
             "놀람" -> EmotionColorConstants.SURPRISE
             "슬픔" -> EmotionColorConstants.SADNESS
             "분노" -> EmotionColorConstants.ANGER
-            "상처" -> EmotionColorConstants.HURT
-            else -> EmotionColorConstants.JOY // 기본값
+            "불안" -> EmotionColorConstants.ANXIETY
+            else -> EmotionColorConstants.HAPPINESS
         }
     }
 
@@ -149,12 +149,12 @@ class DiarySelectViewModel @Inject constructor(
             date = "2025.08.01(금)",
             diaryText = "오늘은 1인당 26만원인 한국에서 제일 비싼 뷔페를 다녀왔어요.",
             emotions = listOf(
-                EmotionResult("기쁨", 0.45f, EmotionColorConstants.JOY),
+                EmotionResult("행복", 0.45f, EmotionColorConstants.HAPPINESS),
                 EmotionResult("혐오", 0.21f, EmotionColorConstants.DISGUST),
                 EmotionResult("놀람", 0.18f, EmotionColorConstants.SURPRISE),
                 EmotionResult("슬픔", 0.09f, EmotionColorConstants.SADNESS),
                 EmotionResult("분노", 0.05f, EmotionColorConstants.ANGER),
-                EmotionResult("상처", 0.02f, EmotionColorConstants.HURT)
+                EmotionResult("불안", 0.02f, EmotionColorConstants.ANXIETY)
             ),
             aiFeedback = "AI가 작성한 피드백입니다. 반갑습니다. 안녕하세요. 어서오세요. 하이루"
         )

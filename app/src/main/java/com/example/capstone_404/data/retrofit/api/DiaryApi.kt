@@ -1,12 +1,16 @@
 package com.example.capstone_404.data.retrofit.api
 
+import com.example.capstone_404.data.retrofit.model.request.DiaryCreateRequest
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
+import com.example.capstone_404.data.retrofit.model.response.FeedBackData
 import com.example.capstone_404.data.retrofit.model.response.TodayQuestionData
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 // 다이어리 관련 API 인터페이스
@@ -35,4 +39,10 @@ interface DiaryApi {
     suspend fun getTodayQuestions(
         @Query("groupId") groupId: Int
     ): Response<BaseResponse<TodayQuestionData>>
+
+    // 다이어리 작성 (AI 피드백 생성)
+    @POST("/diary/write")
+    suspend fun createDiary(
+        @Body body: DiaryCreateRequest
+    ): Response<BaseResponse<FeedBackData>>
 }

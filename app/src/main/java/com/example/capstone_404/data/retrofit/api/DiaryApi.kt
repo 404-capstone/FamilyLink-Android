@@ -3,6 +3,7 @@ package com.example.capstone_404.data.retrofit.api
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
+import com.example.capstone_404.data.retrofit.model.response.TodayQuestionData
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -28,4 +29,10 @@ interface DiaryApi {
     suspend fun deleteDiary(
         @Query("diaryId") diaryId: Long
     ): Response<BaseResponse<String>>
+
+    // 질문지 조회
+    @GET("/diary/question/search")
+    suspend fun getTodayQuestions(
+        @Query("groupId") groupId: Int
+    ): Response<BaseResponse<TodayQuestionData>>
 }

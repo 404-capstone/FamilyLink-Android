@@ -1,7 +1,11 @@
 package com.example.capstone_404.feature.diary.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capstone_404.data.info.UserInfoManager
+import com.example.capstone_404.data.repository.DiaryRepository
+import com.example.capstone_404.data.retrofit.model.response.GroupQuestionItem
 import com.example.capstone_404.feature.diary.model.DiaryWriteState
 import com.example.capstone_404.feature.diary.model.WriteStep
 import com.example.capstone_404.feature.diary.model.FeedbackResult
@@ -16,7 +20,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DiaryWriteViewModel @Inject constructor() : ViewModel() {
+class DiaryWriteViewModel @Inject constructor(
+    private val diaryRepository: DiaryRepository,
+    private val userInfoManager: UserInfoManager
+) : ViewModel() {
     
     companion object {
         private const val MIN_DIARY_LENGTH = 50 // 최소 다이어리 길이(50자)
@@ -25,6 +32,13 @@ class DiaryWriteViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(DiaryWriteState())
     val uiState: StateFlow<DiaryWriteState> = _uiState
+
+    // 질문지 조회 데이터
+    private val _todayQuestions = MutableStateFlow<List<GroupQuestionItem>>(emptyList())
+
+    // 에러 메시지
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
     
     // 콜백 함수
     fun onDiaryChange(text: String) {
@@ -56,10 +70,17 @@ class DiaryWriteViewModel @Inject constructor() : ViewModel() {
             )
         }
     }
-    
+
     private fun handleNextFromDiary() {
         val currentState = _uiState.value
         if (!currentState.isDiaryEmpty && !currentState.isDiaryTooShort) {
+            if (_todayQuestions.value.isEmpty()) {
+                loadTodayQuestions(
+                    onError = { errorMsg ->
+                        _errorMessage.value = errorMsg
+                    }
+                )
+            }
             _uiState.update { it.copy(step = WriteStep.QUESTION) }
         }
     }
@@ -132,5 +153,54 @@ class DiaryWriteViewModel @Inject constructor() : ViewModel() {
             state.isDiaryTooShort -> "감정 분석을 위해 최소 50자 이상 작성해주세요. (현재 ${state.diaryText.length}자)"
             else -> "작성한 일기는 본인만 열람이 가능하며, 다른 사용자에게 공유되지 않습니다."
         }
+    }
+
+    // 금일 질문지 로드
+    fun loadTodayQuestions(
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            val groupId = userInfoManager.getGroupId()
+            if (groupId == null) {
+                val errorMsg = "그룹 정보를 찾을 수 없습니다.\n다시 로그인해주세요."
+                Log.e("DiaryWriteViewModel", errorMsg)
+                onError(errorMsg)
+                return@launch
+            }
+
+            val result = diaryRepository.getTodayQuestions(groupId)
+            result.onSuccess { response ->
+                Log.d("DiaryWriteViewModel", "오늘의 질문 로드 성공: $response")
+                _todayQuestions.value = response.groupQuestion
+
+                // 질문 텍스트와 답변 리스트 초기화
+                _uiState.update { state ->
+                    state.copy(
+                        questionTexts = response.groupQuestion.map { it.content },
+                        answerTexts = List(response.groupQuestion.size) { "" }
+                    )
+                }
+                // 에러 메시지 초기화
+                _errorMessage.value = null
+                onSuccess()
+            }.onFailure { error ->
+                Log.e("DiaryWriteViewModel", "오늘의 질문 로드 실패: ${error.message}")
+                // 실패 시 빈 질문으로 초기화
+                _todayQuestions.value = emptyList()
+                _uiState.update { state ->
+                    state.copy(
+                        questionTexts = emptyList(),
+                        answerTexts = emptyList()
+                    )
+                }
+                onError(error.message ?: "질문을 불러오는데 실패했습니다.")
+            }
+        }
+    }
+
+    // 에러 메시지 초기화
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

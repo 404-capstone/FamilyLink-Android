@@ -2,6 +2,7 @@ package com.example.capstone_404.data.repository
 
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
+import com.example.capstone_404.data.retrofit.model.response.TodayQuestionData
 
 // 다이어리 API Repository 인터페이스
 interface DiaryRepository {
@@ -20,4 +21,9 @@ interface DiaryRepository {
     suspend fun deleteDiary(
         diaryId: Long
     ): Result<String>
+
+    // 질문지 조회
+    suspend fun getTodayQuestions(
+        groupId: Int
+    ): Result<TodayQuestionData>
 }

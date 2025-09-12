@@ -43,3 +43,16 @@ data class EmotionData(
     val label: String,
     val score: Double
 )
+
+// 질문지 조회 Response
+@Serializable
+data class TodayQuestionData(
+    val groupId: Int,
+    val groupQuestion: List<GroupQuestionItem>
+)
+
+@Serializable
+data class GroupQuestionItem(
+    val questionId: Int,
+    val content: String
+)

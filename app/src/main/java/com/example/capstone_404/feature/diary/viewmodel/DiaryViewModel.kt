@@ -151,4 +151,30 @@ class DiaryViewModel @Inject constructor(
             else -> EmotionType.HAPPINESS
         }
     }
+
+    fun checkCanWriteDiary(
+        onCanWrite: () -> Unit,
+        onAlreadyWritten: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val groupId = userInfoManager.getGroupId()
+            if (groupId == null) {
+                Log.e("DiaryViewModel", "그룹 미가입 상태에서 다이어리 작성 시도")
+                return@launch
+            }
+
+            val result = diaryRepository.getTodayQuestions(groupId)
+            result.onSuccess {
+                onCanWrite()
+            }.onFailure { error ->
+                val errorMessage = error.message ?: ""
+                if (errorMessage.contains("오늘 해당 응답을 하셨습니다") || errorMessage.contains("500")) {
+                    onAlreadyWritten()
+                } else {
+                    // 기타 네트워크 에러
+                    onCanWrite()
+                }
+            }
+        }
+    }
 }

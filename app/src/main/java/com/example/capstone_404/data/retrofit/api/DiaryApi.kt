@@ -1,6 +1,7 @@
 package com.example.capstone_404.data.retrofit.api
 
 import com.example.capstone_404.data.retrofit.model.request.DiaryCreateRequest
+import com.example.capstone_404.data.retrofit.model.request.QuestionAnswerRequest
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
@@ -25,13 +26,13 @@ interface DiaryApi {
     // 일기 상세 조회
     @GET("/diary/search")
     suspend fun getDiaryDetail(
-        @Query("diaryId") diaryId: Long
+        @Query("diaryId") diaryId: Int
     ): Response<BaseResponse<DiaryDetailData>>
 
     // 일기 삭제
     @DELETE("/diary/delete")
     suspend fun deleteDiary(
-        @Query("diaryId") diaryId: Long
+        @Query("diaryId") diaryId: Int
     ): Response<BaseResponse<String>>
 
     // 질문지 조회
@@ -45,4 +46,10 @@ interface DiaryApi {
     suspend fun createDiary(
         @Body body: DiaryCreateRequest
     ): Response<BaseResponse<FeedBackData>>
+
+    // 질문 응답 저장
+    @POST("/diary/question/write")
+    suspend fun saveQuestionAnswers(
+        @Body body: QuestionAnswerRequest
+    ): Response<BaseResponse<String>>
 }

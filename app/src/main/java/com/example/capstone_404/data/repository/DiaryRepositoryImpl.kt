@@ -3,6 +3,7 @@ package com.example.capstone_404.data.repository
 import android.util.Log
 import com.example.capstone_404.data.retrofit.api.DiaryApi
 import com.example.capstone_404.data.retrofit.model.request.DiaryCreateRequest
+import com.example.capstone_404.data.retrofit.model.request.QuestionAnswerRequest
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
 import com.example.capstone_404.data.retrofit.model.response.FeedBackData
@@ -35,7 +36,7 @@ class DiaryRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getDiaryDetail(diaryId: Long): Result<DiaryDetailData> {
+    override suspend fun getDiaryDetail(diaryId: Int): Result<DiaryDetailData> {
         return try {
             val response = diaryApi.getDiaryDetail(diaryId)
 
@@ -53,7 +54,7 @@ class DiaryRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteDiary(diaryId: Long): Result<String> {
+    override suspend fun deleteDiary(diaryId: Int): Result<String> {
         return try {
             val response = diaryApi.deleteDiary(diaryId)
 
@@ -112,6 +113,26 @@ class DiaryRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("DiaryRepository", "다이어리 작성 실패: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun saveQuestionAnswers(request: QuestionAnswerRequest): Result<String> {
+        return try {
+            val response = diaryApi.saveQuestionAnswers(request)
+
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Log.d("DiaryRepository", "질문 답변 저장 성공: $data")
+                    Result.success(data)
+                } ?: Result.success("질문 답변 저장 완료")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("DiaryRepository", "질문 답변 저장 API 에러 [${response.code()}]: $errorBody")
+                Result.failure(Exception("질문 답변 저장에 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
+            }
+        } catch (e: Exception) {
+            Log.e("DiaryRepository", "질문 답변 저장 실패: ${e.message}")
             Result.failure(e)
         }
     }

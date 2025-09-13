@@ -38,7 +38,7 @@ class DiarySelectViewModel @Inject constructor(
         viewModelScope.launch {
             _diarySelectState.value = DiarySelectUiState.Loading
 
-            val diaryId = id.toLongOrNull()
+            val diaryId = id.toIntOrNull()
             if (diaryId == null) {
                 Log.e("DiarySelectViewModel", "잘못된 다이어리 ID: $id")
                 _diarySelectState.value = DiarySelectUiState.Success(getErrorDiaryDetail())
@@ -74,7 +74,7 @@ class DiarySelectViewModel @Inject constructor(
 
     fun deleteDiary(diaryId: String) {
         viewModelScope.launch {
-            val id = diaryId.toLongOrNull()
+            val id = diaryId.toIntOrNull()
             if (id == null) {
                 Log.e("DiarySelectViewModel", "잘못된 다이어리 ID: $diaryId")
                 _diarySelectState.value = DiarySelectUiState.Success(getErrorDiaryDetail())

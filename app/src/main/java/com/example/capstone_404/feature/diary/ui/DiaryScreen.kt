@@ -115,7 +115,18 @@ fun DiaryScreen(
                                     }
                                     SingleFab(
                                         icon = R.drawable.ic_edit,
-                                        onClick = onNavigateToWrite
+                                        onClick = {
+                                            viewModel.checkCanWriteDiary(
+                                                onCanWrite = onNavigateToWrite,
+                                                onAlreadyWritten = {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "오늘 이미 다이어리를 작성하셨습니다.",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            )
+                                        }
                                     )
                                 }
                             }

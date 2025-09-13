@@ -6,5 +6,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DiaryCreateRequest(
     val content: String,
-    val userId: Long
+    val userId: Int
+)
+
+// 질문 응답 저장 Request
+@Serializable
+data class QuestionAnswerRequest(
+    val groupId: Int,
+    val questions: List<QuestionAnswer>
+)
+
+@Serializable
+data class QuestionAnswer(
+    val questionId: Int,
+    val content: String?
 )

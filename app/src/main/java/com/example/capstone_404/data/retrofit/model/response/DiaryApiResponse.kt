@@ -12,7 +12,7 @@ data class DiaryAllSearchData(
 // 일기 데이터 Response
 @Serializable
 data class DiaryData(
-    val diId: Long,
+    val diId: Int,
     val date: String,
     val emotion: String
 )
@@ -20,7 +20,7 @@ data class DiaryData(
 // 그룹 공통질문 데이터 Response
 @Serializable
 data class GroupQuestionData(
-    val gqId: Long,
+    val gqId: Int,
     val date: String,
     val responders: List<String>
 )
@@ -28,9 +28,9 @@ data class GroupQuestionData(
 // 일기 상세 조회 Response
 @Serializable
 data class DiaryDetailData(
-    val id: Long,
+    val id: Int,
     val content: String,
-    val userId: Long,
+    val userId: Int,
     val diaryAt: String,
     val feedBack: String,
     val emotions: List<EmotionData>
@@ -39,7 +39,7 @@ data class DiaryDetailData(
 // 감정 분석 데이터 Response
 @Serializable
 data class EmotionData(
-    val id: Long,
+    val id: Int,
     val label: String,
     val score: Double
 )

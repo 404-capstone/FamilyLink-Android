@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.DiaryRepository
 import com.example.capstone_404.data.retrofit.model.request.DiaryCreateRequest
+import com.example.capstone_404.data.retrofit.model.request.QuestionAnswer
+import com.example.capstone_404.data.retrofit.model.request.QuestionAnswerRequest
 import com.example.capstone_404.data.retrofit.model.response.FeedBackData
 import com.example.capstone_404.data.retrofit.model.response.GroupQuestionItem
 import com.example.capstone_404.feature.diary.model.DiaryWriteState
@@ -103,6 +105,7 @@ class DiaryWriteViewModel @Inject constructor(
         viewModelScope.launch {
             val currentState = _uiState.value
             val userId = userInfoManager.getUserId()
+            val groupId = userInfoManager.getGroupId()
 
             if (userId == null) {
                 _errorMessage.value = "사용자 정보를 찾을 수 없습니다.\n다시 로그인해주세요."
@@ -115,7 +118,7 @@ class DiaryWriteViewModel @Inject constructor(
                 val diaryResult = diaryRepository.createDiary(
                     DiaryCreateRequest(
                         content = currentState.diaryText,
-                        userId = userId.toLong()
+                        userId = userId
                     )
                 )
                 if (diaryResult.isFailure) {
@@ -125,6 +128,27 @@ class DiaryWriteViewModel @Inject constructor(
                     return@launch
                 }
                 val feedbackData = diaryResult.getOrNull()!!
+
+                if (groupId != null && _todayQuestions.value.isNotEmpty()) {
+                    val allQuestions = _todayQuestions.value.mapIndexed { index, question ->
+                        val answer = currentState.answerTexts.getOrNull(index)
+                        QuestionAnswer(
+                            questionId = question.questionId,
+                            content = if (answer.isNullOrBlank()) null else answer  // 무응답은 null
+                        )
+                    }
+                    val questionResult = diaryRepository.saveQuestionAnswers(
+                        QuestionAnswerRequest(
+                            groupId = groupId,
+                            questions = allQuestions
+                        )
+                    )
+                    if (questionResult.isFailure) {
+                        Log.w("DiaryWriteViewModel", "질문 답변 저장 실패: ${questionResult.exceptionOrNull()?.message}")
+                    } else {
+                        Log.d("DiaryWriteViewModel", "질문 답변 저장 성공")
+                    }
+                }
                 val feedbackResult = convertToFeedbackResult(feedbackData)
                 _uiState.update {
                     it.copy(
@@ -132,7 +156,6 @@ class DiaryWriteViewModel @Inject constructor(
                         result = feedbackResult
                     )
                 }
-
             } catch (e: Exception) {
                 Log.e("DiaryWriteViewModel", "저장 중 오류 발생: ${e.message}")
                 _errorMessage.value = "저장 중 오류가 발생했습니다."

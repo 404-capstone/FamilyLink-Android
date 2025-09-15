@@ -145,12 +145,10 @@ fun CustomCalendar(
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,
-                            modifier = if (isToday) {
-                                Modifier
-                                    .size(18.dp)
-                                    .clip(CircleShape)
-                                    .background(Main)
-                            } else Modifier
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .background(if(isToday) Main else Color.Transparent)
                         ) {
                             Text(
                                 text = date.dayOfMonth.toString(),
@@ -169,7 +167,7 @@ fun CustomCalendar(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(4.dp)
+                                            .height(3.dp)
                                             .background(brush)
                                     )
                                 }

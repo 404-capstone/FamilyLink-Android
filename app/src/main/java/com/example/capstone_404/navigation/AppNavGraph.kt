@@ -49,6 +49,8 @@ import com.example.capstone_404.feature.login.ui.SplashScreen
 import com.example.capstone_404.feature.mypage.ui.MyPageScreen
 import com.example.capstone_404.feature.mypage.ui.ProfileEditScreen
 import com.example.capstone_404.navigation.CalendarNavKeys.SELECTED_AREA
+import com.example.capstone_404.session.AppSharedViewModel
+import com.example.capstone_404.session.LogoutReason
 import java.net.URLDecoder
 
 // 페이지 만들 때 추가 해야됨
@@ -56,6 +58,18 @@ import java.net.URLDecoder
 fun AppNavGraph(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val appSharedViewModel: AppSharedViewModel = hiltViewModel()
+
+    // 로그아웃 이벤트 감지 후 처리
+    LaunchedEffect(Unit) {
+        appSharedViewModel.logoutEvents.collect { reason ->
+            if (reason == LogoutReason.ExpiredRefresh) {
+                navController.navigate(Route.LOGIN) {
+                    popUpTo(0) { inclusive = true}
+                }
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {

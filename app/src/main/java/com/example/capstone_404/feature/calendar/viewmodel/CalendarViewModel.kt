@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.CalendarRepository
+import com.example.capstone_404.data.repository.GroupRepository
 import com.example.capstone_404.data.retrofit.model.request.ActivityPersonality
 import com.example.capstone_404.data.retrofit.model.request.AddGroupScheduleRequest
 import com.example.capstone_404.data.retrofit.model.request.AddPersonalScheduleRequest
@@ -64,7 +65,8 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     private val groupInfoManager: GroupInfoManager,
     private val userInfoManager: UserInfoManager,
-    private val calendarRepository: CalendarRepository
+    private val calendarRepository: CalendarRepository,
+    private val groupRepository: GroupRepository
 ) : ViewModel() {
 
     // 그룹 정보 Flow
@@ -128,6 +130,10 @@ class CalendarViewModel @Inject constructor(
     val currentRecommendDraft: StateFlow<RecommendDraft?> =
         _recommendQueue.map { it.firstOrNull() }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    // 추방 상태(그룹에서 추방되어 미가입 전환 상태)
+    private val _kicked = MutableStateFlow(false)
+    val kicked: StateFlow<Boolean> = _kicked
+
     // 시작 시 그룹 내 역할 추출
     init {
         viewModelScope.launch {
@@ -147,22 +153,55 @@ class CalendarViewModel @Inject constructor(
         _selectedDate.value = date
     }
 
-    // 일정 전체 조회
     fun getAllSchedules() {
         viewModelScope.launch {
             isGetLoading = true
-            val userId = userInfoManager.getUserId()
-            val groupId = userInfoManager.getGroupId()
-            val result = calendarRepository.getAllSchedule(groupId!!)
-            result.onSuccess { data ->
-                Log.d("CalendarViewModel", "일정 전체 조회 성공 : $data")
-                val roleMap = _userIdToRole.value
-                _schedulesByDate.value = scheduleMapper(data, roleMap, userId)
-            }.onFailure { e ->
-                    Log.d("CalendarViewModel", "일정 전체 조회 실패 : ${e.message}")
+            try {
+                // 그룹 ID 조회 후 일정 조회
+                val getIdResult = groupRepository.getGroupIdFromServer()
+                getIdResult.onSuccess { groupId ->
+                    userInfoManager.saveGroupId(groupId)
+                    Log.d("CalendarViewModel", "그룹 ID 조회 완료 : $groupId")
+                    // 일정 조회
+                    val userId = userInfoManager.getUserId()
+                    val result = calendarRepository.getAllSchedule(groupId)
+                    result.onSuccess { data ->
+                        Log.d("CalendarViewModel", "일정 전체 조회 성공 : $data")
+                        val roleMap = _userIdToRole.value
+                        _schedulesByDate.value = scheduleMapper(data, roleMap, userId)
+                    }.onFailure { e ->
+                        Log.d("CalendarViewModel", "일정 전체 조회 실패 : ${e.message}")
+                    }
+                }.onFailure { e ->
+                    val msg = e.message.orEmpty()
+                    val isNoGroup = msg.contains("유저가 가입한 그룹이 존재하지 않습니다") || msg.contains("404")
+
+                    if (isNoGroup) {
+                        Log.d("CalendarViewModel", "가입한 그룹 없음")
+                        deleteGroupInfo()
+                        _kicked.value = true
+                        _schedulesByDate.value = emptyMap()
+                    } else {
+                        Log.e("CalendarViewModel", "그룹 ID 조회 실패 : ${e.message}")
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "일정 전체 조회 실패 : ${e.message}")
+            }
             isGetLoading = false
         }
+    }
+    // 추방 상태 초기화
+    fun resetKicked() {
+        _kicked.value = false
+    }
+    // 그룹 관련 데이터 삭제
+    private suspend fun deleteGroupInfo() {
+        groupInfoManager.clearAll()
+        Log.d("User_Info", "(C)그룹 정보 삭제 완료")
+        Log.d("User_Info", "(C)설문 정보 삭제 완료")
+        userInfoManager.deleteGroupId()
+        Log.d("User_Info", "(C)그룹 ID 삭제 완료")
     }
 
     // 일정 상세 조회

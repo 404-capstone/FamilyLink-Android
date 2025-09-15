@@ -1,6 +1,7 @@
 package com.example.capstone_404.feature.group.ui
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.R
@@ -39,8 +43,10 @@ import com.example.capstone_404.data.retrofit.model.response.GroupUserInfoData
 import com.example.capstone_404.feature.group.ui.dialog.GroupMemberDialog
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.DropdownField
+import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.fab.ExpandableFab
 import com.example.capstone_404.ui.component.fab.ExpandableFabItem
+import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.utils.RequestCameraPermission
 import com.example.capstone_404.utils.RequestStoragePermission
 import com.example.capstone_404.utils.UriUtil
@@ -150,9 +156,39 @@ fun GroupScreen(
         )
     }
 
+    // 새로고침 결과 상태
+    val refreshStatus by viewModel.refreshStatus.collectAsState()
+    LaunchedEffect(refreshStatus) {
+        when (refreshStatus) {
+            true -> {
+                Toast.makeText(context, "그룹 정보를 최신으로 불러왔어요.", Toast.LENGTH_SHORT).show()
+                viewModel.resetRefreshStatus()
+            }
+            false -> {
+                Toast.makeText(context, "새로고침을 실패했어요.\n 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+                viewModel.resetRefreshStatus()
+            }
+            null -> {}
+        }
+    }
+
     Scaffold(
         topBar = {
-            CustomTopBar(title = "그룹")
+            CustomTopBar(
+                title = "그룹",
+                navigationType = NavigationType.ONLYRIGHT,
+                rightButton = {
+                    IconButton(
+                        onClick = { viewModel.refreshGroup() },
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_refresh),
+                            contentDescription = "새로고침",
+                            tint = TextBlack
+                        )
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         BoxWithConstraints(

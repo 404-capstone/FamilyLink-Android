@@ -1,6 +1,7 @@
 package com.example.capstone_404.data.retrofit.token
 
 import com.example.capstone_404.data.retrofit.api.UserApi
+import com.example.capstone_404.session.SessionManager
 import com.example.capstone_404.utils.EncryptionUtil
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
@@ -12,7 +13,8 @@ import javax.inject.Inject
 // 토큰 만료 시 자동 재발급
 class TokenAutoRefresh @Inject constructor(
     private val tokenManager: TokenManager,
-    private val userApi: UserApi
+    private val userApi: UserApi,
+    private val sessionManager: SessionManager
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -35,6 +37,10 @@ class TokenAutoRefresh @Inject constructor(
         } ?: return null
 
         if (!tokenResponse.isSuccessful || tokenResponse.body()?.data == null) {
+            // Refresh Token 만료 시 강제 로그아웃 처리
+            if (tokenResponse.code() == 401) {
+                runBlocking { sessionManager.forceLogout() }
+            }
             return null
         }
 

@@ -96,6 +96,10 @@ class GroupViewModel @Inject constructor(
     private val _getError = MutableStateFlow(false)
     val getError: StateFlow<Boolean> = _getError
 
+    // 그룹 정보 새로고침 결과
+    private val _refreshStatus = MutableStateFlow<Boolean?>(null)
+    val refreshStatus: StateFlow<Boolean?> = _refreshStatus
+
 
     // -------------------- 생성|가입에 필요한 전달 데이터 --------------------
     private val groupName = savedStateHandle["groupName"] ?: ""
@@ -114,6 +118,52 @@ class GroupViewModel @Inject constructor(
     // 아들&딸 Order 변경
     fun updateSelectedOrder(order: OrderType?) {
         selectedRoleState = selectedRoleState.copy(order = order)
+    }
+
+
+    // -------------------- 그룹 정보 새로고침 --------------------
+    // 그룹 정보 새로고침
+    fun refreshGroup() {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val getIdResult = groupRepository.getGroupIdFromServer()
+                getIdResult.onSuccess { groupId ->
+                    userInfoManager.saveGroupId(groupId)
+                    Log.d("GroupViewModel", "그룹 ID 새로고침 완료 : $groupId")
+
+                    val getInfoResult = groupRepository.getGroupInfo(groupId)
+                    getInfoResult.onSuccess { data ->
+                        groupInfoManager.saveGroupInfo(data)
+                        Log.d("GroupViewModel", "그룹 정보 새로고침 완료 : $data")
+                        _refreshStatus.value = true
+                    }.onFailure { e ->
+                        Log.e("GroupViewModel", "그룹 정보 새로고침 실패 : ${e.message}")
+                        _refreshStatus.value = false
+                    }
+                }.onFailure { e ->
+                    val msg = e.message.orEmpty()
+                    val isNoGroup = msg.contains("유저가 가입한 그룹이 존재하지 않습니다") || msg.contains("404")
+
+                    if (isNoGroup) {
+                        Log.d("GroupViewModel", "가입한 그룹 없음")
+                        deleteGroupInfo()
+                        _refreshStatus.value = true
+                    } else {
+                        Log.e("GroupViewModel", "그룹 ID 새로고침 실패 : ${e.message}")
+                        _refreshStatus.value = false
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("GroupViewModel", "그룹 정보 새로고침 실패 : ${e.message}")
+                _refreshStatus.value = false
+            }
+            isLoading = false
+        }
+    }
+    // 새로고침 결과 초기화
+    fun resetRefreshStatus() {
+        _refreshStatus.value = null
     }
 
 

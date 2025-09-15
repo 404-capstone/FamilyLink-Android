@@ -34,7 +34,9 @@
             android:name=".MainActivity"
             android:windowSoftInputMode="stateUnspecified|adjustResize"
             android:exported="true"
-            android:theme="@style/Theme.Capstone_404">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Capstone_404"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

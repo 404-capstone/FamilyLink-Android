@@ -61,6 +61,12 @@ fun CustomTopBar(
                 }
             }
         }
+        // 우측 버튼만 있을 경우
+        NavigationType.ONLYRIGHT -> {
+            {
+                Spacer(modifier = Modifier.width(48.dp))
+            }
+        }
         // 없음
         NavigationType.NONE -> null
     }
@@ -109,5 +115,6 @@ fun CustomTopBar(
 enum class NavigationType {
     NONE,
     BACK,
-    CLOSE
+    CLOSE,
+    ONLYRIGHT
 }

@@ -46,6 +46,17 @@ fun RoleSelectScreen(
     val selectedOrder = selectedRoleState.order
     // 생성 결과 상태
     val createResult by viewModel.createResult.collectAsState()
+    // 가입 오류 메시지
+    val joinMessage by viewModel.joinMessage.collectAsState()
+
+    // 가입 오류에 따른 처리
+    LaunchedEffect(joinMessage) {
+        joinMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            viewModel.resetJoinMessage()
+        }
+    }
+
     // 생성 결과에 따른 처리
     LaunchedEffect(createResult) {
         createResult?.let { result ->

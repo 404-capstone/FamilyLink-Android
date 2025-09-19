@@ -8,6 +8,7 @@ import com.example.capstone_404.data.retrofit.api.UserApi
 import com.example.capstone_404.data.retrofit.api.GroupApi
 import com.example.capstone_404.data.retrofit.token.TokenAutoRefresh
 import com.example.capstone_404.data.retrofit.token.TokenManager
+import com.example.capstone_404.session.SessionManager
 import com.example.capstone_404.utils.EncryptionUtil
 import dagger.Module
 import dagger.Provides
@@ -64,8 +65,9 @@ object NetworkModule {
     @Singleton
     fun provideTokenAuthenticator(
         tokenManager: TokenManager,
-        @Named("auth_no_token") userApi: UserApi
-    ): Authenticator = TokenAutoRefresh(tokenManager, userApi)
+        @Named("auth_no_token") userApi: UserApi,
+        sessionManager: SessionManager
+    ): Authenticator = TokenAutoRefresh(tokenManager, userApi, sessionManager)
 
     @Provides
     @Singleton

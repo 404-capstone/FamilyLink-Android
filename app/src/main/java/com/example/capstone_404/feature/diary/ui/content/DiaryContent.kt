@@ -36,7 +36,7 @@ fun DiaryJoinedContent(
         DiaryTab.DIARY -> {
             if (diaryEntries.isEmpty()) {
                 EmptyStateContent(
-                    message = "작성된 다이어리가 없습니다.",
+                    message = "작성된 일기가 없습니다.",
                 )
             } else {
                 DiaryList(

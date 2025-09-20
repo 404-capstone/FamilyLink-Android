@@ -128,7 +128,7 @@ class DiaryWriteViewModel @Inject constructor(
                     return@launch
                 }
                 val feedbackData = diaryResult.getOrNull()!!
-
+                // 질문 답변 저장
                 if (groupId != null && _todayQuestions.value.isNotEmpty()) {
                     val allQuestions = _todayQuestions.value.mapIndexed { index, question ->
                         val answer = currentState.answerTexts.getOrNull(index)
@@ -149,6 +149,7 @@ class DiaryWriteViewModel @Inject constructor(
                         Log.d("DiaryWriteViewModel", "질문 답변 저장 성공")
                     }
                 }
+                // 결과 화면으로 이동
                 val feedbackResult = convertToFeedbackResult(feedbackData)
                 _uiState.update {
                     it.copy(

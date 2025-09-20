@@ -149,7 +149,7 @@ fun DiarySelectScreen(
                     ) {
                         item {
                             Text(
-                                text = "불러오는 중...",
+                                text = "",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = TextBlack,
                                 modifier = Modifier.padding(top = 24.dp)

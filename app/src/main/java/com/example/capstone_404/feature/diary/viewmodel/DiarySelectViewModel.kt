@@ -3,8 +3,10 @@ package com.example.capstone_404.feature.diary.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.DiaryRepository
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
+import com.example.capstone_404.data.retrofit.model.response.GroupAnswerDetailData
 import com.example.capstone_404.feature.diary.model.DiaryDetail
 import com.example.capstone_404.feature.diary.model.QuestionDetail
 import com.example.capstone_404.feature.diary.model.DiarySelectUiState
@@ -12,6 +14,7 @@ import com.example.capstone_404.feature.diary.model.EmotionResult
 import com.example.capstone_404.feature.diary.model.EmotionColorConstants
 import com.example.capstone_404.feature.diary.model.Question
 import com.example.capstone_404.feature.diary.model.QuestionWithAnswers
+import com.example.capstone_404.feature.diary.model.Responder
 import com.example.capstone_404.feature.diary.model.roleLabelsToResponders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -26,7 +29,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DiarySelectViewModel @Inject constructor(
-    private val diaryRepository: DiaryRepository
+    private val diaryRepository: DiaryRepository,
+    private val userInfoManager: UserInfoManager
 ) : ViewModel() {
 
     // 상태 관리
@@ -60,14 +64,24 @@ class DiarySelectViewModel @Inject constructor(
     fun selectQuestion(id: String) {
         viewModelScope.launch {
             _diarySelectState.value = DiarySelectUiState.Loading
-            delay(200) // 실제 Repository 연동 시 제거
-            
-            val item = questionStore[id]
-            if (item != null) {
-                _diarySelectState.value = DiarySelectUiState.Success(item)
-            } else {
-                // 에러 시 기본 데이터 반환
-                _diarySelectState.value = DiarySelectUiState.Success(questionStore["1"]!!)
+
+            val groupQuestionId = id.toIntOrNull()
+            val groupId = userInfoManager.getGroupId()
+
+            if (groupQuestionId == null || groupId == null) {
+                Log.e("DiarySelectViewModel", "잘못된 파라미터: questionId=$id, groupId=$groupId")
+                _diarySelectState.value = DiarySelectUiState.Success(getErrorQuestionDetail())
+                return@launch
+            }
+
+            val result = diaryRepository.getQuestionAnswerDetail(groupId, groupQuestionId)
+            result.onSuccess { response ->
+                Log.d("DiarySelectViewModel", "공통질문 상세 조회 성공: $response")
+                val questionDetail = convertToQuestionDetail(response)
+                _diarySelectState.value = DiarySelectUiState.Success(questionDetail)
+            }.onFailure { error ->
+                Log.e("DiarySelectViewModel", "공통질문 상세 조회 실패: ${error.message}")
+                _diarySelectState.value = DiarySelectUiState.Success(getErrorQuestionDetail())
             }
         }
     }
@@ -100,7 +114,7 @@ class DiarySelectViewModel @Inject constructor(
             emotions = response.emotions.map { emotion ->
                 EmotionResult(
                     emotion = emotion.label,
-                    percentage = (emotion.score * 100).toFloat(),
+                    percentage = (emotion.score / 100f).toFloat(),
                     color = mapEmotionToColor(emotion.label)
                 )
             },
@@ -108,14 +122,44 @@ class DiarySelectViewModel @Inject constructor(
         )
     }
 
-    private fun formatDate(dateTimeString: String): String {
+    private fun convertToQuestionDetail(response: GroupAnswerDetailData): QuestionDetail {
+        return QuestionDetail(
+            id = response.groupQuestionId.toString(),
+            date = formatDate(response.date),
+            items = response.questionInfo.map { questionInfo ->
+                QuestionWithAnswers(
+                    question = Question(
+                        id = questionInfo.questionId.toString(),
+                        date = formatDate(response.date),
+                        question = questionInfo.question,
+                        responders = roleLabelsToResponders(
+                            questionInfo.answerInfo.map { it.postion }
+                        )
+                    ),
+                    answers = questionInfo.answerInfo.map { answer ->
+                        answer.postion to (answer.answer ?: "응답하지 않았습니다.")
+                    }
+                )
+            }
+        )
+    }
+
+    private fun formatDate(dateString: String): String {
         return try {
-            val dateTime = LocalDateTime.parse(dateTimeString.take(19))
-            val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd(E)", Locale.KOREA)
-            dateTime.format(formatter)
+            if (dateString.length > 10) {
+                // DateTime 형식 (다이어리)
+                val dateTime = LocalDateTime.parse(dateString.take(19))
+                val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd(E)", Locale.KOREA)
+                dateTime.format(formatter)
+            } else {
+                // Date 형식 (공통질문)
+                val date = java.time.LocalDate.parse(dateString)
+                val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd(E)", Locale.KOREA)
+                date.format(formatter)
+            }
         } catch (e: Exception) {
-            Log.e("DiarySelectViewModel", "날짜 파싱 실패: '$dateTimeString'")
-            dateTimeString.take(10).replace("-", ".")
+            Log.e("DiarySelectViewModel", "날짜 파싱 실패: '$dateString'")
+            dateString.take(10).replace("-", ".")
         }
     }
 
@@ -138,6 +182,24 @@ class DiarySelectViewModel @Inject constructor(
             diaryText = "다이어리 정보를 불러오는 중 오류가 발생했습니다.",
             emotions = emptyList(),
             aiFeedback = "다이어리 정보를 불러올 수 없습니다."
+        )
+    }
+
+    private fun getErrorQuestionDetail(): QuestionDetail {
+        return QuestionDetail(
+            id = "error",
+            date = "오류 발생",
+            items = listOf(
+                QuestionWithAnswers(
+                    question = Question(
+                        id = "error",
+                        date = "오류 발생",
+                        question = "공통질문 정보를 불러오는 중 오류가 발생했습니다.",
+                        responders = emptyList()
+                    ),
+                    answers = emptyList()
+                )
+            )
         )
     }
 

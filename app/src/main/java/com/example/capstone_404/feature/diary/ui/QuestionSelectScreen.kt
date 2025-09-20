@@ -138,7 +138,7 @@ fun QuestionSelectScreen(
                         verticalArrangement = Arrangement.Top
                     ) {
                         Text(
-                            text = "불러오는 중...",
+                            text = "",
                             style = typography.bodyMedium,
                             color = TextBlack,
                             modifier = Modifier.padding(top = 24.dp)

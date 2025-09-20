@@ -5,6 +5,7 @@ import com.example.capstone_404.data.retrofit.model.request.QuestionAnswerReques
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
 import com.example.capstone_404.data.retrofit.model.response.FeedBackData
+import com.example.capstone_404.data.retrofit.model.response.GroupAnswerDetailData
 import com.example.capstone_404.data.retrofit.model.response.TodayQuestionData
 
 // 다이어리 API Repository 인터페이스
@@ -39,4 +40,9 @@ interface DiaryRepository {
     suspend fun saveQuestionAnswers(
         request: QuestionAnswerRequest
     ): Result<String>
+
+    // 공통질문 상세 조회
+    suspend fun getQuestionAnswerDetail(
+        groupId: Int, groupQuestionId: Int
+    ): Result<GroupAnswerDetailData>
 }

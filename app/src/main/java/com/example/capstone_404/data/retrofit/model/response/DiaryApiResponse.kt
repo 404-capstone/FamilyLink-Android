@@ -70,3 +70,26 @@ data class EmotionAnalysisData(
     val emotion: String,
     val percent: Double
 )
+
+// 공통질문 상세 조회 Response
+@Serializable
+data class GroupAnswerDetailData(
+    val groupQuestionId: Int,
+    val date: String,
+    val questionInfo: List<QuestionInfoData>
+)
+
+@Serializable
+data class QuestionInfoData(
+    val questionId: Int,
+    val question: String,
+    val answerInfo: List<AnswerInfoData>
+)
+
+@Serializable
+data class AnswerInfoData(
+    val userId: Int,
+    val name: String,
+    val postion: String,
+    val answer: String?
+)

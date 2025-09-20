@@ -6,6 +6,7 @@ import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.DiaryAllSearchData
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
 import com.example.capstone_404.data.retrofit.model.response.FeedBackData
+import com.example.capstone_404.data.retrofit.model.response.GroupAnswerDetailData
 import com.example.capstone_404.data.retrofit.model.response.TodayQuestionData
 import retrofit2.Response
 import retrofit2.http.Body
@@ -52,4 +53,11 @@ interface DiaryApi {
     suspend fun saveQuestionAnswers(
         @Body body: QuestionAnswerRequest
     ): Response<BaseResponse<String>>
+
+    // 공통질문 상세 조회
+    @GET("/diary/question/answer/search")
+    suspend fun getQuestionAnswerDetail(
+        @Query("groupId") groupId: Int,
+        @Query("groupQuestionId") groupQuestionId: Int
+    ): Response<BaseResponse<GroupAnswerDetailData>>
 }

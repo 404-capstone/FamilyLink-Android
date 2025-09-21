@@ -26,6 +26,11 @@ interface DiaryRepository {
         diaryId: Int
     ): Result<String>
 
+    // 다이어리 작성 체크
+    suspend fun checkDiaryWritable(
+        groupId: Int
+    ): Result<String>
+
     // 질문지 조회
     suspend fun getTodayQuestions(
         groupId: Int

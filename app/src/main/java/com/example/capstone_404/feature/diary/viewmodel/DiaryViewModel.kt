@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
-    private val groupInfoManager: GroupInfoManager,
+    groupInfoManager: GroupInfoManager,
     private val userInfoManager: UserInfoManager,
     private val diaryRepository: DiaryRepository
 ) : ViewModel() {
@@ -55,10 +55,6 @@ class DiaryViewModel @Inject constructor(
     // 에러 메시지 초기화
     fun clearError() {
         _errorMessage.value = null
-    }
-
-    fun refresh() {
-        loadUserData()
     }
 
     private fun setLoadingState() {
@@ -163,15 +159,14 @@ class DiaryViewModel @Inject constructor(
                 return@launch
             }
 
-            val result = diaryRepository.getTodayQuestions(groupId)
-            result.onSuccess {
+            val result = diaryRepository.checkDiaryWritable(groupId)
+            result.onSuccess { _ ->
                 onCanWrite()
             }.onFailure { error ->
                 val errorMessage = error.message ?: ""
-                if (errorMessage.contains("오늘 해당 응답을 하셨습니다") || errorMessage.contains("500")) {
+                if (errorMessage.contains("다이어리가 존재하여 작성할수 없습니다")) {
                     onAlreadyWritten()
                 } else {
-                    // 기타 네트워크 에러
                     onCanWrite()
                 }
             }

@@ -84,16 +84,36 @@ class DiaryRepositoryImpl @Inject constructor(
                 } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 val errorBody = response.errorBody()?.string()
-                if (response.code() == 500) {
-                    Log.w("DiaryRepository", "이미 응답 완료: $errorBody")
-                    Result.failure(Exception("오늘 해당 응답을 하셨습니다."))
-                } else {
-                    Log.e("DiaryRepository", "질문지 조회 에러 [${response.code()}]: $errorBody")
-                    Result.failure(Exception("질문을 불러오는데 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
-                }
+                Log.e("DiaryRepository", "질문지 조회 에러 [${response.code()}]: $errorBody")
+                Result.failure(Exception("질문을 불러오는데 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
             }
         } catch (e: Exception) {
             Log.e("DiaryRepository", "질문지 조회 실패: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun checkDiaryWritable(groupId: Int): Result<String> {
+        return try {
+            val response = diaryApi.checkDiaryWritable(groupId)
+
+            if (response.isSuccessful) {
+                response.body()?.data?.let { data ->
+                    Result.success(data)
+                } ?: Result.failure(Exception("응답 데이터 없음"))
+            } else {
+                val errorBody = response.errorBody()?.string()
+                if (response.code() == 500) {
+                    // 이미 다이어리 작성한 경우
+                    Log.w("DiaryRepository", "다이어리 이미 작성됨: $errorBody")
+                    Result.failure(Exception("다이어리가 존재하여 작성할수 없습니다."))
+                } else {
+                    Log.e("DiaryRepository", "다이어리 체크 에러 [${response.code()}]: $errorBody")
+                    Result.failure(Exception("다이어리 작성 체크에 실패했습니다.\n오류가 계속된다면 관리자에게 문의하세요."))
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("DiaryRepository", "다이어리 체크 실패: ${e.message}")
             Result.failure(e)
         }
     }

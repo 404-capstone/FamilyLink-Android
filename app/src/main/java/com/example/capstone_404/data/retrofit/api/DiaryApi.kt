@@ -60,4 +60,10 @@ interface DiaryApi {
         @Query("groupId") groupId: Int,
         @Query("groupQuestionId") groupQuestionId: Int
     ): Response<BaseResponse<GroupAnswerDetailData>>
+
+    // 다이어리 작성 체크
+    @GET("/diary/diary/check")
+    suspend fun checkDiaryWritable(
+        @Query("groupId") groupId: Int
+    ): Response<BaseResponse<String>>
 }

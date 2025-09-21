@@ -60,7 +60,7 @@ fun DiarySelectScreen(
     Scaffold(
         topBar = {
             CustomTopBar(
-                title = "다이어리 상세",
+                title = "일기 상세",
                 navigationType = NavigationType.BACK,
                 onNavigationClick = onNavigateBack,
                 rightButton = {
@@ -106,7 +106,7 @@ fun DiarySelectScreen(
                             }
                             item {
                                 ResultSectionCard(
-                                    title = "다이어리 내용",
+                                    title = "일기 내용",
                                     modifier = Modifier.fillMaxWidth(),
                                     content = { DiaryContentSection(text = detail.diaryText) }
 
@@ -177,7 +177,7 @@ fun DiarySelectScreen(
 
     if (showDeleteDialog.value) {
         ActionDialog(
-            title = "해당 다이어리를 삭제하시겠습니까?",
+            title = "해당 일기를 삭제하시겠습니까?",
             description = "작성된 내용 및 피드백 결과는 삭제되며 복구할 수 없습니다.",
             confirmText = "삭제",
             onConfirm = {

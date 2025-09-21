@@ -150,7 +150,8 @@ class DiaryViewModel @Inject constructor(
 
     fun checkCanWriteDiary(
         onCanWrite: () -> Unit,
-        onAlreadyWritten: () -> Unit
+        onAlreadyWritten: () -> Unit,
+        onError: () -> Unit
     ) {
         viewModelScope.launch {
             val groupId = userInfoManager.getGroupId()
@@ -167,7 +168,7 @@ class DiaryViewModel @Inject constructor(
                 if (errorMessage.contains("다이어리가 존재하여 작성할수 없습니다")) {
                     onAlreadyWritten()
                 } else {
-                    onCanWrite()
+                    onError()
                 }
             }
         }

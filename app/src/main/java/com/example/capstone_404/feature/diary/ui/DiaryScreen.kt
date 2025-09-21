@@ -124,6 +124,13 @@ fun DiaryScreen(
                                                         "오늘 이미 다이어리를 작성하셨습니다.",
                                                         Toast.LENGTH_SHORT
                                                     ).show()
+                                                },
+                                                onError = {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "알 수 없는 오류가 발생했습니다.\n다시 시도해주세요.",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
                                                 }
                                             )
                                         }

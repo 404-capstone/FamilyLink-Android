@@ -3,6 +3,7 @@ package com.example.capstone_404.di
 import com.example.capstone_404.BuildConfig
 import com.example.capstone_404.data.retrofit.api.AlbumApi
 import com.example.capstone_404.data.retrofit.api.CalendarApi
+import com.example.capstone_404.data.retrofit.api.DiaryApi
 import com.example.capstone_404.data.retrofit.api.UserApi
 import com.example.capstone_404.data.retrofit.api.GroupApi
 import com.example.capstone_404.data.retrofit.token.TokenAutoRefresh
@@ -131,5 +132,11 @@ object NetworkModule {
     @Singleton
     fun provideAlbumApi(retrofit: Retrofit): AlbumApi {
         return retrofit.create(AlbumApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDiaryApi(retrofit: Retrofit): DiaryApi {
+        return retrofit.create(DiaryApi::class.java)
     }
 }

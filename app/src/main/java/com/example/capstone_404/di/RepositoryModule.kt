@@ -4,6 +4,8 @@ import com.example.capstone_404.data.repository.AlbumRepository
 import com.example.capstone_404.data.repository.AlbumRepositoryImpl
 import com.example.capstone_404.data.repository.CalendarRepository
 import com.example.capstone_404.data.repository.CalendarRepositoryImpl
+import com.example.capstone_404.data.repository.DiaryRepository
+import com.example.capstone_404.data.repository.DiaryRepositoryImpl
 import com.example.capstone_404.data.repository.UserRepository
 import com.example.capstone_404.data.repository.UserRepositoryImpl
 import com.example.capstone_404.data.repository.GroupRepository
@@ -34,4 +36,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAlbumRepository(impl: AlbumRepositoryImpl): AlbumRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDiaryRepository(impl: DiaryRepositoryImpl): DiaryRepository
 }

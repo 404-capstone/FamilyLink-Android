@@ -1,15 +1,10 @@
 package com.example.capstone_404.feature.diary.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +31,6 @@ import com.example.capstone_404.feature.diary.ui.component.AiFeedbackSection
 import com.example.capstone_404.feature.diary.viewmodel.DiarySelectViewModel
 import com.example.capstone_404.feature.diary.model.DiaryDetail
 import com.example.capstone_404.feature.diary.model.DiarySelectUiState
-import com.example.capstone_404.feature.diary.model.SelectType
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
@@ -66,7 +60,7 @@ fun DiarySelectScreen(
     Scaffold(
         topBar = {
             CustomTopBar(
-                title = "다이어리 상세",
+                title = "일기 상세",
                 navigationType = NavigationType.BACK,
                 onNavigationClick = onNavigateBack,
                 rightButton = {
@@ -112,7 +106,7 @@ fun DiarySelectScreen(
                             }
                             item {
                                 ResultSectionCard(
-                                    title = "다이어리 내용",
+                                    title = "일기 내용",
                                     modifier = Modifier.fillMaxWidth(),
                                     content = { DiaryContentSection(text = detail.diaryText) }
 
@@ -155,7 +149,7 @@ fun DiarySelectScreen(
                     ) {
                         item {
                             Text(
-                                text = "불러오는 중...",
+                                text = "",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = TextBlack,
                                 modifier = Modifier.padding(top = 24.dp)
@@ -183,12 +177,12 @@ fun DiarySelectScreen(
 
     if (showDeleteDialog.value) {
         ActionDialog(
-            title = "해당 다이어리를 삭제하시겠습니까?",
+            title = "해당 일기를 삭제하시겠습니까?",
             description = "작성된 내용 및 피드백 결과는 삭제되며 복구할 수 없습니다.",
             confirmText = "삭제",
             onConfirm = {
                 showDeleteDialog.value = false
-                viewModel.deleteSelected(diaryId, SelectType.DIARY)
+                viewModel.deleteDiary(diaryId)
             },
             onDismiss = { showDeleteDialog.value = false }
         )

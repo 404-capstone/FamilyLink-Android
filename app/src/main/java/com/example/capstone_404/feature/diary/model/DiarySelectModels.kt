@@ -31,9 +31,3 @@ sealed class DiarySelectUiState {
     data object Deleted : DiarySelectUiState()
     data class Success(val detail: Any) : DiarySelectUiState()
 }
-
-//선택 타입
-enum class SelectType {
-    DIARY,
-    QUESTION
-}

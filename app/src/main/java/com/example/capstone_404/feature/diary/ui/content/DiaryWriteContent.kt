@@ -2,12 +2,13 @@ package com.example.capstone_404.feature.diary.ui.content
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import com.example.capstone_404.feature.diary.model.FeedbackResult
@@ -37,6 +37,9 @@ import com.example.capstone_404.feature.diary.ui.component.EmotionAnalysisSectio
 import com.example.capstone_404.feature.diary.ui.component.AiFeedbackSection
 import com.example.capstone_404.feature.diary.ui.component.WriteStepDots
 import com.example.capstone_404.feature.diary.ui.component.WriteTitle
+import com.example.capstone_404.ui.component.AiMascot
+import com.example.capstone_404.ui.component.GuideWarningCard
+import com.example.capstone_404.ui.theme.Background
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
@@ -58,10 +61,11 @@ fun DiaryWriteStepContent(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+            .imePadding()
             .verticalScroll(scrollState)
     ) {
         Spacer(modifier = Modifier.height(40.dp))
-        
+
         WriteTitle(text = "오늘 하루의 일기를 작성해주세요!")
         // 도움말 카드
         if (helperMessage != null) {
@@ -69,7 +73,7 @@ fun DiaryWriteStepContent(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-         OutlinedTextField(
+        OutlinedTextField(
             value = diaryText,
             onValueChange = onDiaryChange,
             placeholder = {
@@ -78,9 +82,9 @@ fun DiaryWriteStepContent(
                     color = TextGray
                 )
             },
-             modifier = Modifier
-                 .fillMaxWidth()
-                 .height(250.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences
             ),
@@ -91,7 +95,7 @@ fun DiaryWriteStepContent(
                 focusedBorderColor = Main,
                 unfocusedBorderColor = Main
             ),
-             shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -139,10 +143,11 @@ fun DiaryWriteQuestionContent(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+            .imePadding()
             .verticalScroll(scrollState)
     ) {
         Spacer(modifier = Modifier.height(40.dp))
-        
+
         WriteTitle(text = "질문에 대한 본인의 생각을 작성해주세요!")
         // 도움말 카드
         DiaryWriteHelperCard(message = "그룹원 모두에게 동일한 질문이 제공되며, 해당 내용은 그룹원도 확인할 수 있습니다.")
@@ -179,47 +184,47 @@ fun DiaryWriteQuestionContent(
             Spacer(modifier = Modifier.height(16.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // 단계
         WriteStepDots(currentStep = 2, totalSteps = 2)
         Spacer(modifier = Modifier.height(24.dp))
 
-         OutlinedButton(
-             onClick = onPrev,
-             modifier = Modifier
-                 .fillMaxWidth()
-                 .height(48.dp),
-             colors = ButtonDefaults.outlinedButtonColors(
-                 containerColor = Color.White,
-                 contentColor = Main
-             ),
-             border = androidx.compose.foundation.BorderStroke(1.dp, Main),
-             shape = RoundedCornerShape(8.dp)
-         ) {
-             Text(
-                 text = "이전",
-                 style = MaterialTheme.typography.bodyMedium
-             )
-         }
-         
-         Spacer(modifier = Modifier.height(16.dp))
-         
-         Button(
-             onClick = onSubmit,
-             modifier = Modifier
-                 .fillMaxWidth()
-                 .height(48.dp),
-             colors = ButtonDefaults.buttonColors(
-                 containerColor = Main
-             ),
-             shape = RoundedCornerShape(8.dp)
-         ) {
-             Text(
-                 text = "제출 및 피드백 받기",
-                 style = MaterialTheme.typography.bodyMedium,
-                 color = Color.White
-             )
-         }
+        OutlinedButton(
+            onClick = onPrev,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.White,
+                contentColor = Main
+            ),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Main),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "이전",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onSubmit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Main
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "제출 및 피드백 받기",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White
+            )
+        }
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
@@ -229,41 +234,40 @@ fun DiaryWriteQuestionContent(
 fun DiaryWriteLoadingContent(
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    BoxWithConstraints(
+        modifier = modifier.fillMaxSize()
     ) {
+        val horizontalPadding = when {
+            maxWidth < 400.dp -> 24.dp
+            maxWidth < 600.dp -> 32.dp
+            else -> 40.dp
+        }
+        val verticalPadding = when {
+            maxHeight < 600.dp -> 24.dp
+            maxHeight < 800.dp -> 32.dp
+            else -> 40.dp
+        }
         Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Background)
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            // TODO: 로딩 이미지 추가
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.4f)
-                    .height(200.dp)
-                    .background(
-                        color = TextGray,
-                        shape = RoundedCornerShape(16.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "로딩 이미지",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextGray,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
+            // AI 캐릭터
+            AiMascot()
+            // 진행 문구
             Text(
                 text = "감정 분석 결과와 피드백을 작성하고 있어요…",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextBlack,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.headlineSmall,
+                color = TextBlack
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 안내 문구 추가
+            GuideWarningCard("뒤로가기 또는 앱 종료 시 분석이 취소됩니다.")
         }
     }
 }

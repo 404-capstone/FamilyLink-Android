@@ -134,13 +134,13 @@ private fun EmotionItem(
     modifier: Modifier = Modifier
 ) {
     val iconRes = when (emotion.emotion) {
-        "기쁨" -> R.drawable.ic_smile
+        "행복" -> R.drawable.ic_happiness
         "혐오" -> R.drawable.ic_disgust
         "슬픔" -> R.drawable.ic_sad
         "분노" -> R.drawable.ic_angry
-        "상처" -> R.drawable.ic_hurt
+        "불안" -> R.drawable.ic_anxiety
         "놀람" -> R.drawable.ic_surprise
-        else -> R.drawable.ic_smile
+        else -> R.drawable.ic_happiness
     }
     Row(
         modifier = modifier,

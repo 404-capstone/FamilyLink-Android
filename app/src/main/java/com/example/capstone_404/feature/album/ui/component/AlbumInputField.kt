@@ -28,12 +28,12 @@ fun AlbumInputField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
+    modifier: Modifier = Modifier,
     leadingIcon: Painter? = null,
     maxLength: Int = 100,
     minLines: Int = 1,
     maxLines: Int = 1,
-    onImeDone: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    onImeDone: (() -> Unit)? = null
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -54,8 +54,7 @@ fun AlbumInputField(
         modifier = modifier
             .fillMaxWidth()
             .let {
-                if (maxLines == 1) it.height(48.dp)
-                else it
+                if (maxLines == 1) it.height(48.dp) else it
             },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(

@@ -281,8 +281,8 @@ fun PhotoDetailScreen(
                 }
             ) { _ ->
                 BoxWithConstraints {
-                    val screenHeight = maxHeight
-                    val photoAreaHeight = screenHeight * 0.7f
+                    val containerHeight = maxHeight
+                    val photoAreaHeight = containerHeight * 0.7f
 
                     Box(
                         modifier = Modifier

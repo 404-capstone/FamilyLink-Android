@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,10 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.capstone_404.R
+import com.example.capstone_404.ui.theme.ButtonDisabled
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
+import com.example.capstone_404.ui.theme.TextWhite
 import com.example.capstone_404.utils.getColor
 import com.example.capstone_404.utils.parseRoleAndOrder
 
@@ -62,7 +64,7 @@ fun ParticipantSelector(
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                painterResource(R.drawable.ic_group_schedule),
                 contentDescription = null,
                 tint = TextBlack
             )
@@ -123,7 +125,7 @@ private fun RoleChip(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(100))
-            .background(if (selected) color.copy(alpha = 0.5f) else Color.White)
+            .background(if (selected) color.copy(alpha = 0.5f) else ButtonDisabled)
             .then(
                 if (selected)
                     Modifier.border(width = 1.dp, color = color, shape = RoundedCornerShape(100))
@@ -144,7 +146,7 @@ private fun RoleChip(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (selected) TextBlack else TextBlack,
+            color = if (selected) TextBlack else TextWhite,
             maxLines = 1
         )
     }

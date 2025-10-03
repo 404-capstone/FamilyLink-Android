@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.album.model
 
+import android.annotation.SuppressLint
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -12,6 +13,7 @@ object DateTimeUtil {
     private val timeFormatter = DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREA)
 
     // 현재 날짜를 "yyyy-MM-dd" 형식으로 반환
+    @SuppressLint("DefaultLocale")
     fun getCurrentDate(): String {
         val calendar = Calendar.getInstance()
         return String.format(
@@ -23,6 +25,7 @@ object DateTimeUtil {
     }
 
     // 현재 시간을 "HH:mm" 형식으로 반환
+    @SuppressLint("DefaultLocale")
     fun getCurrentTime(): String {
         val calendar = Calendar.getInstance()
         return String.format(
@@ -61,6 +64,34 @@ object DateTimeUtil {
             if (parts.size == 3) {
                 "${parts[1]}월 ${parts[2]}일"
             } else date
+        }
+    }
+
+    fun normalizeTimeForApi(time: String): String {
+        if (time.isBlank()) return time
+        return try {
+            val hasAmPm = time.startsWith("오전") || time.startsWith("오후")
+            if (hasAmPm) {
+                val t = LocalTime.parse(time, DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREA))
+                t.format(DateTimeFormatter.ofPattern("HH:mm"))
+            } else time
+        } catch (e: Exception) {
+            time
+        }
+    }
+
+    fun formatTimeForDisplay(time: String): String {
+        if (time.isBlank()) return time
+        return try {
+            val hasAmPm = time.startsWith("오전") || time.startsWith("오후")
+            if (hasAmPm) {
+                time
+            } else {
+                val t = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"))
+                t.format(DateTimeFormatter.ofPattern("a hh:mm", Locale.KOREA))
+            }
+        } catch (e: Exception) {
+            time
         }
     }
 }

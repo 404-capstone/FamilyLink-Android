@@ -34,12 +34,11 @@ import com.example.capstone_404.ui.theme.TextBlack
 // 그룹 가입한 상태의 앨범 화면
 @Composable
 fun AlbumScreenContent(
+    modifier: Modifier = Modifier,
     albums: Map<String, List<Photo>>,
     selectedYearMonth: String?,
     onYearMonthClick: (String?) -> Unit,
-    onPhotoClick: (String) -> Unit = {},  // 사진 클릭 이벤트
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    onPhotoClick: (String) -> Unit = {}
 ) {
     Column(
         modifier = modifier.fillMaxSize()

@@ -10,6 +10,7 @@ import com.example.capstone_404.data.retrofit.model.response.AlbumInfoData
 import com.example.capstone_404.data.retrofit.model.response.AlbumSaveResponse
 import com.example.capstone_404.data.retrofit.model.response.AlbumSearchData
 import com.example.capstone_404.data.retrofit.model.response.PhotoInfoData
+import com.example.capstone_404.feature.album.model.DateTimeUtil
 import com.example.capstone_404.feature.album.model.PhotoAddState
 import com.example.capstone_404.utils.prepareImagePart
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -65,11 +66,12 @@ class AlbumRepositoryImpl @Inject constructor(
         return try {
             val imagePart = prepareImagePart(context, imageUri)
 
+            val apiTime = DateTimeUtil.normalizeTimeForApi(photoData.time)
             val response = albumApi.addPhoto(
                 groupId = groupId,
                 title = photoData.title,
                 date = photoData.date,
-                time = photoData.time.takeIf { it.isNotEmpty() },
+                time = apiTime.takeIf { it.isNotEmpty() },
                 content = photoData.description.takeIf { it.isNotEmpty() },
                 area = photoData.location.takeIf { it.isNotEmpty() },
                 userIds = photoData.selectedParticipants.takeIf { it.isNotEmpty() }?.toTypedArray(),

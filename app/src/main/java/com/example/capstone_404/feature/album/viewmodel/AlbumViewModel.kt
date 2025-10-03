@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlbumViewModel @Inject constructor(
-    private val groupInfoManager: GroupInfoManager,
+    groupInfoManager: GroupInfoManager,
     private val userInfoManager: UserInfoManager,
     private val albumRepository: AlbumRepository
 ) : ViewModel() {
@@ -84,22 +84,9 @@ class AlbumViewModel @Inject constructor(
             val members = groupInfo?.userinfo?.map { user ->
                 user.userId to user.role
             } ?: emptyList()
-            members.ifEmpty {
-                getTestGroupMembers()
-            }
+            members
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-
-    // 테스트용 그룹 멤버 데이터
-    private fun getTestGroupMembers(): List<Pair<Int, String>> {
-        return listOf(
-            1 to "아빠",
-            2 to "엄마",
-            3 to "첫째 아들",
-            4 to "둘째 아들",
-            5 to "첫째 딸"
-        )
-    }
 
     // 앨범 전체 조회
     fun getAllAlbums() {

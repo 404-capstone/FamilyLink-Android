@@ -44,7 +44,7 @@ fun DateTimePickerField(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         Icon(
@@ -58,9 +58,9 @@ fun DateTimePickerField(
             onClick = { showDateDialog = true },
             modifier = Modifier.weight(1f)
         )
-        // 시간 선택 버튼 (선택사항)
+        // 시간 선택 버튼
         DateTimeButton(
-            text = if (time.isNotEmpty()) time else "촬영 시간 (선택 사항)",
+            text = if (time.isNotEmpty()) DateTimeUtil.formatTimeForDisplay(time) else "촬영 시간 (선택 사항)",
             isPlaceholder = time.isEmpty(),
             onClick = { showTimeDialog = true },
             modifier = Modifier.weight(1f)
@@ -93,11 +93,11 @@ fun DateTimePickerField(
 // 날짜/시간 버튼
 @Composable
 private fun DateTimeButton(
+    modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    isPlaceholder: Boolean = false,
-    modifier: Modifier = Modifier
+    isPlaceholder: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

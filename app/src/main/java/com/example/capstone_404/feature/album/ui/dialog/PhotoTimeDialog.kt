@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Calendar
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
@@ -116,7 +117,9 @@ fun PhotoTimeDialog(
 
                     // 시간 선택 (12, 1-11)
                     PhotoWheelPicker(
-                        items = listOf("12") + (1..11).map { String.format("%02d", it) },
+                        items = listOf("12") + (1..11).map { String.format(
+                            Locale.getDefault(), "%02d", it
+                        ) },
                         initialIndex = if (selectedHour12 == 12) 0 else selectedHour12,
                         onSelectedIndexChanged = { index ->
                             selectedHour12 = if (index == 0) 12 else index
@@ -126,7 +129,9 @@ fun PhotoTimeDialog(
 
                     // 분 선택 (00-59)
                     PhotoWheelPicker(
-                        items = (0..59).map { String.format("%02d", it) },
+                        items = (0..59).map { String.format(
+                            Locale.getDefault(), "%02d", it
+                        ) },
                         initialIndex = selectedMinute,
                         onSelectedIndexChanged = { index ->
                             selectedMinute = index
@@ -140,12 +145,10 @@ fun PhotoTimeDialog(
             ButtonDefault(
                 text = "선택",
                 onClick = {
-                    val hour24 = if (selectedAM) {
-                        if (selectedHour12 == 12) 0 else selectedHour12
-                    } else {
-                        if (selectedHour12 == 12) 12 else selectedHour12 + 12
-                    }
-                    val formattedTime = String.format("%02d:%02d", hour24, selectedMinute)
+                    val amPm = if (selectedAM) "오전" else "오후"
+                    val formattedTime = String.format(
+                        Locale.getDefault(), "%s %02d:%02d", amPm, selectedHour12, selectedMinute
+                    )
                     onTimeSelected(formattedTime)
                     onDismiss()
                 }

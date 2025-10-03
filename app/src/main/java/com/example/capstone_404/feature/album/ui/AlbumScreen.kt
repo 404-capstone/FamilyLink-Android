@@ -3,8 +3,10 @@ package com.example.capstone_404.feature.album.ui
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -112,43 +115,50 @@ fun AlbumScreen(
         },
         containerColor = Background
     ) { innerPadding ->
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = innerPadding.calculateTopPadding())
+                .padding(innerPadding)
         ) {
-            val horizontalPadding = when {
-                // 사진 그리드 상태일 때는 패딩 최소화
-                selectedYearMonth != null -> 8.dp
-                // 앨범 목록일 때는 기존 패딩 유지
-                else -> when {
-                    maxWidth < 400.dp -> 16.dp
-                    maxWidth < 600.dp -> 24.dp
-                    else -> 40.dp
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                if (groupInfo != null && userId != null) {
+                    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                        val horizontalPadding = when {
+                            // 사진 그리드 상태일 때는 패딩 최소화
+                            selectedYearMonth != null -> 8.dp
+                            // 앨범 목록일 때는 기존 패딩 유지
+                            else -> when {
+                                maxWidth < 400.dp -> 16.dp
+                                maxWidth < 600.dp -> 24.dp
+                                else -> 40.dp
+                            }
+                        }
+
+                        AlbumScreenContent(
+                            albums = albums,
+                            selectedYearMonth = selectedYearMonth,
+                            onYearMonthClick = viewModel::selectYearMonth,
+                            onPhotoClick = onNavigateToPhotoDetail,
+                            modifier = Modifier.padding(horizontal = horizontalPadding)
+                        )
+                    }
+                } else {
+                    NotJoinedGroupContent(
+                        onNavigateToGroup = onNavigateToGroup
+                    )
                 }
             }
-
-            // 그룹 미가입 상태 또는 그룹 가입 상태에 따른 UI 표시
+            // FAB 버튼
             if (groupInfo != null && userId != null) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    AlbumScreenContent(
-                        albums = albums,
-                        selectedYearMonth = selectedYearMonth,
-                        onYearMonthClick = viewModel::selectYearMonth,
-                        onPhotoClick = onNavigateToPhotoDetail,
-                        onRefresh = viewModel::getAllAlbums,
-                        modifier = Modifier.padding(horizontal = horizontalPadding)
-                    )
-                    SingleFab(
-                        onClick = {
-                            requestGalleryPermission = true
-                        },
-                        icon = R.drawable.ic_add
-                    )
-                }
-            } else {
-                NotJoinedGroupContent(
-                    onNavigateToGroup = onNavigateToGroup
+                SingleFab(
+                    onClick = {
+                        requestGalleryPermission = true
+                    },
+                    icon = R.drawable.ic_add
                 )
             }
         }

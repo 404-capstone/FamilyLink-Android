@@ -3,6 +3,7 @@ package com.example.capstone_404.feature.album.ui
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +28,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.capstone_404.R
 import com.example.capstone_404.feature.album.model.Photo
 import com.example.capstone_404.feature.album.ui.component.AlbumInputField
 import com.example.capstone_404.feature.album.ui.component.DateTimePickerField
@@ -139,81 +142,97 @@ fun PhotoEditScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
-                .imePadding()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // 제목 입력
-            Column {
-                AlbumInputField(
-                    value = photoEditState.title,
-                    onValueChange = viewModel::updateEditTitle,
-                    placeholder = "사진 제목을 입력해주세요. *",
-                    maxLength = 50
-                )
-                // 제목 글자 수
-                Text(
-                    text = "${photoEditState.title.length} / 50",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextGray
-                )
+            val horizontalPadding = when {
+                maxWidth < 400.dp -> 24.dp
+                maxWidth < 600.dp -> 32.dp
+                else -> 40.dp
             }
+            val verticalPadding = when {
+                maxHeight < 600.dp -> 24.dp
+                maxHeight < 800.dp -> 32.dp
+                else -> 40.dp
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // 제목 입력
+                Column {
+                    AlbumInputField(
+                        value = photoEditState.title,
+                        onValueChange = viewModel::updateEditTitle,
+                        placeholder = "제목을 입력하세요.",
+                        maxLength = 50
+                    )
+                    // 제목 글자 수
+                    Text(
+                        text = "${photoEditState.title.length} / 50",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextGray
+                    )
+                }
 
-            // 날짜/시간 선택
-            DateTimePickerField(
-                date = photoEditState.date,
-                time = photoEditState.time,
-                onDateSelected = viewModel::updateEditDate,
-                onTimeSelected = viewModel::updateEditTime
-            )
-
-            // 장소 입력
-            LocationField(
-                location = photoEditState.location,
-                onLocationChanged = viewModel::updateEditLocation
-            )
-
-            // 설명 입력
-            AlbumInputField(
-                value = photoEditState.description,
-                onValueChange = viewModel::updateEditDescription,
-                placeholder = "사진에 대한 설명을 입력해주세요. (선택 사항)",
-                maxLength = 250,
-                minLines = 5,
-                maxLines = 8
-            )
-
-            // 참여자 선택
-            ParticipantSelector(
-                members = groupMembers,
-                selectedParticipants = photoEditState.selectedParticipants.toSet(),
-                onParticipantToggle = { userId ->
-                    val current = photoEditState.selectedParticipants.toSet()
-                    val updated = if (current.contains(userId)) {
-                        current - userId
-                    } else {
-                        current + userId
-                    }
-                    viewModel.updateEditParticipants(updated)
-                },
-                onSetSelectedParticipants = viewModel::updateEditParticipants
-            )
-
-            // 에러 메시지 표시
-            updateError?.let { error ->
-                Text(
-                    text = error,
-                    color = Error,
-                    style = MaterialTheme.typography.bodySmall
+                // 날짜/시간 선택
+                DateTimePickerField(
+                    date = photoEditState.date,
+                    time = photoEditState.time,
+                    onDateSelected = viewModel::updateEditDate,
+                    onTimeSelected = viewModel::updateEditTime
                 )
+
+                // 장소 입력
+                LocationField(
+                    location = photoEditState.location,
+                    onLocationChanged = viewModel::updateEditLocation
+                )
+
+                // 메모 입력
+                AlbumInputField(
+                    value = photoEditState.description,
+                    onValueChange = viewModel::updateEditDescription,
+                    placeholder = "메모 (선택 사항)",
+                    leadingIcon = painterResource(R.drawable.ic_help),
+                    maxLength = 250,
+                    minLines = 1,
+                    maxLines = 8
+                )
+
+                // 참여자 선택
+                ParticipantSelector(
+                    members = groupMembers,
+                    selectedParticipants = photoEditState.selectedParticipants.toSet(),
+                    onParticipantToggle = { userId ->
+                        val current = photoEditState.selectedParticipants.toSet()
+                        val updated = if (current.contains(userId)) {
+                            current - userId
+                        } else {
+                            current + userId
+                        }
+                        viewModel.updateEditParticipants(updated)
+                    },
+                    onSetSelectedParticipants = viewModel::updateEditParticipants
+                )
+
+                // 에러 메시지 표시
+                updateError?.let { error ->
+                    Text(
+                        text = error,
+                        color = Error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }

@@ -62,11 +62,11 @@ class LoginViewModel @Inject constructor(
     }
 
     // 소셜 로그인 함수
-    fun loginWithSessionId(sessionId: String) {
+    fun loginWithSessionId(sessionId: String, fcmToken: String? = null) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             try {
-                val result = userRepository.loginWithSession(sessionId)
+                val result = userRepository.loginWithSession(sessionId, fcmToken)
 
                 result.onSuccess { data ->
                     Log.d("LoginViewModel", "소셜 로그인 성공 : $data")

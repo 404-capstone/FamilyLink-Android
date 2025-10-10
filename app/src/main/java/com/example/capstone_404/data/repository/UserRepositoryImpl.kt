@@ -25,9 +25,10 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     // SessionId로 토큰 발급
-    override suspend fun loginWithSession(sessionId: String): Result<SocialLoginData> {
+    override suspend fun loginWithSession(sessionId: String, fcmToken: String?): Result<SocialLoginData> {
         return try {
-            val response = noTokenUserApi.loginWithSession(sessionId)
+            Log.d("UserRepository", "로그인 시도 - sessionId: ${sessionId.take(10)}..., fcmToken: ${fcmToken?.take(10)}...")
+            val response = noTokenUserApi.loginWithSession(sessionId, fcmToken)
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->

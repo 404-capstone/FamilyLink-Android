@@ -7,15 +7,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.navigation.compose.rememberNavController
+import com.example.capstone_404.data.repository.AlarmRepository
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
 import com.example.capstone_404.navigation.AppNavGraph
 import com.example.capstone_404.ui.theme.Capstone_404Theme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: LoginViewModel by viewModels()
+
+    @Inject
+    lateinit var alarmRepository: AlarmRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         actionBar?.hide()
@@ -23,6 +28,9 @@ class MainActivity : ComponentActivity() {
 
         // 앱 실행 시 딥링크 확인
         handleDeepLink(intent)
+
+        // 알림 클릭 처리
+        handleNotificationClick(intent)
 
         setContent {
             Capstone_404Theme {
@@ -52,6 +60,15 @@ class MainActivity : ComponentActivity() {
             } else {
                 Log.e("DeepLink", "SessionId 없음")
             }
+        }
+    }
+
+    // 알림 클릭 처리
+    private fun handleNotificationClick(intent: Intent?) {
+        val type = intent?.getStringExtra("notification_type")
+        if (type != null) {
+            Log.d("FCM", "알림 클릭됨: type=$type")
+            // TODO: 추후 타입별 화면 이동 로직 구현
         }
     }
 }

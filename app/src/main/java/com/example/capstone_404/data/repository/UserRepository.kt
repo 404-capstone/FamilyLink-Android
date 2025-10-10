@@ -11,7 +11,8 @@ interface UserRepository {
 
     // SessionId로 토큰 발급
     suspend fun loginWithSession(
-        sessionId: String
+        sessionId: String,
+        fcmToken: String? = null
     ): Result<SocialLoginData>
 
     // 수동 토큰 재발급

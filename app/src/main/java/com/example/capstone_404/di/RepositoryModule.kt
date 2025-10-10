@@ -1,5 +1,7 @@
 package com.example.capstone_404.di
 
+import com.example.capstone_404.data.repository.AlarmRepository
+import com.example.capstone_404.data.repository.AlarmRepositoryImpl
 import com.example.capstone_404.data.repository.AlbumRepository
 import com.example.capstone_404.data.repository.AlbumRepositoryImpl
 import com.example.capstone_404.data.repository.CalendarRepository
@@ -40,4 +42,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindDiaryRepository(impl: DiaryRepositoryImpl): DiaryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAlarmRepository(impl: AlarmRepositoryImpl): AlarmRepository
 }

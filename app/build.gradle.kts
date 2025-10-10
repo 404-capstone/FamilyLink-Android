@@ -7,6 +7,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("kotlinx-serialization")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -73,6 +74,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // kizitonwose 캘린더 라이브러리
     implementation(libs.compose)
+    // firebase 버전 관리 BoM 라이브러리
+    implementation(platform(libs.firebase.bom))
+    // firebase FCM 모듈
+    implementation(libs.firebase.messaging)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

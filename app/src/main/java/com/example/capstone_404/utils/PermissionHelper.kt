@@ -67,3 +67,34 @@ fun RequestCameraPermission(
         launcher.launch(Manifest.permission.CAMERA)
     }
 }
+
+// 알림 권한 요청
+@Composable
+fun RequestNotificationPermission(
+    context: Context,
+    onGranted: () -> Unit = {},
+    onDenied: () -> Unit = {}
+) {
+    // Android 13 미만 권한 요청 불필요
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        LaunchedEffect(Unit) {
+            onGranted()
+        }
+        return
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            onGranted()
+        } else {
+            PermissionHelper.showDeniedToast(context, "알림")
+            onDenied()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+}

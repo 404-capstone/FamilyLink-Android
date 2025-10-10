@@ -21,7 +21,8 @@ interface UserApi {
     // SessionId로 토큰 발급
     @GET("/user/login/code")
     suspend fun loginWithSession(
-        @Query("session") sessionId: String
+        @Query("session") sessionId: String,
+        @Query("fcmToken") fcmToken: String? = null
     ): Response<BaseResponse<SocialLoginData>>
 
     // 토큰 재발급 (만료 시 자동)

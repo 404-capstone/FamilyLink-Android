@@ -7,4 +7,6 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.56.2" apply false
     // Json 사용을 위한 플러그인 추가
     kotlin("plugin.serialization") version "2.2.0"
+    // firebase 사용을 위한 플러그인 추가
+    id("com.google.gms.google-services") version "4.4.3" apply false
 }

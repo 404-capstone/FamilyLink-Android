@@ -10,7 +10,6 @@ import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.UserRepository
 import com.example.capstone_404.data.repository.GroupRepository
-import com.example.capstone_404.data.retrofit.model.request.UserInfoEditRequest
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import com.example.capstone_404.feature.login.model.LoginState
 import com.example.capstone_404.utils.AgeConverter
@@ -22,6 +21,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -192,13 +194,13 @@ class LoginViewModel @Inject constructor(
             try {
                 val userName = userInfoManager.getNickname()
                 val ageNumber = AgeConverter.convertRangeToAge(selectedAge)
-                val requestBody = UserInfoEditRequest(
-                    userName!!,
-                    ageNumber!!,
-                    selectedGender,
-                    null)
+                val imagePart = MultipartBody.Part.createFormData(
+                    name = "image",
+                    filename = "",
+                    body = "".toRequestBody("application/octet-stream".toMediaTypeOrNull())
+                )
 
-                val result = userRepository.editUserInfo(requestBody)
+                val result = userRepository.editUserInfo(userName!!, ageNumber!!, selectedGender, imagePart)
 
                 result.onSuccess { data ->
                     Log.d("User_Info", "(L)사용자 정보 저장 완료 : $data")

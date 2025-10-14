@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.R
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.UserRepository
-import com.example.capstone_404.data.retrofit.model.request.UserInfoEditRequest
 import com.example.capstone_404.utils.AgeConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,6 +16,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 @HiltViewModel
@@ -114,19 +116,21 @@ class ProfileEditViewModel @Inject constructor(
 
                 // 이미지 URI를 문자열로 변환
                 val imageString = _selectedImageUri.value?.toString()
-
-                // API 요청 객체 생성
-                val request = UserInfoEditRequest(
-                    username = _inputNickname.value.trim(),
-                    age = ageNumber,
-                    gender = if (_selectedGender.value != "성별") _selectedGender.value else "",
-                    image = imageString
+                val imagePart = MultipartBody.Part.createFormData(
+                    name = "image",
+                    filename = "",
+                    body = "".toRequestBody("application/octet-stream".toMediaTypeOrNull())
                 )
 
                 // API 호출
-                userRepository.editUserInfo(request)
+                userRepository.editUserInfo(
+                    username = _inputNickname.value.trim(),
+                    age = ageNumber,
+                    gender = if (_selectedGender.value != "성별") _selectedGender.value else "",
+                    imagePart
+                )
                     .onSuccess { response ->
-                        Log.d("ProfileEditViewModel", "프로필 수정 성공: ${response}")
+                        Log.d("ProfileEditViewModel", "프로필 수정 성공: $response")
 
                         // 로컬 저장 처리
                         userInfoManager.saveNickname(_inputNickname.value)
@@ -143,7 +147,7 @@ class ProfileEditViewModel @Inject constructor(
                             userInfoManager.saveProfileImage(it)
                         }
 
-                _saveState.value = SaveState.Success
+                        _saveState.value = SaveState.Success
                     }
                     .onFailure { exception ->
                         Log.e("ProfileEditViewModel", "프로필 수정 실패: ${exception.message}")

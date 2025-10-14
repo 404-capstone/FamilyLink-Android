@@ -1,18 +1,19 @@
 package com.example.capstone_404.data.retrofit.api
 
-import com.example.capstone_404.data.retrofit.model.request.UserInfoEditRequest
 import com.example.capstone_404.data.retrofit.model.response.BaseResponse
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoEditData
+import okhttp3.MultipartBody
 import retrofit2.Response
-import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Query
 
 // 로그인 관련 API 인터페이스
@@ -47,8 +48,12 @@ interface UserApi {
     ): Response<Unit>
 
     // 프로필 변경
+    @Multipart
     @PUT("/user/info/edit")
     suspend fun editUserInfo(
-        @Body request: UserInfoEditRequest
+        @Query("username") username: String,
+        @Query("age") age: Int,
+        @Query("gender") gender: String,
+        @Part imageFile: MultipartBody.Part
     ): Response<BaseResponse<UserInfoEditData>>
 }

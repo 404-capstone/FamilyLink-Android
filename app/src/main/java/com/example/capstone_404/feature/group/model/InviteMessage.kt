@@ -12,7 +12,7 @@ fun inviteMessage(code: String, inviteUrl: String, downloadUrl: String): String 
 
         함께 소통하는 가족, 지금 시작하세요!
 
-        👨‍👩‍👧‍👦 패밀리링크 다운로드
+        🏠패밀리링크 다운로드
         $downloadUrl
     """.trimIndent()
 }

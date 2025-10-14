@@ -662,8 +662,14 @@ class CalendarViewModel @Inject constructor(
                     clearFamilyOptimization()
                     onSuccess()
                 }.onFailure { e ->
+                    val msg = e.message.orEmpty()
+                    val isDuplicated = msg.contains("409")
                     Log.e("CalendarViewModel", "가족 일정 추가 실패 : ${e.message}")
-                    onError(e.message ?: "일정 추가를 실패했습니다.")
+                    if (isDuplicated) {
+                        onError("이미 해당 시간대에 등록된 일정이 있습니다.")
+                    } else {
+                        onError("일정 추가를 실패했습니다.")
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("CalendarViewModel", "가족 일정 추가 실패 : ${e.message}")

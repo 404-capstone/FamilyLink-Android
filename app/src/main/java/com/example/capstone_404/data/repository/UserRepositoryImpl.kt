@@ -4,13 +4,13 @@ import android.util.Log
 import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.retrofit.api.UserApi
-import com.example.capstone_404.data.retrofit.model.request.UserInfoEditRequest
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoEditData
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import com.example.capstone_404.utils.AgeConverter
+import okhttp3.MultipartBody
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -165,9 +165,14 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     // 프로필 변경
-    override suspend fun editUserInfo(request: UserInfoEditRequest): Result<UserInfoEditData> {
+    override suspend fun editUserInfo(
+        username: String,
+        age: Int,
+        gender: String,
+        imageFile: MultipartBody.Part
+    ): Result<UserInfoEditData> {
         return try {
-            val response = userApi.editUserInfo(request)
+            val response = userApi.editUserInfo(username, age, gender, imageFile)
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->

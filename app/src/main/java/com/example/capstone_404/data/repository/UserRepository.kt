@@ -1,10 +1,10 @@
 package com.example.capstone_404.data.repository
 
-import com.example.capstone_404.data.retrofit.model.request.UserInfoEditRequest
 import com.example.capstone_404.data.retrofit.model.response.SocialLoginData
 import com.example.capstone_404.data.retrofit.model.response.TokenData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoEditData
+import okhttp3.MultipartBody
 
 // 유저 관련 API Repository 인터페이스
 interface UserRepository {
@@ -34,6 +34,9 @@ interface UserRepository {
 
     // 프로필 변경
     suspend fun editUserInfo(
-        request: UserInfoEditRequest
+        username: String,
+        age: Int,
+        gender: String,
+        imageFile: MultipartBody.Part
     ): Result<UserInfoEditData>
 }

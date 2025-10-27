@@ -14,16 +14,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,11 +33,11 @@ import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
 fun Settings(
+    isNotificationEnabled: Boolean,
+    onNotificationChange: (Boolean) -> Unit,
     onInquiry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 알림 설정 로컬 상태 (기능은 하지 않고 UI만 표시)
-    var isNotificationEnabled by remember { mutableStateOf(true) }
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -78,7 +75,7 @@ fun Settings(
 
                 Switch(
                     checked = isNotificationEnabled,
-                    onCheckedChange = { isNotificationEnabled = it }, // 로컬 상태만 변경
+                    onCheckedChange = onNotificationChange,
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
                         checkedTrackColor = Main,
@@ -90,7 +87,7 @@ fun Settings(
 
             // 구분선
             Spacer(modifier = Modifier.height(12.dp))
-            androidx.compose.material3.Divider(
+            HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 1.dp,
                 color = Stroke

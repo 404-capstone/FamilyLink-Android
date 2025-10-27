@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
+import com.example.capstone_404.data.repository.AlarmRepository
 import com.example.capstone_404.data.repository.UserRepository
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,8 @@ class MyPageViewModel @Inject constructor(
     private val userInfoManager: UserInfoManager,
     private val groupInfoManager: GroupInfoManager,
     private val tokenManager: TokenManager,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val alarmRepository: AlarmRepository
 ) : ViewModel() {
 
     // 사용자 닉네임 Flow
@@ -31,7 +33,12 @@ class MyPageViewModel @Inject constructor(
     // 프로필 이미지 Flow
     val profileImageFlow: Flow<String?> = userInfoManager.profileImageFlow
 
-    // 알림 설정 상태 (TODO: Firebase FCM 구현 후 추가)
+    // 알림 설정 상태 Flow
+    val alarmEnabledFlow: Flow<Boolean> = userInfoManager.alarmEnabledFlow
+
+    // 에러 메시지
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
 
     // 로그아웃 상태
     private val _logoutState = MutableStateFlow<LogoutState>(LogoutState.Idle)
@@ -41,8 +48,34 @@ class MyPageViewModel @Inject constructor(
     private val _withdrawState = MutableStateFlow<WithdrawState>(WithdrawState.Idle)
     val withdrawState: StateFlow<WithdrawState> = _withdrawState
 
+    // 에러 메시지 초기화
+    fun clearError() {
+        _errorMessage.value = null
+    }
 
-    //알림 설정 토글: TODO: Firebase FCM 구현 후 알림 설정 기능 추가
+    // 알림 설정 변경
+    fun setAlarmNotification(enabled: Boolean) {
+        viewModelScope.launch {
+            val previousValue = userInfoManager.getAlarmEnabled()
+
+            // UI 업데이트
+            userInfoManager.saveAlarmEnabled(enabled)
+            Log.d("MyPageViewModel", "알림 설정 UI 업데이트: $enabled")
+
+            // api 연동
+            alarmRepository.setAlarmSetting(enabled)
+                .onSuccess {
+                    Log.d("MyPageViewModel", "알림 설정 변경 성공: $enabled")
+                }
+                .onFailure { e ->
+                    Log.e("MyPageViewModel", "알림 설정 변경 실패: ${e.message}")
+                    // 실패 시 롤백
+                    userInfoManager.saveAlarmEnabled(previousValue)
+                    // 에러 Toast
+                    _errorMessage.value = "알림 설정 변경 중 오류가 발생했습니다."
+                }
+        }
+    }
 
 
     //로그아웃 처리

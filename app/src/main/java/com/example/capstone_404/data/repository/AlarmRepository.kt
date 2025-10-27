@@ -7,4 +7,9 @@ interface AlarmRepository {
     suspend fun refreshFcmToken(
         androidToken: String
     ): Result<Unit>
+
+    // 알림 수신 동의 설정
+    suspend fun setAlarmSetting(
+        flag: Boolean
+    ): Result<Unit>
 }

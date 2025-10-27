@@ -13,4 +13,10 @@ interface AlarmApi {
     suspend fun refreshFcmToken(
         @Query("androidToken") androidToken: String
     ): Response<BaseResponse<String>>
+
+    // 알림 설정 변경
+    @POST("/alarm/setting")
+    suspend fun setAlarmSetting(
+        @Query("flag") flag: Boolean
+    ): Response<BaseResponse<String>>
 }

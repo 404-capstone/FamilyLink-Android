@@ -21,7 +21,7 @@ class UserRepositoryImpl @Inject constructor(
     private val userApi: UserApi,
     private val tokenManager: TokenManager,
     private val userInfoManager: UserInfoManager,
-    private val groupInfoManager: GroupInfoManager,
+    private val groupInfoManager: GroupInfoManager
 ) : UserRepository {
 
     // SessionId로 토큰 발급
@@ -96,6 +96,10 @@ class UserRepositoryImpl @Inject constructor(
                     } else {
                         Log.w("AuthRepository", "소셜 로그인 제공자가 비어있음")
                     }
+
+                    // 알림 설정 저장
+                    userInfoManager.saveAlarmEnabled(userInfo.alarm)
+                    Log.d("AuthRepository", "알림 설정 저장 성공: ${userInfo.alarm}")
 
                     //정보 조회 확인 log
                     Log.d("AuthRepository", "사용자 정보 조회 성공: ${userInfo.username}")

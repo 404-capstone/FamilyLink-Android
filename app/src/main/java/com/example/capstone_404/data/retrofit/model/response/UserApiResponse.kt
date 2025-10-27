@@ -23,7 +23,8 @@ data class UserInfoData(
     val gender: String,
     val age: Int,
     val image: String?,
-    val social: String
+    val social: String,
+    val alarm: Boolean
 )
 
 // 프로필 변경 Response

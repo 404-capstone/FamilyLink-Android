@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.feature.mypage.ui.component.AccountManagement
 import com.example.capstone_404.feature.mypage.ui.component.Settings
 import com.example.capstone_404.feature.mypage.ui.component.UserInfoCard
+import com.example.capstone_404.feature.mypage.ui.dialog.InquiryDialog
 import com.example.capstone_404.feature.mypage.ui.dialog.WithdrawDialog
 import com.example.capstone_404.feature.mypage.viewmodel.LogoutState
 import com.example.capstone_404.feature.mypage.viewmodel.MyPageViewModel
@@ -35,7 +36,6 @@ import com.example.capstone_404.ui.theme.Background
 fun MyPageScreen(
     viewModel: MyPageViewModel = hiltViewModel(),
     onProfileEdit: () -> Unit = {},
-    onInquiry: () -> Unit = {},
     onWithdraw: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
@@ -48,6 +48,7 @@ fun MyPageScreen(
 
     // 다이얼로그 상태
     var showWithdrawDialog by remember { mutableStateOf(false) }
+    var showInquiryDialog by remember { mutableStateOf(false) }
 
     // 화면 진입 시 사용자 정보 로드
     LaunchedEffect(Unit) {
@@ -73,7 +74,7 @@ fun MyPageScreen(
     Scaffold(
         topBar = {
             CustomTopBar(
-                title = "더보기",
+                title = "내 정보",
                 navigationType = NavigationType.NONE
             )
         },
@@ -117,8 +118,8 @@ fun MyPageScreen(
 
                 // 설정
                 Settings(
-                    //TODO: 문의하기 이후 따로 구현
-                    onInquiry = onInquiry
+                    //TODO: 알림 수신 동의 설정 api 연동 후 구현
+                    onInquiry = { showInquiryDialog = true }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -143,6 +144,15 @@ fun MyPageScreen(
             },
             onDismiss = {
                 showWithdrawDialog = false
+            }
+        )
+    }
+
+    // 문의하기 다이얼로그
+    if (showInquiryDialog) {
+        InquiryDialog(
+            onDismiss = {
+                showInquiryDialog = false
             }
         )
     }

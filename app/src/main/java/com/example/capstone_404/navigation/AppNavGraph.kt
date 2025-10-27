@@ -377,9 +377,6 @@ fun AppNavGraph(navController: NavHostController) {
                     onProfileEdit = {
                         navController.navigate(Route.PROFILE_EDIT)
                     },
-                    onInquiry = {
-                        // TODO: 문의하기 화면으로 이동 또는 외부 링크
-                    },
                     onWithdraw = {
                         navController.navigate(Route.LOGIN) {
                             popUpTo(0) { inclusive = true }
@@ -519,8 +516,8 @@ fun AppNavGraph(navController: NavHostController) {
                     onNavigateBack = {
                         navController.popBackStack(Route.ALBUM, inclusive = false)
                     },
-                    onNavigateToEdit = { photoId ->
-                        navController.navigate("photo_edit/$photoId")
+                    onNavigateToEdit = { editPhotoId ->
+                        navController.navigate("photo_edit/$editPhotoId")
                     }
                 )
             }

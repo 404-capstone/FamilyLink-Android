@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.mypage.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,11 +19,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.capstone_404.feature.mypage.ui.component.AccountManagement
 import com.example.capstone_404.feature.mypage.ui.component.Settings
 import com.example.capstone_404.feature.mypage.ui.component.UserInfoCard
+import com.example.capstone_404.feature.mypage.ui.dialog.InquiryDialog
 import com.example.capstone_404.feature.mypage.ui.dialog.WithdrawDialog
 import com.example.capstone_404.feature.mypage.viewmodel.LogoutState
 import com.example.capstone_404.feature.mypage.viewmodel.MyPageViewModel
@@ -35,7 +38,6 @@ import com.example.capstone_404.ui.theme.Background
 fun MyPageScreen(
     viewModel: MyPageViewModel = hiltViewModel(),
     onProfileEdit: () -> Unit = {},
-    onInquiry: () -> Unit = {},
     onWithdraw: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
@@ -45,13 +47,25 @@ fun MyPageScreen(
     val profileImage by viewModel.profileImageFlow.collectAsState(initial = null)
     val logoutState by viewModel.logoutState.collectAsState()
     val withdrawState by viewModel.withdrawState.collectAsState()
+    val isAlarmEnabled by viewModel.alarmEnabledFlow.collectAsState(initial = true)
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val context = LocalContext.current
 
     // 다이얼로그 상태
     var showWithdrawDialog by remember { mutableStateOf(false) }
+    var showInquiryDialog by remember { mutableStateOf(false) }
 
     // 화면 진입 시 사용자 정보 로드
     LaunchedEffect(Unit) {
         viewModel.loadUserInfo()
+    }
+
+    // 에러 메시지 처리
+    errorMessage?.let { error ->
+        LaunchedEffect(error) {
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            viewModel.clearError()
+        }
     }
 
     // 로그아웃 성공 시 콜백
@@ -73,7 +87,7 @@ fun MyPageScreen(
     Scaffold(
         topBar = {
             CustomTopBar(
-                title = "더보기",
+                title = "내 정보",
                 navigationType = NavigationType.NONE
             )
         },
@@ -117,8 +131,11 @@ fun MyPageScreen(
 
                 // 설정
                 Settings(
-                    //TODO: 문의하기 이후 따로 구현
-                    onInquiry = onInquiry
+                    isNotificationEnabled = isAlarmEnabled,
+                    onNotificationChange = { enabled ->
+                        viewModel.setAlarmNotification(enabled)
+                    },
+                    onInquiry = { showInquiryDialog = true }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -143,6 +160,15 @@ fun MyPageScreen(
             },
             onDismiss = {
                 showWithdrawDialog = false
+            }
+        )
+    }
+
+    // 문의하기 다이얼로그
+    if (showInquiryDialog) {
+        InquiryDialog(
+            onDismiss = {
+                showInquiryDialog = false
             }
         )
     }

@@ -3,22 +3,29 @@ package com.example.capstone_404.feature.diary.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.capstone_404.data.info.GroupInfoManager
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.DiaryRepository
 import com.example.capstone_404.data.retrofit.model.response.DiaryDetailData
 import com.example.capstone_404.data.retrofit.model.response.GroupAnswerDetailData
+import com.example.capstone_404.data.retrofit.model.response.GroupInfoData
 import com.example.capstone_404.feature.diary.model.DiaryDetail
 import com.example.capstone_404.feature.diary.model.QuestionDetail
 import com.example.capstone_404.feature.diary.model.DiarySelectUiState
 import com.example.capstone_404.feature.diary.model.EmotionResult
 import com.example.capstone_404.feature.diary.model.EmotionColorConstants
+import com.example.capstone_404.feature.diary.model.FamilyEmotion
 import com.example.capstone_404.feature.diary.model.Question
 import com.example.capstone_404.feature.diary.model.QuestionWithAnswers
 import com.example.capstone_404.feature.diary.model.roleLabelsToResponders
+import com.example.capstone_404.utils.getColor
+import com.example.capstone_404.utils.parseRoleAndOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -28,8 +35,12 @@ import javax.inject.Inject
 @HiltViewModel
 class DiarySelectViewModel @Inject constructor(
     private val diaryRepository: DiaryRepository,
-    private val userInfoManager: UserInfoManager
+    private val userInfoManager: UserInfoManager,
+    groupInfoManager: GroupInfoManager
 ) : ViewModel() {
+
+    // 역할 변환용 그룹 정보 Flow
+    private val groupInfoFlow: Flow<GroupInfoData?> = groupInfoManager.groupInfoFlow
 
     // 상태 관리
     private val _diarySelectState = MutableStateFlow<DiarySelectUiState>(DiarySelectUiState.Loading)
@@ -50,7 +61,11 @@ class DiarySelectViewModel @Inject constructor(
             val result = diaryRepository.getDiaryDetail(diaryId)
             result.onSuccess { response ->
                 Log.d("DiarySelectViewModel", "다이어리 상세 조회 성공: $response")
-                val diaryDetail = convertToDiaryDetail(response)
+                // groupInfoFlow에서 그룹 멤버 정보 가져오기
+                val groupInfo = groupInfoFlow.first()
+                val groupMembers = groupInfo?.userinfo?.map { it.userId to it.role } ?: emptyList()
+
+                val diaryDetail = convertToDiaryDetail(response, groupMembers)
                 _diarySelectState.value = DiarySelectUiState.Success(diaryDetail)
             }.onFailure { error ->
                 Log.e("DiarySelectViewModel", "다이어리 상세 조회 실패: ${error.message}")
@@ -104,7 +119,10 @@ class DiarySelectViewModel @Inject constructor(
         }
     }
 
-    private fun convertToDiaryDetail(response: DiaryDetailData): DiaryDetail {
+    private fun convertToDiaryDetail(
+        response: DiaryDetailData,
+        groupMembers: List<Pair<Int, String>> = emptyList()
+    ): DiaryDetail {
         return DiaryDetail(
             id = response.id.toString(),
             date = formatDate(response.diaryAt),
@@ -116,7 +134,25 @@ class DiarySelectViewModel @Inject constructor(
                     color = mapEmotionToColor(emotion.label)
                 )
             },
-            aiFeedback = response.feedBack
+            aiFeedback = response.feedBack,
+            familyEmotions = response.familyEmotion.mapNotNull { emotionData ->
+                val roleLabel = groupMembers.find { it.first == emotionData.userId }?.second
+
+                if (roleLabel != null) {
+                    val (roleType, orderType) = parseRoleAndOrder(roleLabel)
+
+                    FamilyEmotion(
+                        userId = emotionData.userId,
+                        roleLabel = roleLabel,
+                        emotion = emotionData.emotion,
+                        color = roleType.getColor(orderType)
+                    )
+                } else {
+                    // 역할을 찾을 수 없으면 제외
+                    Log.w("DiarySelectViewModel", "userId=${emotionData.userId}에 해당하는 역할 없음")
+                    null
+                }
+            }
         )
     }
 
@@ -176,10 +212,11 @@ class DiarySelectViewModel @Inject constructor(
     private fun getErrorDiaryDetail(): DiaryDetail {
         return DiaryDetail(
             id = "error",
-            date = "오류 발생",
-            diaryText = "다이어리 정보를 불러오는 중 오류가 발생했습니다.",
+            date = "오류가 발생했습니다.",
+            diaryText = "다이어리 정보를 불러오는 중 오류가 발생했습니다.\n오류가 계속된다면 관리자에게 문의하세요.",
             emotions = emptyList(),
-            aiFeedback = "다이어리 정보를 불러올 수 없습니다."
+            aiFeedback = "AI 피드백 정보를 불러올 수 없습니다.",
+            familyEmotions = null
         )
     }
 

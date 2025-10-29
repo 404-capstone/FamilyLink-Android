@@ -43,7 +43,16 @@ class DiaryRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
-                    Result.success(data)
+                    // AI 피드백 에러 체크
+                    val cleanedFeedback = if (isAiFeedbackError(data.feedBack)) {
+                        Log.e("DiaryRepository", "AI 피드백 생성 실패: ${data.feedBack}")
+                        "AI 피드백을 불러오는 중 오류가 발생했습니다."
+                    } else {
+                        data.feedBack
+                    }
+
+                    val cleanedData = data.copy(feedBack = cleanedFeedback)
+                    Result.success(cleanedData)
                 } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 val errorBody = response.errorBody()?.string()
@@ -124,8 +133,17 @@ class DiaryRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->
-                    Log.d("DiaryRepository", "다이어리 작성 성공: $data")
-                    Result.success(data)
+                    // AI 피드백 에러 체크 및 정제
+                    val cleanedFeedback = if (isAiFeedbackError(data.feedback)) {
+                        Log.e("DiaryRepository", "AI 피드백 생성 실패: ${data.feedback}")
+                        "AI 피드백 생성 중 오류가 발생했습니다."
+                    } else {
+                        data.feedback
+                    }
+
+                    val cleanedData = data.copy(feedback = cleanedFeedback)
+                    Log.d("DiaryRepository", "다이어리 작성 성공")
+                    Result.success(cleanedData)
                 } ?: Result.failure(Exception("응답 데이터 없음"))
             } else {
                 val errorBody = response.errorBody()?.string()
@@ -177,5 +195,13 @@ class DiaryRepositoryImpl @Inject constructor(
             Log.e("DiaryRepository", "공통질문 상세 조회 실패: ${e.message}")
             Result.failure(e)
         }
+    }
+
+    // AI 피드백 에러 처리
+    private fun isAiFeedbackError(feedback: String): Boolean {
+        return feedback.contains("error", ignoreCase = true) ||
+                feedback.contains("API", ignoreCase = true) ||
+                feedback.contains("http://") ||
+                feedback.contains("<EOL>")
     }
 }

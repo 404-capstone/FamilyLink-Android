@@ -1,6 +1,7 @@
 package com.example.capstone_404.feature.calendar.ui
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -57,6 +58,8 @@ fun ScheduleDetailScreen(
     onPersonalEdit: () -> Unit,
     onFamilyEdit: () -> Unit
 ) {
+    BackHandler { onBack() }
+
     val context = LocalContext.current
     val uiState by viewModel.scheduleDetail.collectAsState()
     val userIdToRole by viewModel.userIdToRole.collectAsState()

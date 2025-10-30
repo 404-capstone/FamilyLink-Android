@@ -34,6 +34,7 @@
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateUnspecified|adjustResize"
             android:exported="true"
             android:screenOrientation="portrait"
@@ -44,12 +45,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!--딥링크-->
+            <!--소셜 로그인 딥링크-->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="familylink" android:host="login" />
+            </intent-filter>
+            <!-- 알림 딥링크 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="familylink" android:host="launch" />
             </intent-filter>
         </activity>
         <!-- FCM Service -->

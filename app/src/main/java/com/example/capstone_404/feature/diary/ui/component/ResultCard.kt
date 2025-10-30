@@ -11,21 +11,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.R
 import com.example.capstone_404.feature.diary.model.EmotionResult
+import com.example.capstone_404.feature.diary.model.FamilyEmotion
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 
@@ -147,7 +152,7 @@ private fun EmotionItem(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        androidx.compose.material3.Icon(
+        Icon(
             painter = painterResource(id = iconRes),
             contentDescription = null,
             tint = Color.Unspecified,
@@ -194,4 +199,119 @@ fun AiFeedbackSection(
         color = TextBlack,
         modifier = modifier
     )
+}
+
+// 가족들의 대표 감정
+@Composable
+fun FamilyEmotionsSection(
+    familyEmotions: List<FamilyEmotion>?,
+    modifier: Modifier = Modifier
+) {
+    when {
+        familyEmotions == null -> {
+            // 다이어리 조회 실패 시
+            Box(
+                modifier = modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "그룹원의 감정을 조회하는 중 오류가 발생했습니다.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextBlack
+                )
+            }
+        }
+        familyEmotions.isEmpty() -> {
+            // 빈 상태
+            Box(
+                modifier = modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "아직 다른 그룹원이 일기를 작성하지 않았어요.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextBlack,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        else -> {
+            // 감정 리스트 (2개 그리드)
+            Column(
+                modifier = modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                familyEmotions.chunked(2).forEach { rowEmotions ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        rowEmotions.forEach { emotion ->
+                            FamilyEmotionItem(
+                                familyEmotion = emotion,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        // 홀수 개일 때 빈 공간 채우기
+                        if (rowEmotions.size == 1) {
+                            Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FamilyEmotionItem(
+    familyEmotion: FamilyEmotion,
+    modifier: Modifier = Modifier
+) {
+    val iconRes = when (familyEmotion.emotion) {
+        "행복" -> R.drawable.ic_happiness
+        "혐오" -> R.drawable.ic_disgust
+        "슬픔" -> R.drawable.ic_sad
+        "분노" -> R.drawable.ic_angry
+        "불안" -> R.drawable.ic_anxiety
+        "놀람" -> R.drawable.ic_surprise
+        else -> R.drawable.ic_happiness
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 역할 색상 원
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(CircleShape)
+                .background(familyEmotion.color)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = familyEmotion.roleLabel,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextBlack,
+            maxLines = 1
+        )
+        Spacer(Modifier.width(16.dp))
+
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(Modifier.width(10.dp))
+
+        Text(
+            text = familyEmotion.emotion,
+            style = MaterialTheme.typography.bodySmall,
+            color = TextBlack
+        )
+    }
 }

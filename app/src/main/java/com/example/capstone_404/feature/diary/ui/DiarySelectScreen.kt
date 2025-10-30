@@ -31,6 +31,7 @@ import com.example.capstone_404.feature.diary.ui.component.AiFeedbackSection
 import com.example.capstone_404.feature.diary.viewmodel.DiarySelectViewModel
 import com.example.capstone_404.feature.diary.model.DiaryDetail
 import com.example.capstone_404.feature.diary.model.DiarySelectUiState
+import com.example.capstone_404.feature.diary.ui.component.FamilyEmotionsSection
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
@@ -116,6 +117,13 @@ fun DiarySelectScreen(
                                 ResultSectionCard(
                                     title = "감정 분석",
                                     content = { EmotionAnalysisSection(emotions = detail.emotions) }
+                                )
+                            }
+                            item {
+                                ResultSectionCard(
+                                    title = "오늘의 그룹원 감정",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    content = { FamilyEmotionsSection( familyEmotions = detail.familyEmotions) }
                                 )
                             }
                             item {

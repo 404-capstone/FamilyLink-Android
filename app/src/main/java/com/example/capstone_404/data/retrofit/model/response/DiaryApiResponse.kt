@@ -33,7 +33,15 @@ data class DiaryDetailData(
     val userId: Int,
     val diaryAt: String,
     val feedBack: String,
-    val emotions: List<EmotionData>
+    val emotions: List<EmotionData>,
+    val familyEmotion: List<FamilyEmotionData> = emptyList()
+)
+
+// 가족 감정 데이터 Response
+@Serializable
+data class FamilyEmotionData(
+    val userId: Int,
+    val emotion: String
 )
 
 // 감정 분석 데이터 Response

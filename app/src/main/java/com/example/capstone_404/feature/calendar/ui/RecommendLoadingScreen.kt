@@ -26,7 +26,7 @@ import com.example.capstone_404.ui.component.AiMascot
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.dialog.ActionDialog
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.GradientBg
 import com.example.capstone_404.ui.theme.TextBlack
 import java.time.ZoneId
 
@@ -92,6 +92,7 @@ fun RecommendLoadingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(GradientBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp
@@ -106,7 +107,6 @@ fun RecommendLoadingScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Background)
                     .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top

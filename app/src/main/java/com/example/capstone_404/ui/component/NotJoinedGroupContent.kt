@@ -1,6 +1,5 @@
 package com.example.capstone_404.ui.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.ui.theme.Error
-import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
@@ -32,9 +30,9 @@ fun NotJoinedGroupContent(
     ) {
         Card(
             modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(0.5.dp, Stroke),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Column(
                 modifier = Modifier

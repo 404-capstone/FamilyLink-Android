@@ -4,6 +4,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -46,6 +47,7 @@ import com.example.capstone_404.ui.component.DropdownField
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.fab.ExpandableFab
 import com.example.capstone_404.ui.component.fab.ExpandableFabItem
+import com.example.capstone_404.ui.theme.GradientBg
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.utils.RequestCameraPermission
 import com.example.capstone_404.utils.RequestStoragePermission
@@ -195,6 +197,7 @@ fun GroupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(GradientBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

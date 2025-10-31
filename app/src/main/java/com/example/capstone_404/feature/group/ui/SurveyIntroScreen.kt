@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.group.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -20,11 +21,12 @@ import com.example.capstone_404.feature.group.ui.component.OnboardingGuide
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
+import com.example.capstone_404.ui.theme.GradientBg
 
 // 설문 안내 페이지
 @Composable
 fun SurveyIntroScreen(
-onNextPage: () -> Unit
+    onNextPage: () -> Unit
 ) {
     Scaffold(
         topBar = { CustomTopBar(title = "설문 안내") }
@@ -33,6 +35,7 @@ onNextPage: () -> Unit
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(GradientBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

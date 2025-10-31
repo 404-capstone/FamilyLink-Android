@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -88,13 +89,15 @@ fun GroupInputDialog(
                             AsyncImage(
                                 model = initialGroupImage,
                                 contentDescription = "기존 그룹 이미지",
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
                             )
                         } else {
                             Image(
                                 painter = painterResource(id = R.drawable.default_group),
                                 contentDescription = "기본 그룹 이미지",
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
                             )
                         }
 
@@ -102,7 +105,8 @@ fun GroupInputDialog(
                         AsyncImage(
                             model = selectedImageUri,
                             contentDescription = "선택한 그룹 이미지",
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }

@@ -237,7 +237,7 @@ class GroupViewModel @Inject constructor(
                 }
             } else {
                 // 이미지 없는 경우 empty value 전달
-                val imagePart = imageUri?.let { prepareImagePart(appContext, it) }
+                val imagePart = imageUri?.let { prepareImagePart(appContext, it, "image") }
                     ?: MultipartBody.Part.createFormData(
                         name = "image",
                         filename = "",
@@ -290,7 +290,7 @@ class GroupViewModel @Inject constructor(
     fun editGroupInfo(groupId: Int, groupName: String, imageUri: Uri?) {
         viewModelScope.launch {
             isLoading = true
-            val imagePart = imageUri?.let { prepareImagePart(appContext, it) }
+            val imagePart = imageUri?.let { prepareImagePart(appContext, it, "image") }
                 ?: MultipartBody.Part.createFormData(
                     name = "image",
                     filename = "",

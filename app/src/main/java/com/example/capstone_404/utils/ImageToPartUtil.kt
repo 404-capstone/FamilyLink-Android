@@ -9,7 +9,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 // 이미지 uri을 MultipartBody로 변환하는 유틸
-fun prepareImagePart(context: Context, uri: Uri): MultipartBody.Part {
+fun prepareImagePart(context: Context, uri: Uri, partName: String): MultipartBody.Part {
 
     // ContentResolver로 uri에서 스트림 열기
     val contentResolver = context.contentResolver
@@ -31,7 +31,7 @@ fun prepareImagePart(context: Context, uri: Uri): MultipartBody.Part {
     val requestFile = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
 
     // Multipart 형식으로 반환
-    return MultipartBody.Part.createFormData("image", tempFile.name, requestFile)
+    return MultipartBody.Part.createFormData(partName, tempFile.name, requestFile)
 }
 
 // uri에서 파일 이름 추출하는 함수

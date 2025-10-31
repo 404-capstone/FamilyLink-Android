@@ -6,35 +6,40 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.capstone_404.data.repository.AlarmRepository
 import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
 import com.example.capstone_404.navigation.AppNavGraph
 import com.example.capstone_404.ui.theme.Capstone_404Theme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: LoginViewModel by viewModels()
-
-    @Inject
-    lateinit var alarmRepository: AlarmRepository
+    private var navControllerRef: NavHostController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         actionBar?.hide()
         super.onCreate(savedInstanceState)
 
-        // 앱 실행 시 딥링크 확인
-        handleDeepLink(intent)
-
-        // 알림 클릭 처리
-        handleNotificationClick(intent)
-
         setContent {
             Capstone_404Theme {
                 val navController = rememberNavController()
+
+                // NavController를 Activity에서도 쓸 수 있게 저장
+                DisposableEffect(Unit) {
+                    navControllerRef = navController
+                    onDispose { navControllerRef = null }
+                }
+
+                // 앱 시작 시 딥링크 처리
+                LaunchedEffect(Unit) {
+                    navController.handleDeepLink(intent)
+                }
+
                 AppNavGraph(navController)
             }
         }
@@ -43,7 +48,9 @@ class MainActivity : ComponentActivity() {
     // 앱 실행 중 외부에서 딥링크 들어올 때 처리
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         handleDeepLink(intent)
+        navControllerRef?.handleDeepLink(intent)
     }
 
     private fun handleDeepLink(intent: Intent?) {
@@ -60,15 +67,6 @@ class MainActivity : ComponentActivity() {
             } else {
                 Log.e("DeepLink", "SessionId 없음")
             }
-        }
-    }
-
-    // 알림 클릭 처리
-    private fun handleNotificationClick(intent: Intent?) {
-        val type = intent?.getStringExtra("notification_type")
-        if (type != null) {
-            Log.d("FCM", "알림 클릭됨: type=$type")
-            // TODO: 추후 타입별 화면 이동 로직 구현
         }
     }
 }

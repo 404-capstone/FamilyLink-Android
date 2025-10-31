@@ -1,5 +1,6 @@
 package com.example.capstone_404.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.capstone_404.feature.album.ui.AlbumScreen
 import com.example.capstone_404.feature.album.ui.PhotoDetailScreen
 import com.example.capstone_404.feature.album.ui.PhotoEditScreen
@@ -46,6 +48,7 @@ import com.example.capstone_404.feature.group.ui.SurveyResultScreen
 import com.example.capstone_404.feature.login.ui.LoginScreen
 import com.example.capstone_404.feature.login.ui.ProfileInputScreen
 import com.example.capstone_404.feature.login.ui.SplashScreen
+import com.example.capstone_404.feature.login.viewmodel.LoginViewModel
 import com.example.capstone_404.feature.mypage.ui.MyPageScreen
 import com.example.capstone_404.feature.mypage.ui.ProfileEditScreen
 import com.example.capstone_404.navigation.CalendarNavKeys.SELECTED_AREA
@@ -91,10 +94,75 @@ fun AppNavGraph(navController: NavHostController) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            // UI 빌드 테스트 할 때 startDestination = Route.{테스트 UI 경로}로 바꿔서 테스트하고 다시 LOGIN으로 돌려놓으면 됨
             startDestination = Route.SPLASH,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // 알림 딥링크 네비
+            composable(
+                // Todo : {sch_id}뒤에 id 추가
+                route = "launch_router?type={type}&sch_id={sch_id}",
+                arguments = listOf(
+                    navArgument("type") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("sch_id") { type = NavType.IntType; defaultValue = -1 },
+                ),
+                deepLinks = listOf(
+                    navDeepLink { uriPattern = "familylink://launch?type={type}" },
+                    navDeepLink { uriPattern = "familylink://launch?type={type}&sch_id={sch_id}" },
+                    // Todo : 같은 형식으로 딥링크 추가
+                )
+            ) { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("type").orEmpty()
+                val schId = backStackEntry.arguments?.getInt("sch_id") ?: -1
+                // Todo : 같은 형식으로 id 추가
+
+                val loginViewModel: LoginViewModel = hiltViewModel()
+
+                val isLoggedIn = loginViewModel.isLoggedIn.collectAsState(initial = null).value
+
+                // 자동 로그인 체크
+                LaunchedEffect(Unit) {
+                    loginViewModel.checkAutoLogin()
+                }
+
+                LaunchedEffect(isLoggedIn, type, schId) {
+                    when (isLoggedIn) {
+                        true -> {
+                            when {
+                                // 캘린더
+                                type.startsWith("calendar-") -> {
+                                    navController.navigate(Route.CALENDAR) {
+                                        Log.d("deep", "딥링크 이동1")
+                                        popUpTo("launch_router") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                    // 상세 조회
+                                    if (schId != -1 && (type == "calendar-2" || type == "calendar-3")) {
+                                        navController.navigate("schedule_detail/scheduleId=$schId") {
+                                            Log.d("deep", "딥링크 이동2")
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                // Todo : 다이어리, 앨범 추가
+                                else -> {
+                                    navController.navigate(Route.GROUP) {
+                                        popUpTo("launch_router") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                        }
+
+                        false -> {
+                            navController.navigate(Route.LOGIN) {
+                                popUpTo("launch_router") { inclusive = true }
+                            }
+                        }
+
+                        null -> Unit
+                    }
+                }
+            }
             // 스플래시(자동 로그인)
             composable(Route.SPLASH) {
                 SplashScreen(

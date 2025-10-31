@@ -6,6 +6,7 @@ import com.example.capstone_404.data.retrofit.model.response.TokenData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoEditData
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -51,9 +52,9 @@ interface UserApi {
     @Multipart
     @PUT("/user/info/edit")
     suspend fun editUserInfo(
-        @Query("username") username: String,
-        @Query("age") age: Int,
-        @Query("gender") gender: String,
+        @Part("username") username: RequestBody,
+        @Part("age") age: RequestBody,
+        @Part("gender") gender: RequestBody,
         @Part imageFile: MultipartBody.Part
     ): Response<BaseResponse<UserInfoEditData>>
 }

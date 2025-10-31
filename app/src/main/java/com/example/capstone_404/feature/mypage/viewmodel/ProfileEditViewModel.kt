@@ -10,6 +10,7 @@ import com.example.capstone_404.R
 import com.example.capstone_404.data.info.UserInfoManager
 import com.example.capstone_404.data.repository.UserRepository
 import com.example.capstone_404.utils.AgeConverter
+import com.example.capstone_404.utils.prepareImagePart
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -116,11 +117,12 @@ class ProfileEditViewModel @Inject constructor(
 
                 // 이미지 URI를 문자열로 변환
                 val imageString = _selectedImageUri.value?.toString()
-                val imagePart = MultipartBody.Part.createFormData(
-                    name = "image",
-                    filename = "",
-                    body = "".toRequestBody("application/octet-stream".toMediaTypeOrNull())
-                )
+                val imagePart = _selectedImageUri.value?.let { prepareImagePart(context, it, "imageFile") }
+                    ?: MultipartBody.Part.createFormData(
+                        name = "imageFile",
+                        filename = "",
+                        body = "".toRequestBody("application/octet-stream".toMediaTypeOrNull())
+                    )
 
                 // API 호출
                 userRepository.editUserInfo(

@@ -19,6 +19,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class FcmService : FirebaseMessagingService() {
@@ -52,10 +53,13 @@ class FcmService : FirebaseMessagingService() {
         Log.d("FCM", "메시지 수신: title=$title, body=$bodyRaw, type=$type")
 
         val body = parseMessageBody(bodyRaw)
-        Log.d("FCM", "메시지 파싱 완료: title=$title, body=$body, type=$type")
+        val ids = parseIdsFromBody(bodyRaw)
+        val schId = ids["sch_id"]
+        // Todo : 맞춰서 id 추가
+        Log.d("FCM", "메시지 파싱 완료: title=$title, body=$body, ids=$ids, type=$type")
 
         if (title != null && body != null) {
-            sendNotification(title, body, type, remoteMessage.data)
+            sendNotification(title, body, type, remoteMessage.data, schId)
         } else {
             Log.e("FCM", "필수 데이터 누락 - title: $title, body: $body, type=$type")
         }
@@ -85,20 +89,53 @@ class FcmService : FirebaseMessagingService() {
         }
     }
 
+    // body에서 특정 ID 파싱
+    private fun parseIdsFromBody(bodyRaw: String?): Map<String, Int> {
+        if (bodyRaw.isNullOrBlank()) return emptyMap()
+        val idRegex = "\"([a-zA-Z_]+_id)\"\\s*:\\s*\"?(\\d+)\"?".toRegex()
+        return idRegex.findAll(bodyRaw).mapNotNull { result ->
+            val key = result.groupValues[1]
+            val value = result.groupValues[2].toIntOrNull() ?: return@mapNotNull null
+            key to value
+        }.toMap()
+    }
+
     private fun sendNotification(
         title: String,
         messageBody: String,
         type: String?,
-        data: Map<String, String>
+        data: Map<String, String>,
+        schId: Int? = null,
+        // Todo : 맞춰서 id 추가
     ) {
         // Notification ID 생성 (오버플로우 방지)
         val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
 
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            putExtra("notification_type", type)
-            data.forEach { (key, value) ->
-                putExtra(key, value)
+        // type별 딥링크
+        val deepLink: String? = when (type) {
+            // 캘린더
+            "calendar-1", "calendar-2", "calendar-3" -> buildString {
+                append("familylink://launch?type=").append(type)
+                if (schId != null) append("&sch_id=").append(schId)
+            }
+            // Todo : 맞춰서 딥링크 추가
+            else -> null
+        }
+
+        val intent = if (deepLink != null) {
+            Intent(
+                Intent.ACTION_VIEW,
+                deepLink.toUri(),
+                this,
+                MainActivity::class.java
+            ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        } else {
+            Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                putExtra("notification_type", type)
+                data.forEach { (key, value) ->
+                    putExtra(key, value)
+                }
             }
         }
 

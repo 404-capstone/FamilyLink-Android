@@ -10,7 +10,9 @@ import com.example.capstone_404.data.retrofit.model.response.UserInfoData
 import com.example.capstone_404.data.retrofit.model.response.UserInfoEditData
 import com.example.capstone_404.data.retrofit.token.TokenManager
 import com.example.capstone_404.utils.AgeConverter
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -176,7 +178,11 @@ class UserRepositoryImpl @Inject constructor(
         imageFile: MultipartBody.Part
     ): Result<UserInfoEditData> {
         return try {
-            val response = userApi.editUserInfo(username, age, gender, imageFile)
+            val usernamePart = username.toRequestBody("text/plain".toMediaTypeOrNull())
+            val agePart = age.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val genderPart = gender.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = userApi.editUserInfo(usernamePart, agePart, genderPart, imageFile)
 
             if (response.isSuccessful) {
                 response.body()?.data?.let { data ->

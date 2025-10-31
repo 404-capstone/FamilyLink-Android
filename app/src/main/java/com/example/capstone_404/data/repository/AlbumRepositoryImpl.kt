@@ -64,7 +64,7 @@ class AlbumRepositoryImpl @Inject constructor(
         }
 
         return try {
-            val imagePart = prepareImagePart(context, imageUri)
+            val imagePart = prepareImagePart(context, imageUri, "image")
 
             val apiTime = DateTimeUtil.normalizeTimeForApi(photoData.time)
             val response = albumApi.addPhoto(

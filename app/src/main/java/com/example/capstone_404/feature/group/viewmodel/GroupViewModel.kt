@@ -504,7 +504,6 @@ class GroupViewModel @Inject constructor(
     fun shareInviteCode(context: Context) {
         val message = inviteMessage(
             code = _inviteCodeValue.value.toString(),
-            inviteUrl = "",
             downloadUrl = "https://drive.google.com/drive/folders/1hcOJAzULdrHnA3pFcp2hC2Bm-k2QXGZ8?usp=sharing"
         )
 

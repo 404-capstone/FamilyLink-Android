@@ -21,7 +21,7 @@ import com.example.capstone_404.feature.group.ui.component.OnboardingGuide
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
-import com.example.capstone_404.ui.theme.GradientBg
+import com.example.capstone_404.ui.theme.DetailBg
 
 // 설문 안내 페이지
 @Composable
@@ -35,7 +35,7 @@ fun SurveyIntroScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(GradientBg)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

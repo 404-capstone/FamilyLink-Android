@@ -31,7 +31,7 @@ import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.component.bar.NavigationType
-import com.example.capstone_404.ui.theme.GradientBg
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
@@ -69,7 +69,7 @@ fun SurveyListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(GradientBg)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

@@ -36,7 +36,7 @@ import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
 import com.example.capstone_404.ui.component.bar.NavigationType
-import com.example.capstone_404.ui.theme.GradientBg
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
@@ -63,7 +63,7 @@ fun SurveyResultScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(GradientBg)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

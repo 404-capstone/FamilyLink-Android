@@ -32,7 +32,7 @@ import com.example.capstone_404.feature.group.ui.component.RoleItem
 import com.example.capstone_404.feature.group.model.RoleType
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
-import com.example.capstone_404.ui.theme.GradientBg
+import com.example.capstone_404.ui.theme.DetailBg
 
 @Composable
 fun RoleSelectScreen(
@@ -85,7 +85,7 @@ fun RoleSelectScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(GradientBg)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

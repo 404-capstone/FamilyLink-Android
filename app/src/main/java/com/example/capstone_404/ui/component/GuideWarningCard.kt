@@ -1,5 +1,6 @@
 package com.example.capstone_404.ui.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.R
+import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextGray
 
 // 안내 문구 카드
@@ -26,6 +28,7 @@ import com.example.capstone_404.ui.theme.TextGray
 fun GuideWarningCard(text: String) {
     Card(
         shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(0.5.dp, Stroke),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {

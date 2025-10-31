@@ -36,8 +36,8 @@ import com.example.capstone_404.ui.component.ButtonOutline
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
 import com.example.capstone_404.ui.component.bar.NavigationType
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.Error
-import com.example.capstone_404.ui.theme.GradientBg
 import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
@@ -67,7 +67,7 @@ fun InviteCodeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(GradientBg)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

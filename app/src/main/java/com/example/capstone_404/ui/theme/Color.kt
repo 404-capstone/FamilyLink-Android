@@ -25,6 +25,13 @@ val GradientBg = Brush.linearGradient(
         1.0f to Bg1
     )
 )
+val DetailBg  = Brush.linearGradient(
+    colorStops = arrayOf(
+        0.0f to Color.White,
+        0.4f to Color.White,
+        1.0f to Bg1
+    )
+)
 
 // Text
 val TextBlack = Color(0xFF0A121A)

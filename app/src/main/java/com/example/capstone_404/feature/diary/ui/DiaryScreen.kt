@@ -1,6 +1,7 @@
 package com.example.capstone_404.feature.diary.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -27,7 +28,7 @@ import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.component.fab.SingleFab
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.DetailBg
 
 @Composable
 fun DiaryScreen(
@@ -63,13 +64,13 @@ fun DiaryScreen(
                 title = "다이어리",
                 navigationType = NavigationType.NONE
             )
-        },
-        containerColor = Background
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),

@@ -6,6 +6,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -53,10 +54,11 @@ fun AccordionQuestionCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .border(0.5.dp, Stroke, RoundedCornerShape(8.dp))
-            .clip(RoundedCornerShape(8.dp))
             .clickable(onClick = onToggle),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(0.5.dp, Stroke),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier

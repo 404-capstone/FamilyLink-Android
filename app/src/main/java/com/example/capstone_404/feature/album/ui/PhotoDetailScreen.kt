@@ -256,7 +256,7 @@ fun PhotoDetailScreen(
                 sheetDragHandle = {
                     BottomSheetDefaults.DragHandle(color = Stroke)
                 },
-                sheetContainerColor = Color.White,
+                sheetContainerColor = Background,
                 containerColor = Background,
                 sheetContent = {
                     currentPhoto?.let { photo ->
@@ -288,7 +288,7 @@ fun PhotoDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(photoAreaHeight)
-                            .background(Background),
+                            .background(Color.White),
                         contentAlignment = Alignment.Center
                     ) {
                         HorizontalPager(

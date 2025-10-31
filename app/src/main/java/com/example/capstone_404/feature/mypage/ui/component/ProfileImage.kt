@@ -40,7 +40,7 @@ fun ProfileImage(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(0.5.dp, Stroke),
+        border = BorderStroke(1.dp, Stroke),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(

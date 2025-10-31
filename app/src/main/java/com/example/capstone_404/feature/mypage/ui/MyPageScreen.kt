@@ -1,6 +1,7 @@
 package com.example.capstone_404.feature.mypage.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +33,7 @@ import com.example.capstone_404.feature.mypage.viewmodel.MyPageViewModel
 import com.example.capstone_404.feature.mypage.viewmodel.WithdrawState
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.GradientBg
 
 @Composable
 fun MyPageScreen(
@@ -90,13 +91,13 @@ fun MyPageScreen(
                 title = "내 정보",
                 navigationType = NavigationType.NONE
             )
-        },
-        containerColor = Background
+        }
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(GradientBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

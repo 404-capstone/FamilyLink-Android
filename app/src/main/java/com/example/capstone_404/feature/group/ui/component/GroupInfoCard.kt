@@ -1,6 +1,5 @@
 package com.example.capstone_404.feature.group.ui.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -47,8 +47,8 @@ fun GroupInfoCard(
             .fillMaxWidth()
             .padding(bottom = 24.dp, start = 24.dp, end = 24.dp),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(0.5.dp, Stroke),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier
@@ -78,13 +78,15 @@ fun GroupInfoCard(
                     Image(
                         painter = painterResource(id = R.drawable.default_group),
                         contentDescription = "기본 그룹 이미지",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 } else {
                     AsyncImage(
                         model = groupImageUrl,
                         contentDescription = "그룹 이미지",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 }
             }

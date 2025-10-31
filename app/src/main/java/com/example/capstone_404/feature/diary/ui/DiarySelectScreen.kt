@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.diary.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +36,7 @@ import com.example.capstone_404.feature.diary.ui.component.FamilyEmotionsSection
 import com.example.capstone_404.ui.component.dialog.ActionDialog
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
@@ -74,13 +75,13 @@ fun DiarySelectScreen(
                     }
                 }
             )
-        },
-        containerColor = Background
+        }
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = innerPadding.calculateTopPadding())
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 16.dp

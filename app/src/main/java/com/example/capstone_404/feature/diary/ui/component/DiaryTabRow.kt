@@ -9,6 +9,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.capstone_404.feature.diary.model.DiaryTab
 import com.example.capstone_404.ui.theme.TextBlack
@@ -21,6 +22,7 @@ fun DiaryTabRow(
     TabRow(
         selectedTabIndex = selectedTab.ordinal,
         modifier = Modifier.fillMaxWidth(),
+        containerColor = Color.White,
         indicator = { tabPositions ->
             TabRowDefaults.SecondaryIndicator(
                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab.ordinal]),

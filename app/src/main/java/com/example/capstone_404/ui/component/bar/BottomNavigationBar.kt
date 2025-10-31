@@ -29,7 +29,7 @@ fun BottomNavigationBar(
                 color = Stroke,
                 start = Offset(0f, 0f + 0.5f),
                 end = Offset(size.width, 0f + 0.5f),
-                strokeWidth = 1.dp.toPx()
+                strokeWidth = 1.5.dp.toPx()
             )
         }
     ) {
@@ -45,7 +45,7 @@ fun BottomNavigationBar(
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black,
+                    selectedIconColor = Color.White,
                     unselectedIconColor = Stroke,
                     indicatorColor = Main
                 )

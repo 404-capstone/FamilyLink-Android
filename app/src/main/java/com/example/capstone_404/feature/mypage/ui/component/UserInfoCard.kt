@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,7 +27,6 @@ import com.example.capstone_404.R
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
-import com.example.capstone_404.ui.theme.TextGray
 
 @Composable
 fun UserInfoCard(
@@ -42,7 +40,8 @@ fun UserInfoCard(
         modifier = modifier.width(212.dp),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(0.5.dp, Stroke),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier

@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +34,7 @@ import com.example.capstone_404.feature.diary.ui.content.DiaryWriteResultContent
 import com.example.capstone_404.feature.diary.viewmodel.DiaryWriteViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.DetailBg
 
 @Composable
 fun DiaryWriteScreen(
@@ -90,8 +91,7 @@ fun DiaryWriteScreen(
                     }
                 }
             )
-        },
-        containerColor = Background
+        }
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
@@ -100,6 +100,7 @@ fun DiaryWriteScreen(
                     top = innerPadding.calculateTopPadding(),
                     bottom = innerPadding.calculateBottomPadding()
                 )
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 16.dp

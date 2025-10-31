@@ -17,16 +17,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.capstone_404.R
 import com.example.capstone_404.data.retrofit.model.response.RecommendCategory
 import com.example.capstone_404.data.retrofit.model.response.RecommendItem
 import com.example.capstone_404.ui.theme.Main
@@ -43,9 +43,9 @@ fun RecommendCategoryCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White)
-            .border(1.dp, Stroke, RoundedCornerShape(8.dp))
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(8.dp))
+            .border(0.5.dp, Stroke, RoundedCornerShape(8.dp))
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -81,9 +81,9 @@ private fun RecommendItemRow(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.White)
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(8.dp))
                 .border(1.dp, Stroke, RoundedCornerShape(8.dp))
+                .background(Color.White, shape = RoundedCornerShape(8.dp))
                 .clickable { onInfo() }
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -121,13 +121,13 @@ private fun RecommendItemRow(
         }
         Spacer(Modifier.width(16.dp))
         // 선택 토글
-        Icon(
-            painter = painterResource(if (checked) R.drawable.ic_check_circle else R.drawable.ic_close),
-            contentDescription = null,
-            tint = if (checked) Main else Stroke,
-            modifier = Modifier
-                .size(32.dp)
-                .clickable { onToggle() }
+        RadioButton(
+            selected = checked,
+            onClick = onToggle,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = Main,
+                unselectedColor = Stroke
+            )
         )
     }
 }

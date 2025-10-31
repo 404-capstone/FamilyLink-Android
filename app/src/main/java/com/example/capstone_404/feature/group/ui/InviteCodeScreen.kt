@@ -1,6 +1,6 @@
 package com.example.capstone_404.feature.group.ui
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -36,8 +36,8 @@ import com.example.capstone_404.ui.component.ButtonOutline
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
 import com.example.capstone_404.ui.component.bar.NavigationType
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.Error
-import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 
 @Composable
@@ -67,6 +67,7 @@ fun InviteCodeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp
@@ -109,10 +110,10 @@ fun InviteCodeScreen(
                     Card(
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                         modifier = Modifier
                             .width(250.dp)
                             .height(58.dp)
-                            .border(1.dp, Stroke, RoundedCornerShape(8.dp))
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,

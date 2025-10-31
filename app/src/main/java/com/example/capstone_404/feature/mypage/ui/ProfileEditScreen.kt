@@ -3,6 +3,7 @@ package com.example.capstone_404.feature.mypage.ui
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,7 +40,7 @@ import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.DropdownField
 import com.example.capstone_404.ui.component.bar.NavigationType
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextGray
@@ -138,13 +139,13 @@ fun ProfileEditScreen(
                 navigationType = NavigationType.BACK,
                 onNavigationClick = onNavigateBack
             )
-        },
-        containerColor = Background
+        }
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

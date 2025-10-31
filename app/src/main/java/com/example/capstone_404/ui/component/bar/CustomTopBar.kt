@@ -105,7 +105,7 @@ fun CustomTopBar(
                 color = Stroke,
                 start = Offset(0f, size.height - 0.5f),
                 end   = Offset(size.width, size.height - 0.5f),
-                strokeWidth = 1.dp.toPx()
+                strokeWidth = 1.5.dp.toPx()
             )
         }
     )

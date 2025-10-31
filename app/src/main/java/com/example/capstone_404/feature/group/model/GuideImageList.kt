@@ -12,6 +12,7 @@ object GuideImageList {
     )
     val surveyGuide = listOf(
         R.drawable.survey_guide1,
-        R.drawable.survey_guide2
+        R.drawable.survey_guide2,
+        R.drawable.survey_guide3
     )
 }

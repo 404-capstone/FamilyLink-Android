@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.group.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,6 +25,7 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,6 +36,7 @@ import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.GuideWarningCard
 import com.example.capstone_404.ui.component.bar.NavigationType
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
@@ -60,6 +63,7 @@ fun SurveyResultScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp
@@ -104,6 +108,7 @@ fun SurveyResultScreen(
                     Card(
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
@@ -142,7 +147,9 @@ fun SurveyResultScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     // 경계선
                     HorizontalDivider(
-                        modifier = Modifier.clip(RoundedCornerShape(100)),
+                        modifier = Modifier
+                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(100))
+                            .clip(RoundedCornerShape(100)),
                         thickness = 6.dp,
                         color = Main
                     )
@@ -152,6 +159,7 @@ fun SurveyResultScreen(
                     Card(
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(

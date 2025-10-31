@@ -39,7 +39,7 @@ import com.example.capstone_404.feature.diary.ui.component.WriteStepDots
 import com.example.capstone_404.feature.diary.ui.component.WriteTitle
 import com.example.capstone_404.ui.component.AiMascot
 import com.example.capstone_404.ui.component.GuideWarningCard
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.GradientBg
 import com.example.capstone_404.ui.theme.Main
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
@@ -235,7 +235,9 @@ fun DiaryWriteLoadingContent(
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .background(GradientBg)
     ) {
         val horizontalPadding = when {
             maxWidth < 400.dp -> 24.dp
@@ -250,7 +252,6 @@ fun DiaryWriteLoadingContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Background)
                 .padding(horizontal = horizontalPadding, vertical = verticalPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top

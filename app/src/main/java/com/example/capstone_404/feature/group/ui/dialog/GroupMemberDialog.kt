@@ -26,9 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
@@ -98,24 +100,33 @@ fun GroupMemberDialog(
                 // 프로필 이미지
                 Box(
                     modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .background(Stroke),
+                        .border(1.5.dp, Stroke, CircleShape)
+                        .background(Color.White, CircleShape)
+                        .padding(4.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (user.image == null) {
-                        Image(
-                            painter = painterResource(id = getDefaultImage(user.role)),
-                            contentDescription = "기본 그룹 이미지",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        AsyncImage(
-                            model = user.image,
-                            contentDescription = "프로필 이미지",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                            .background(Stroke),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (user.image == null) {
+                            Image(
+                                painter = painterResource(id = getDefaultImage(user.role)),
+                                contentDescription = "기본 그룹 이미지",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            AsyncImage(
+                                model = user.image,
+                                contentDescription = "프로필 이미지",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
 
@@ -127,13 +138,14 @@ fun GroupMemberDialog(
                             modifier = Modifier
                                 .size(16.dp)
                                 .clip(CircleShape)
-                                .background(Stroke)
+                                .background(Color.White)
                                 .border(1.dp, Main, RoundedCornerShape(100)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "나",
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontSize = 10.sp,
                                 color = TextBlack,
                             )
                         }

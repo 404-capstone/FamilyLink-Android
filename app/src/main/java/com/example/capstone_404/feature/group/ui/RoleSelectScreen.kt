@@ -1,15 +1,18 @@
 package com.example.capstone_404.feature.group.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,6 +32,7 @@ import com.example.capstone_404.feature.group.ui.component.RoleItem
 import com.example.capstone_404.feature.group.model.RoleType
 import com.example.capstone_404.feature.group.viewmodel.GroupViewModel
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
+import com.example.capstone_404.ui.theme.DetailBg
 
 @Composable
 fun RoleSelectScreen(
@@ -81,6 +85,7 @@ fun RoleSelectScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp
@@ -97,8 +102,7 @@ fun RoleSelectScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = horizontalPadding, vertical = verticalPadding)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -108,20 +112,28 @@ fun RoleSelectScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                RoleType.entries.forEach { role ->
-                    RoleItem(
-                        role = role,
-                        selected = selectedRole == role,
-                        selectedOrder = selectedOrder,
-                        onSelectRole = { viewModel.updateSelectedRole(role) },
-                        onSelectOrder = { viewModel.updateSelectedOrder(it) }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    contentPadding = PaddingValues(vertical = 12.dp)
+                ) {
+                    items(RoleType.entries) { role ->
+                        RoleItem(
+                            role = role,
+                            selected = selectedRole == role,
+                            selectedOrder = selectedOrder,
+                            onSelectRole = { viewModel.updateSelectedRole(role) },
+                            onSelectOrder = { viewModel.updateSelectedOrder(it) }
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 ButtonDefault(
                     text = "선택 완료",

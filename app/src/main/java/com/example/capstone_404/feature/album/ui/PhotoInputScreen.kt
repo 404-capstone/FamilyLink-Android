@@ -59,7 +59,7 @@ import com.example.capstone_404.feature.album.viewmodel.AlbumViewModel
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.TextBlack
 import com.example.capstone_404.ui.theme.TextGray
 import com.example.capstone_404.utils.RequestStoragePermission
@@ -166,15 +166,15 @@ fun PhotoInputScreen(
                     }
                 }
             )
-        },
-        containerColor = Background
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .imePadding()
-                .verticalScroll(scrollState),
+                .verticalScroll(scrollState)
+                .background(DetailBg),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             photoAddState.selectedImage?.let { imageUri ->

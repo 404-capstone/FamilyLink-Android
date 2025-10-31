@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.calendar.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import com.example.capstone_404.feature.calendar.viewmodel.CalendarViewModel
 import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.TextBlack
 import java.time.ZoneId
 
@@ -68,6 +70,7 @@ fun ActivityRecommendScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp

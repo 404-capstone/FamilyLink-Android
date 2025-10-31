@@ -38,7 +38,7 @@ import com.example.capstone_404.ui.component.ButtonDefault
 import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.dialog.ActionDialog
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.ui.theme.Stroke
 import com.example.capstone_404.ui.theme.TextBlack
 
@@ -98,6 +98,7 @@ fun RecommendResultScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             val horizontalPadding = when {
                 maxWidth < 400.dp -> 24.dp
@@ -112,7 +113,6 @@ fun RecommendResultScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Background)
                     .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)

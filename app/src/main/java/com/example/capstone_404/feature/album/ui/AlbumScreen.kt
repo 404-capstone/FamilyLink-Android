@@ -3,6 +3,7 @@ package com.example.capstone_404.feature.album.ui
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -31,7 +32,7 @@ import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.bar.NavigationType
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.component.fab.SingleFab
-import com.example.capstone_404.ui.theme.Background
+import com.example.capstone_404.ui.theme.DetailBg
 import com.example.capstone_404.utils.RequestStoragePermission
 import java.net.URLEncoder
 
@@ -112,13 +113,13 @@ fun AlbumScreen(
                     )
                 }
             }
-        },
-        containerColor = Background
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),

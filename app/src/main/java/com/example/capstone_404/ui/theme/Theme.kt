@@ -12,7 +12,7 @@ private val LightColorScheme = lightColorScheme(
     background = Background,
     surface = Background,
     onPrimary = TextWhite,
-    onSecondary = TextMain,
+    onSecondary = TextBlack,
     onBackground = TextBlack,
     onSurface = TextBlack
 )

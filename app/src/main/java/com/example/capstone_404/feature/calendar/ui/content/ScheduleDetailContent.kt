@@ -2,7 +2,9 @@ package com.example.capstone_404.feature.calendar.ui.content
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -113,5 +115,6 @@ fun ScheduleDetailContent(
             userIdToRole = userIdToRole,
             currentUserId = userId
         )
+        Spacer(Modifier.height(84.dp))
     }
 }

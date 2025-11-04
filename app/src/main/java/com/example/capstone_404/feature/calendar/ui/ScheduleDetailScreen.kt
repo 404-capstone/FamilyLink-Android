@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -184,7 +186,8 @@ fun ScheduleDetailScreen(
                     }
                 } else null
             )
-        }
+        },
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
@@ -235,7 +238,6 @@ fun ScheduleDetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .imePadding()
                     ) {
                         Column(
                             modifier = Modifier
@@ -244,8 +246,7 @@ fun ScheduleDetailScreen(
                                 .padding(
                                     horizontal = horizontalPadding,
                                     vertical = verticalPadding
-                                )
-                                .padding(bottom = 104.dp),
+                                ),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
@@ -285,8 +286,6 @@ fun ScheduleDetailScreen(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .padding(horizontal = horizontalPadding, vertical = 12.dp)
-                                .imePadding()
-                                .navigationBarsPadding()
                         )
                     }
                 }

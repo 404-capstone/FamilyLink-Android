@@ -86,7 +86,8 @@ fun RecommendLoadingScreen(
                     onDismiss = { showCancelDialog = false }
                 )
             }
-        }
+        },
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier

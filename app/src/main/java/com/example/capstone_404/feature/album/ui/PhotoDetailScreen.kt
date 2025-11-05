@@ -4,10 +4,14 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -238,7 +242,8 @@ fun PhotoDetailScreen(
                     }
                 }
             )
-        }
+        },
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
@@ -257,7 +262,7 @@ fun PhotoDetailScreen(
                     BottomSheetDefaults.DragHandle(color = Stroke)
                 },
                 sheetContainerColor = Background,
-                containerColor = Background,
+                containerColor = Color.White,
                 sheetContent = {
                     currentPhoto?.let { photo ->
                         PhotoDetailBottomSheet(

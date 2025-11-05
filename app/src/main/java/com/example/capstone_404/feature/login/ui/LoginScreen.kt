@@ -58,8 +58,11 @@ fun LoginScreen(
     val userGender by viewModel.userGenderFlow.collectAsState(initial = null)
     val userAge by viewModel.userAgeFlow.collectAsState(initial = null)
 
-    // FCM 토큰 상태
-    var fcmToken by remember { mutableStateOf<String?>(null) }
+    // FCM 토큰 상태 변수
+    val fcmToken by viewModel.fcmToken.collectAsState()
+
+    // SessionId 상태 변수
+    val sessionId by viewModel.tokenManager.sessionIdFlow.collectAsState(initial = "")
 
     // 알림 권한 요청 (Android 13+)
     var showPermissionRequest by remember { mutableStateOf(true) }
@@ -77,22 +80,25 @@ fun LoginScreen(
         )
     }
 
-    // FcmToken 및 SessionId 감지 시 로그인 처리
+    // 앱시작 시 FCM 토큰 획득
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            // FCM 토큰 호출
             try {
-                fcmToken = FirebaseMessaging.getInstance().token.await()
+                val getFcmToken = FirebaseMessaging.getInstance().token.await()
+                viewModel.setFcmToken(getFcmToken)
                 Log.d("LoginScreen", "FCM 토큰 획득 성공")
             } catch (e: Exception) {
                 Log.e("LoginScreen", "FCM 토큰 가져오기 실패: ${e.message}")
+                viewModel.setFcmToken(null)
             }
+        }
+    }
 
-            // SessionId 확인 및 로그인
-            val sessionId = viewModel.tokenManager.getSessionId()
-            if (sessionId.isNotBlank()) {
-                viewModel.loginWithSessionId(sessionId, fcmToken)
-            }
+    // SessionId 감지 시 로그인 처리
+    LaunchedEffect(sessionId) {
+        if (sessionId.isNotBlank()) {
+            Log.d("LoginScreen", "SessionId 감지됨, 로그인 시작")
+            viewModel.loginWithSessionId(sessionId, fcmToken)
         }
     }
 

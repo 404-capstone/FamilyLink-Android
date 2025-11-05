@@ -20,12 +20,15 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.example.capstone_404.data.retrofit.token.TokenManager
 
 @AndroidEntryPoint
 class FcmService : FirebaseMessagingService() {
 
     @Inject
     lateinit var alarmRepository: AlarmRepository
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -33,13 +36,19 @@ class FcmService : FirebaseMessagingService() {
         super.onNewToken(token)
         // 토큰 재갱신 시 서버로 전송
         serviceScope.launch {
-            alarmRepository.refreshFcmToken(token)
-                .onSuccess {
-                    Log.d("FCM", "토큰 갱신 성공")
-                }
-                .onFailure { e ->
-                    Log.e("FCM", "토큰 갱신 실패: ${e.message}")
-                }
+            val isLoggedIn = tokenManager.hasValidToken()
+
+            if (isLoggedIn) {
+                alarmRepository.refreshFcmToken(token)
+                    .onSuccess {
+                        Log.d("FCM", "토큰 갱신 성공")
+                    }
+                    .onFailure { e ->
+                        Log.e("FCM", "토큰 갱신 실패: ${e.message}")
+                    }
+            } else {
+                Log.d("FCM", "로그인 전 상태")
+            }
         }
     }
 

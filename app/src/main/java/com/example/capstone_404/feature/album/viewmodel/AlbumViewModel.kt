@@ -437,6 +437,17 @@ class AlbumViewModel @Inject constructor(
         return null
     }
 
+    // photoId로 년월을 찾아서 자동으로 설정 (딥링크용)
+    fun selectYearMonthByPhotoId(photoId: String) {
+        val yearMonth = findPhotoYearMonth(photoId, _albums.value)
+        if (yearMonth != null) {
+            _selectedYearMonth.value = yearMonth
+            Log.d("AlbumViewModel", "photoId로 년월 자동 설정: photoId=$photoId, yearMonth=$yearMonth")
+        } else {
+            Log.w("AlbumViewModel", "photoId로 년월을 찾을 수 없음: photoId=$photoId")
+        }
+    }
+
     // 특정 사진 조회
     fun getPhotoById(photoId: String): Photo? {
         return findPhotoLocation(photoId)?.photo

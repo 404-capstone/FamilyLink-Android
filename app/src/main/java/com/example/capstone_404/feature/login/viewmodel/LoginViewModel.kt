@@ -50,6 +50,10 @@ class LoginViewModel @Inject constructor(
     private val _isSaved = MutableStateFlow<Boolean?>(null)
     val isSaved: StateFlow<Boolean?> = _isSaved
 
+    // FCM 토큰 상태 관리
+    private val _fcmToken = MutableStateFlow<String?>(null)
+    val fcmToken: StateFlow<String?> = _fcmToken
+
     // 선택된 추가 정보 변수
     var selectedGender by mutableStateOf("")
         private set
@@ -61,6 +65,12 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoggedIn.value = tokenManager.hasValidToken()
         }
+    }
+
+    // FCM 토큰 설정
+    fun setFcmToken(fcmToken: String?) {
+        _fcmToken.value = fcmToken
+        Log.d("LoginViewModel", "FCM 토큰 설정: ${fcmToken?.take(10)}...")
     }
 
     // 소셜 로그인 함수

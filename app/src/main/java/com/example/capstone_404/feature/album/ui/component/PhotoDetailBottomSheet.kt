@@ -50,7 +50,7 @@ fun PhotoDetailBottomSheet(
         // 제목
         Text(
             text = photo.title,
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.SemiBold
             ),
             color = TextBlack
@@ -79,12 +79,12 @@ fun PhotoDetailBottomSheet(
             text = photo.content.ifEmpty { " " },
             style = MaterialTheme.typography.bodyMedium,
             color = TextBlack,
-            minLines = 3
+            minLines = 2
         )
         // 참여자
         Text(
             text = "참여자",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.titleSmall,
             color = TextBlack
         )
 

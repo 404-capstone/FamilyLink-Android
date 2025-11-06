@@ -20,12 +20,15 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.example.capstone_404.data.retrofit.token.TokenManager
 
 @AndroidEntryPoint
 class FcmService : FirebaseMessagingService() {
 
     @Inject
     lateinit var alarmRepository: AlarmRepository
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -33,13 +36,19 @@ class FcmService : FirebaseMessagingService() {
         super.onNewToken(token)
         // 토큰 재갱신 시 서버로 전송
         serviceScope.launch {
-            alarmRepository.refreshFcmToken(token)
-                .onSuccess {
-                    Log.d("FCM", "토큰 갱신 성공")
-                }
-                .onFailure { e ->
-                    Log.e("FCM", "토큰 갱신 실패: ${e.message}")
-                }
+            val isLoggedIn = tokenManager.hasValidToken()
+
+            if (isLoggedIn) {
+                alarmRepository.refreshFcmToken(token)
+                    .onSuccess {
+                        Log.d("FCM", "토큰 갱신 성공")
+                    }
+                    .onFailure { e ->
+                        Log.e("FCM", "토큰 갱신 실패: ${e.message}")
+                    }
+            } else {
+                Log.d("FCM", "로그인 전 상태")
+            }
         }
     }
 
@@ -55,11 +64,13 @@ class FcmService : FirebaseMessagingService() {
         val body = parseMessageBody(bodyRaw)
         val ids = parseIdsFromBody(bodyRaw)
         val schId = ids["sch_id"]
+        val photoId = ids["photo_id"]
+        val gqId = ids["gq_id"]
         // Todo : 맞춰서 id 추가
         Log.d("FCM", "메시지 파싱 완료: title=$title, body=$body, ids=$ids, type=$type")
 
         if (title != null && body != null) {
-            sendNotification(title, body, type, remoteMessage.data, schId)
+            sendNotification(title, body, type, remoteMessage.data, schId, photoId, gqId)
         } else {
             Log.e("FCM", "필수 데이터 누락 - title: $title, body: $body, type=$type")
         }
@@ -106,6 +117,8 @@ class FcmService : FirebaseMessagingService() {
         type: String?,
         data: Map<String, String>,
         schId: Int? = null,
+        photoId: Int? = null,
+        gqId: Int? = null
         // Todo : 맞춰서 id 추가
     ) {
         // Notification ID 생성 (오버플로우 방지)
@@ -119,6 +132,16 @@ class FcmService : FirebaseMessagingService() {
                 if (schId != null) append("&sch_id=").append(schId)
             }
             // Todo : 맞춰서 딥링크 추가
+            // 앨범
+            "album-1" -> buildString {
+                append("familylink://launch?type=").append(type)
+                if (photoId != null) append("&photo_id=").append(photoId)
+            }
+            // 다이어리
+            "diary-1" -> buildString {
+                append("familylink://launch?type=").append(type)
+                if (gqId != null) append("&gq_id=").append(gqId)
+            }
             else -> null
         }
 

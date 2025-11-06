@@ -75,10 +75,9 @@ class TokenManager @Inject constructor(
         }
     }
 
-    // sessionId 반환
-    suspend fun getSessionId(): String {
-        return context.dataStore.data.first()[SESSION_ID_KEY] ?: ""
-    }
+    // sessionId 반환 Flow
+    val sessionIdFlow: Flow<String> = context.dataStore.data
+        .map { prefs -> prefs[SESSION_ID_KEY] ?: "" }
 
     // sessionId 삭제
     suspend fun clearSessionId() {

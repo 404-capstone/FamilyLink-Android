@@ -1,6 +1,8 @@
 package com.example.capstone_404.feature.album.ui
 
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -68,28 +70,61 @@ fun PhotoDetailScreen(
     onNavigateBack: () -> Unit,
     onNavigateToEdit: (String) -> Unit = {}
 ) {
+    BackHandler { onNavigateBack() }
+
     val albums by viewModel.albums.collectAsState()
     val selectedYearMonth by viewModel.selectedYearMonth.collectAsState()
     val groupMembers by viewModel.groupMembers.collectAsState()
+    val isLoading = viewModel.isLoading
     val isDeletingPhoto = viewModel.isDeletingPhoto
     val deleteError = viewModel.deleteError
     val context = LocalContext.current
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    // pagerState 상태
+    var isPagerInitialized by remember { mutableStateOf(false) }
+
+    // 앨범 데이터 로드 및 photoId로 년월 자동 설정 (딥링크용)
+    LaunchedEffect(photoId) {
+        if (albums.isEmpty() && !isLoading) {
+            viewModel.getAllAlbums()
+        }
+    }
+
+    // albums가 로드된 후 photoId로 년월 자동 설정
+    LaunchedEffect(photoId, albums, selectedYearMonth) {
+        if (albums.isEmpty()) {
+            Log.d("PhotoDetailScreen", "albums가 비어있음 - 대기 중")
+            return@LaunchedEffect
+        }
+
+        // 현재 선택된 년월에 해당 photoId가 있는지 확인
+        val currentPhotos = selectedYearMonth?.let { albums[it] } ?: emptyList()
+        val photoExists = currentPhotos.any { it.id == photoId }
+
+        // photoId가 현재 선택된 년월에 없으면 찾아서 설정
+        if (!photoExists) {
+            // 모든 앨범에서 photoId 찾아서 년월 자동 설정
+            Log.d("PhotoDetailScreen", "photoId로 년월 찾기 시작: photoId=$photoId")
+            viewModel.selectYearMonthByPhotoId(photoId)
+        }
+    }
 
     // 현재 앨범의 모든 사진 목록 (최신순 정렬 + ID 내림차순)
     val photos = remember(albums, selectedYearMonth) {
-        selectedYearMonth?.let { yearMonth ->
+        val result = selectedYearMonth?.let { yearMonth ->
             albums[yearMonth]?.sortedWith(
                 compareByDescending<Photo> { it.sortableDateTime }
                     .thenByDescending { it.id.toIntOrNull() ?: 0 }
             ) ?: emptyList()
         } ?: emptyList()
+        result
     }
 
     // 초기 페이지 인덱스 (선택된 사진 ID 기준)
     val initialPage = remember(photos, photoId) {
-        photos.indexOfFirst { it.id == photoId }.takeIf { it >= 0 } ?: 0
+        val targetIndex = photos.indexOfFirst { it.id == photoId }
+        if (targetIndex >= 0) targetIndex else 0
     }
 
     // HorizontalPager 상태
@@ -101,25 +136,35 @@ fun PhotoDetailScreen(
     // 사진 목록 변경 시 pager 상태 동기화
     LaunchedEffect(photos, photoId) {
         val targetIndex = photos.indexOfFirst { it.id == photoId }
-        if (targetIndex >= 0 && targetIndex != pagerState.currentPage) {
-            pagerState.animateScrollToPage(targetIndex)
+        if (targetIndex >= 0) {
+            if (targetIndex != pagerState.currentPage) {
+                pagerState.animateScrollToPage(targetIndex)
+                Log.d("PhotoDetailScreen", "pagerState 업데이트: photoId=$photoId, targetIndex=$targetIndex")
+            }
+            isPagerInitialized = true
         }
     }
 
-    // 현재 사진
-    val currentPhoto by remember {
+    // 현재 사진 찾기
+    val currentPhoto by remember(photos, photoId, isPagerInitialized) {
         derivedStateOf {
-            photos.getOrNull(pagerState.currentPage)
+            val index = pagerState.currentPage
+            val photoAtPage = photos.getOrNull(index)
+
+            val photo = if (!isPagerInitialized) {
+                photos.find { it.id == photoId } ?: photoAtPage
+            } else {
+                photoAtPage
+            }
+            photo
         }
     }
 
     // 현재 사진의 날짜/시간 포맷
-    val currentPhotoDateTime by remember {
-        derivedStateOf {
-            currentPhoto?.let { photo ->
-                DateTimeUtil.formatDateTime(photo.date, photo.time)
-            } ?: "사진 정보"
-        }
+    val currentPhotoDateTime = remember(currentPhoto) {
+        currentPhoto?.let { photo ->
+            DateTimeUtil.formatDateTime(photo.date, photo.time)
+        } ?: "사진 정보"
     }
 
     // BottomSheet 상태
@@ -143,9 +188,31 @@ fun PhotoDetailScreen(
         LoadingDialog("사진을 삭제하는 중...")
     }
 
+    // 앨범 로딩 중일 때 처리
+    if (isLoading && albums.isEmpty()) {
+        Scaffold(
+            topBar = {
+                CustomTopBar(
+                    title = "사진 상세",
+                    navigationType = NavigationType.BACK,
+                    onNavigationClick = onNavigateBack
+                )
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingDialog("사진을 불러오는 중...")
+            }
+        }
+        return
+    }
 
     // 갤러리가 비어있을 때 처리
-    if (photos.isEmpty()) {
+    if (photos.isEmpty() && !isLoading) {
         Scaffold(
             topBar = {
                 CustomTopBar(
@@ -273,7 +340,7 @@ fun PhotoDetailScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
+                                .padding(16.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(

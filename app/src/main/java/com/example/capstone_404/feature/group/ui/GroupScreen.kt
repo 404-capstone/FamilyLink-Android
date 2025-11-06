@@ -162,13 +162,21 @@ fun GroupScreen(
         )
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.refreshGroup()
+    }
+
     // 새로고침 결과 상태
     val refreshStatus by viewModel.refreshStatus.collectAsState()
-    LaunchedEffect(refreshStatus) {
+    var showToast by remember { mutableStateOf(false) }
+    LaunchedEffect(refreshStatus, showToast) {
         when (refreshStatus) {
             true -> {
-                Toast.makeText(context, "그룹 정보를 최신으로 불러왔어요.", Toast.LENGTH_SHORT).show()
-                viewModel.resetRefreshStatus()
+                if(showToast) {
+                    Toast.makeText(context, "그룹 정보를 최신으로 불러왔어요.", Toast.LENGTH_SHORT).show()
+                    viewModel.resetRefreshStatus()
+                    showToast = false
+                }
             }
             false -> {
                 Toast.makeText(context, "새로고침을 실패했어요.\n 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
@@ -185,7 +193,10 @@ fun GroupScreen(
                 navigationType = NavigationType.ONLYRIGHT,
                 rightButton = {
                     IconButton(
-                        onClick = { viewModel.refreshGroup() },
+                        onClick = {
+                            viewModel.refreshGroup()
+                            showToast = true
+                        },
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_refresh),

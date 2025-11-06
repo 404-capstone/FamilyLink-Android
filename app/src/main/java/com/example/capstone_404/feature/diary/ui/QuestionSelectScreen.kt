@@ -1,5 +1,6 @@
 package com.example.capstone_404.feature.diary.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -41,6 +42,8 @@ fun QuestionSelectScreen(
     viewModel: DiarySelectViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = { navController.popBackStack() }
 ) {
+    BackHandler { onNavigateBack() }
+
     val diarySelectState by viewModel.diarySelectState.collectAsState()
 
     // 각 질문의 확장/축소 상태를 관리

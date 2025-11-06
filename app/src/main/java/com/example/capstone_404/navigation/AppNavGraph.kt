@@ -100,19 +100,25 @@ fun AppNavGraph(navController: NavHostController) {
             // 알림 딥링크 네비
             composable(
                 // Todo : {sch_id}뒤에 id 추가
-                route = "launch_router?type={type}&sch_id={sch_id}",
+                route = "launch_router?type={type}&sch_id={sch_id}&photo_id={photo_id}&gq_id={gq_id}",
                 arguments = listOf(
                     navArgument("type") { type = NavType.StringType; defaultValue = "" },
                     navArgument("sch_id") { type = NavType.IntType; defaultValue = -1 },
+                    navArgument("photo_id") { type = NavType.IntType; defaultValue = -1 },
+                    navArgument("gq_id") { type = NavType.IntType; defaultValue = -1 }
                 ),
                 deepLinks = listOf(
                     navDeepLink { uriPattern = "familylink://launch?type={type}" },
                     navDeepLink { uriPattern = "familylink://launch?type={type}&sch_id={sch_id}" },
+                    navDeepLink { uriPattern = "familylink://launch?type={type}&photo_id={photo_id}" },
+                    navDeepLink { uriPattern = "familylink://launch?type={type}&gq_id={gq_id}" }
                     // Todo : 같은 형식으로 딥링크 추가
                 )
             ) { backStackEntry ->
                 val type = backStackEntry.arguments?.getString("type").orEmpty()
                 val schId = backStackEntry.arguments?.getInt("sch_id") ?: -1
+                val photoId = backStackEntry.arguments?.getInt("photo_id") ?: -1
+                val gqId = backStackEntry.arguments?.getInt("gq_id") ?: -1
                 // Todo : 같은 형식으로 id 추가
 
                 val loginViewModel: LoginViewModel = hiltViewModel()
@@ -124,7 +130,7 @@ fun AppNavGraph(navController: NavHostController) {
                     loginViewModel.checkAutoLogin()
                 }
 
-                LaunchedEffect(isLoggedIn, type, schId) {
+                LaunchedEffect(isLoggedIn, type, schId, photoId, gqId) {
                     when (isLoggedIn) {
                         true -> {
                             when {
@@ -143,7 +149,41 @@ fun AppNavGraph(navController: NavHostController) {
                                         }
                                     }
                                 }
+                                // 앨범
+                                type.startsWith("album-") -> {
+                                    navController.navigate(Route.ALBUM) {
+                                        Log.d("deep", "딥링크 이동3")
+                                        popUpTo("launch_router") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                    // 사진 상세 조회
+                                    if (photoId != -1 && type == "album-1") {
+                                        navController.navigate("photo_detail/$photoId") {
+                                            Log.d("deep", "딥링크 이동3: photoId=$photoId")
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                                // 다이어리
+                                type.startsWith("diary-") -> {
+                                    navController.navigate(Route.DIARY) {
+                                        Log.d("deep", "딥링크 이동4")
+                                        popUpTo("launch_router") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                    // 공통 질문 상세 조회
+                                    if (gqId != -1 && type == "diary-1") {
+                                        navController.navigate(Route.QUESTION_SELECT.replace(
+                                            "{questionId}", gqId.toString()
+                                            )
+                                        ) {
+                                            Log.d("deep", "딥링크 이동4: gqId=$gqId")
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
                                 // Todo : 다이어리, 앨범 추가
+
                                 else -> {
                                     navController.navigate(Route.GROUP) {
                                         popUpTo("launch_router") { inclusive = true }

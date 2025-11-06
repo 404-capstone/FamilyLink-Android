@@ -96,9 +96,11 @@ fun LoginScreen(
 
     // SessionId 감지 시 로그인 처리
     LaunchedEffect(sessionId) {
-        if (sessionId.isNotBlank()) {
-            Log.d("LoginScreen", "SessionId 감지됨, 로그인 시작")
-            viewModel.loginWithSessionId(sessionId, fcmToken)
+        withContext(Dispatchers.IO) {
+            if (sessionId.isNotBlank()) {
+                Log.d("LoginScreen", "SessionId 감지됨, 로그인 시작")
+                viewModel.loginWithSessionId(sessionId, fcmToken)
+            }
         }
     }
 

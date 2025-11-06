@@ -160,7 +160,7 @@ private fun EmotionItem(
             modifier = Modifier.size(18.dp)
         )
         Text(
-            text = "${String.format("%.2f", emotion.percentage * 100)}%",
+            text = "${String.format("%.1f", emotion.percentage * 100)}%",
             style = MaterialTheme.typography.bodySmall,
             color = TextBlack
         )

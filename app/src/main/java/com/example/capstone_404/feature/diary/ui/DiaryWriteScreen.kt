@@ -102,8 +102,7 @@ fun DiaryWriteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    top = innerPadding.calculateTopPadding(),
-                    bottom = innerPadding.calculateBottomPadding()
+                    top = innerPadding.calculateTopPadding()
                 )
                 .background(DetailBg)
         ) {

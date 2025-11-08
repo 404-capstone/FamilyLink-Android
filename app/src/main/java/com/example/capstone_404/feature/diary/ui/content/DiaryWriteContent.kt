@@ -285,9 +285,10 @@ fun DiaryWriteResultContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+            .padding(horizontal = horizontalPadding)
             .verticalScroll(rememberScrollState())
     ) {
+        Spacer(Modifier.height(verticalPadding))
         ResultSectionCard(
             title = "다이어리 내용",
             content = {
@@ -325,7 +326,6 @@ fun DiaryWriteResultContent(
                 color = Color.White
             )
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(Modifier.height(verticalPadding))
     }
 }

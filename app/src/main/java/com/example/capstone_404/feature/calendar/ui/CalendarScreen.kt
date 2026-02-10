@@ -1,6 +1,7 @@
 package com.example.capstone_404.feature.calendar.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import com.example.capstone_404.ui.component.bar.CustomTopBar
 import com.example.capstone_404.ui.component.dialog.LoadingDialog
 import com.example.capstone_404.ui.component.fab.ExpandableFab
 import com.example.capstone_404.ui.component.fab.ExpandableFabItem
+import com.example.capstone_404.ui.theme.DetailBg
 
 @Composable
 fun CalendarScreen(
@@ -76,6 +78,7 @@ fun CalendarScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(DetailBg)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(

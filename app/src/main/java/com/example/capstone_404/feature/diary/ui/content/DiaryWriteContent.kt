@@ -60,11 +60,11 @@ fun DiaryWriteStepContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+            .padding(horizontal = horizontalPadding)
             .imePadding()
             .verticalScroll(scrollState)
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(Modifier.height(verticalPadding))
 
         WriteTitle(text = "오늘 하루의 일기를 작성해주세요!")
         // 도움말 카드
@@ -122,7 +122,7 @@ fun DiaryWriteStepContent(
                 color = Color.White
             )
         }
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(Modifier.height(verticalPadding))
     }
 }
 
@@ -142,11 +142,11 @@ fun DiaryWriteQuestionContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+            .padding(horizontal = horizontalPadding)
             .imePadding()
             .verticalScroll(scrollState)
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(Modifier.height(verticalPadding))
 
         WriteTitle(text = "질문에 대한 본인의 생각을 작성해주세요!")
         // 도움말 카드
@@ -225,7 +225,7 @@ fun DiaryWriteQuestionContent(
                 color = Color.White
             )
         }
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(Modifier.height(verticalPadding))
     }
 }
 

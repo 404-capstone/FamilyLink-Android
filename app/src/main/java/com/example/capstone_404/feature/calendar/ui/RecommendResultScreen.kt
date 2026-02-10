@@ -96,13 +96,11 @@ fun RecommendResultScreen(
                     onAddSchedules()
                 }
             )
-        },
-        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
+        }
     ) { innerPadding ->
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(DetailBg)
         ) {
             val horizontalPadding = when {
@@ -120,7 +118,8 @@ fun RecommendResultScreen(
                     .fillMaxSize()
                     .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = innerPadding
             ) {
                 item {
                     Text(
